@@ -131,6 +131,9 @@
   .mu-cnt{margin-left:auto;font-size:12px;color:var(--ink-faint);font-weight:600}
   .mu-place{text-align:center;color:var(--ink-faint);padding:32px 16px;border:1px dashed var(--line);border-radius:14px;font-size:14px}
   .spr{width:30px;height:26px;object-fit:contain;vertical-align:middle;flex:0 0 auto;filter:drop-shadow(0 1px 1px rgba(0,0,0,.4))}
+  .fgrp{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:8px}
+  .fgrp .flex{cursor:pointer}
+  .ftag{font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--acc2);background:var(--panel2);border:1px solid var(--line);padding:2px 9px;border-radius:20px}
   .mon-tag .spr{margin:-3px 1px -3px -2px}
 
   .btnrow{display:flex;align-items:flex-end;gap:6px}
@@ -183,6 +186,23 @@
   @media(max-width:400px){
     .tcard .statline{grid-template-columns:repeat(3,1fr)}
   }
+  /* ---- Ép giao diện thủ công (nút 📱/🖥) ---- */
+  body.force-mobile .wrap{max-width:480px;margin:0 auto}
+  body.force-mobile .grid{grid-template-columns:1fr!important}
+  body.force-mobile .row>*{flex:1 1 46%!important;min-width:130px!important;max-width:100%}
+  body.force-mobile .between{flex-wrap:wrap;gap:8px}
+  body.force-mobile .tabs{flex-wrap:nowrap;overflow-x:auto}
+  body.force-mobile .team-grid{grid-template-columns:1fr!important}
+  body.force-mobile #calcTable th:nth-child(3),body.force-mobile #calcTable td:nth-child(3),
+  body.force-mobile #calcTable th:nth-child(4),body.force-mobile #calcTable td:nth-child(4),
+  body.force-mobile #calcTable th:nth-child(7),body.force-mobile #calcTable td:nth-child(7){display:none}
+  body.force-desktop .grid{grid-template-columns:repeat(2,1fr)!important}
+  body.force-desktop .row>*{flex:1 1 auto!important;min-width:0!important}
+  body.force-desktop .team-grid{grid-template-columns:repeat(3,1fr)!important}
+  body.force-desktop .tabs{flex-wrap:wrap;overflow-x:visible}
+  body.force-desktop .statline{grid-template-columns:repeat(6,1fr)!important}
+  body.force-desktop #calcTable th,body.force-desktop #calcTable td{display:table-cell!important}
+  body.force-desktop .logo small{display:inline!important}
 
   /* team cards */
   .team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
@@ -216,6 +236,7 @@
       <button class="tab" data-view="dex">Pokédex</button>
     </nav>
     <div class="io">
+      <button id="layoutBtn" title="Chuyển giao diện điện thoại / máy tính">📱 ĐT</button>
       <button id="exportBtn" title="Lưu ra file JSON">Xuất</button>
       <button id="importBtn" title="Nạp từ file JSON">Nhập</button>
       <input type="file" id="importFile" accept="application/json" style="display:none">
@@ -351,16 +372,33 @@
   </div>
 
   <div class="panel" style="margin-top:14px">
-    <h2>Điều kiện sân</h2>
+    <h2>Điều kiện sân (Field)</h2>
     <div class="row">
       <div><label class="f">Thời tiết</label><select id="weather"><option value="none">Không</option><option value="sun">Nắng</option><option value="rain">Mưa</option><option value="sand">Cát</option><option value="snow">Tuyết</option></select></div>
+      <div><label class="f">Địa hình (Terrain)</label><select id="terrain"><option value="none">Không</option><option value="electric">Electric ⚡ (+Điện)</option><option value="grassy">Grassy 🌿 (+Cỏ, −EQ)</option><option value="psychic">Psychic 🔮 (+Siêu Linh)</option><option value="misty">Misty 🌫️ (−Rồng)</option></select></div>
       <div><label class="f">Kiểu trận</label><select id="mode"><option value="single">Đấu đơn</option><option value="double">Đấu đôi</option></select></div>
       <div><label class="f">Crit</label><select id="crit"><option value="0">Không</option><option value="1">×1.5</option></select></div>
       <div><label class="f">Bỏng (tấn công)</label><select id="burn"><option value="0">Không</option><option value="1">Bỏng ½ VL</option></select></div>
       <div><label class="f">Màn chắn thủ</label><select id="screen"><option value="0">Không</option><option value="0.5">Screen — Singles ×0.5</option><option value="0.667">Screen — Doubles ×⅔</option></select></div>
-      <div style="flex:0 0 auto;display:flex;align-items:flex-end;gap:10px"><label class="flex tiny" style="cursor:pointer"><input type="checkbox" id="aura"> Fairy Aura</label><label class="flex tiny" style="cursor:pointer"><input type="checkbox" id="hh"> Helping Hand ×1.5</label></div>
     </div>
+    <div class="divider"></div>
+    <div class="fgrp">
+      <span class="ftag">Aura</span>
+      <label class="flex tiny"><input type="checkbox" id="aura"> Fairy Aura (Tiên ×1.33)</label>
+      <label class="flex tiny"><input type="checkbox" id="auraDark"> Dark Aura (Bóng Tối ×1.33)</label>
+      <label class="flex tiny"><input type="checkbox" id="auraBreak"> Aura Break (đảo →×0.75)</label>
+      <label class="flex tiny"><input type="checkbox" id="hh"> Helping Hand ×1.5</label>
+    </div>
+    <div class="fgrp">
+      <span class="ftag">Ruinous (Tai Ương −25%)</span>
+      <label class="flex tiny"><input type="checkbox" id="rSword"> Sword (Chien-Pao · −Def)</label>
+      <label class="flex tiny"><input type="checkbox" id="rBeads"> Beads (Chi-Yu · −SpD)</label>
+      <label class="flex tiny"><input type="checkbox" id="rVessel"> Vessel (Ting-Lu · −SpA)</label>
+      <label class="flex tiny"><input type="checkbox" id="rTablets"> Tablets (Wo-Chien · −Atk)</label>
+    </div>
+    <div class="hint" style="margin-top:6px">Aura/Ruinous tự bật khi con tấn công/phòng thủ có ability tương ứng; tick thêm nếu có con thứ 3 trên sân (đánh đôi).</div>
   </div>
+
 
   <div class="panel" style="margin-top:14px">
     <h2>Bảng damage</h2>
@@ -718,7 +756,13 @@ function buildMon(cfg,weather){
   const fx=ABIL_FX[ability]||{};
   if(fx.spdWx2 && fx.spdWx2===weather)spe=spe*2;
   S.speEff=spe;
-  return {species,baseSpecies:cfg.species,types:d.t,base:d.s,w:d.w||50,ability,item:cfg.item||'Không',nature:cfg.nature,S,est:d.est,mega,fx};
+  const mon={species,baseSpecies:cfg.species,types:d.t,base:d.s,w:d.w||50,ability,item:cfg.item||'Không',nature:cfg.nature,S,est:d.est,mega,fx};
+  // Stance Change: khi tấn công dùng chỉ số công của dạng Blade
+  if(ability==='Stance Change' && !/-Blade$/.test(species)){
+    const bn=species+'-Blade';
+    if(DEX[bn]){const bd=DEX[bn];mon.bladeAtk=calcStat(bd.s[1],sp.atk,cfg.nature,'atk');mon.bladeSpa=calcStat(bd.s[3],sp.spa,cfg.nature,'spa');mon.stance=1;}
+  }
+  return mon;
 }
 
 function calcDamage(atk,def,moveName,field){
@@ -739,7 +783,7 @@ function calcDamage(atk,def,moveName,field){
   if(m.wratio){const r=(atk.w||50)/(def.w||50);bp=r>=5?120:r>=4?100:r>=3?80:r>=2?60:40;}
   if(bp===0)return null;
 
-  let A=isPhys?(m.useDef?atk.S.def:atk.S.atk):atk.S.spa;
+  let A=isPhys?(m.useDef?atk.S.def:(atk.bladeAtk||atk.S.atk)):(atk.bladeSpa||atk.S.spa);
   let D=(isPhys||m.vsDef)?def.S.def:def.S.spd;
   if(m.acro&&(!atk.item||atk.item==='Không'))bp=bp*2; // Acrobatics không cầm đồ
   const ai=ITEMS[atk.item]||{}, di=ITEMS[def.item]||{};
@@ -749,6 +793,12 @@ function calcDamage(atk,def,moveName,field){
   if(!isPhys&&!m.vsDef&&di.spdMult)D=Math.floor(D*di.spdMult);
   A=Math.floor(A*(isPhys?(field.stA||1):(field.stS||1)));
   D=Math.floor(D*((isPhys||m.vsDef)?(field.stD||1):(field.stSd||1)));
+  // Ruinous (Tai Ương) — hạ 25% chỉ số của con KHÁC; con giữ ability được miễn
+  const aRuin=atk.ability,dRuin=def.ability,dIsDef=(isPhys||m.vsDef);
+  if(isPhys && (field.rTablets||dRuin==='Tablets of Ruin') && aRuin!=='Tablets of Ruin')A=Math.floor(A*0.75);
+  if(!isPhys && (field.rVessel||dRuin==='Vessel of Ruin') && aRuin!=='Vessel of Ruin')A=Math.floor(A*0.75);
+  if(dIsDef && (field.rSword||aRuin==='Sword of Ruin') && dRuin!=='Sword of Ruin')D=Math.floor(D*0.75);
+  if(!dIsDef && (field.rBeads||aRuin==='Beads of Ruin') && dRuin!=='Beads of Ruin')D=Math.floor(D*0.75);
 
   let e=(def.ability==='Levitate'&&mtype==='Ground')?0:eff(mtype,def.types);
   if(di.balloon&&mtype==='Ground')e=0; // Air Balloon
@@ -767,7 +817,17 @@ function calcDamage(atk,def,moveName,field){
   if(!isPhys&&ai.specDmg)other*=ai.specDmg;
   if(ai.seDmg&&e>1)other*=ai.seDmg;
   if(ateBoost!==1)other*=ateBoost;
-  if(field.aura&&mtype==='Fairy')other*=1.33;
+  if((field.aura&&mtype==='Fairy')||(field.auraDark&&mtype==='Dark'))other*=field.auraBreak?0.75:1.33;
+  // Terrain (địa hình) — chỉ áp cho con đứng đất
+  if(field.terrain&&field.terrain!=='none'){
+    const grd=m=>!(m.types.includes('Flying')||m.ability==='Levitate');
+    const aG=grd(atk)&&!(ai.balloon), dG=grd(def)&&!(di.balloon);
+    if(field.terrain==='electric'&&aG&&mtype==='Electric')other*=1.3;
+    else if(field.terrain==='grassy'&&aG&&mtype==='Grass')other*=1.3;
+    else if(field.terrain==='psychic'&&aG&&mtype==='Psychic')other*=1.3;
+    if(field.terrain==='misty'&&dG&&mtype==='Dragon')other*=0.5;
+    if(field.terrain==='grassy'&&dG&&['Earthquake','Bulldoze','Magnitude'].includes(moveName))other*=0.5;
+  }
   if(field.hh)other*=1.5; // Helping Hand
   if(field.screen>0)other*=field.screen;
   if(di.resist===mtype&&e>1)other*=0.5; // Chople giảm ½ đòn giác đấu hiệu quả
@@ -999,6 +1059,19 @@ function typeFind(){
 }
 typeFindInit();
 $('#clearOppBtn').onclick=()=>{if(!OPP.length){toast('Chưa có đối thủ nào.');return;}arm($('#clearOppBtn'),'Bấm lần nữa để xoá!',()=>{OPP=[];saveOpp();renderOpp();syncPicks();$('#selectOut').innerHTML='';toast('Đã xoá team đối thủ.');});};
+(function(){
+  const b=document.body,btn=$('#layoutBtn');if(!btn)return;
+  let mode=localStorage.getItem('champ_layout')||'auto';
+  function apply(){
+    b.classList.remove('force-mobile','force-desktop');
+    if(mode==='mobile')b.classList.add('force-mobile');
+    else if(mode==='desktop')b.classList.add('force-desktop');
+    btn.textContent=mode==='mobile'?'📱 ĐT':mode==='desktop'?'🖥 PC':'🔄 Tự động';
+    btn.title='Giao diện: '+(mode==='mobile'?'Điện thoại':mode==='desktop'?'Máy tính':'Tự động theo màn hình')+' — bấm để đổi';
+  }
+  btn.onclick=()=>{mode=mode==='auto'?'mobile':mode==='mobile'?'desktop':'auto';try{localStorage.setItem('champ_layout',mode);}catch(e){}apply();toast('Giao diện: '+(mode==='mobile'?'Điện thoại':mode==='desktop'?'Máy tính':'Tự động'));};
+  apply();
+})();
 function addOpp(name){
   if(!DEX[name]||OPP.length>=6)return;
   OPP.push({species:name,item:'Không',moves:[]});saveOpp();renderOpp();
@@ -1310,6 +1383,25 @@ function counterHint(cfg){
   return `<div class="stat-mini" style="margin-top:6px;padding:6px 9px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--ink)">💡 Gợi ý chọn <b style="color:var(--good)">${b.name}</b> (${scope}) — khắc chế ${cfg.species} tốt nhất <span style="color:var(--muted)">(⚔${dd}% / 🛡${rv}%${b.faster?' · ▲ nhanh hơn':''})</span></div>`;
 }
 
+const FORME_PAIRS=[
+  ['Aegislash','Aegislash-Blade','Khiên · thủ','Kiếm · công'],
+  ['Palafin','Palafin-Hero','Thường','Hero'],
+  ['Meloetta','Meloetta-Pirouette','Aria','Pirouette'],
+  ['Darmanitan','Darmanitan-Zen','Thường','Zen'],
+  ['Darmanitan-Galar','Darmanitan-Galar-Zen','Galar','Galar-Zen'],
+  ['Zacian','Zacian-Crowned','Thường','Vương miện'],
+  ['Zamazenta','Zamazenta-Crowned','Thường','Vương miện'],
+  ['Wishiwashi','Wishiwashi-School','Cá đơn','Đàn cá'],
+  ['Minior','Minior-Meteor','Lõi','Thiên thạch'],
+  ['Eiscue','Eiscue-Noice','Mặt băng','Mặt vỡ']
+];
+const FORME_ALT={};FORME_PAIRS.forEach(p=>{FORME_ALT[p[0]]={alt:p[1],me:p[2],other:p[3]};FORME_ALT[p[1]]={alt:p[0],me:p[3],other:p[2]};});
+function formeToggle(side,species){
+  const f=FORME_ALT[species];if(!f)return '';
+  return `<div class="stat-mini" style="margin-top:6px;padding:6px 9px;background:var(--panel2);border:1px solid var(--line);border-radius:8px">🔄 Dạng hiện tại: <b style="color:var(--acc2)">${f.me}</b> <button class="btn ghost sm" style="margin-left:6px;padding:2px 9px" onclick="swapForme('${side}','${f.alt}')">⇄ Đổi sang ${f.other}</button></div>`;
+}
+window.swapForme=function(side,alt){setPick(side,'dex:'+alt);};
+
 function loadCalcSide(side){
   const val=$('#'+side+'Pick').value; const cfg=resolvePick(val);
   const d=DEX[cfg.species];
@@ -1324,7 +1416,9 @@ function loadCalcSide(side){
     const fx=ABIL_FX[cfg.ability||d.ab[0]]||{};if(fx.weather)$('#weather').value=fx.weather;
     ATK_MOVES=(cfg.moves&&cfg.moves.length)?cfg.moves.slice():null;
     const fromTeamA=val.startsWith('set:');
-    $('#atkInfo').innerHTML = (cfg.moves&&cfg.moves.length?`<div class="stat-mini" style="margin-top:6px">Chiêu set: ${cfg.moves.join(' · ')}</div>`:'') + (fromTeamA?'':counterHint(cfg)) + (d.est?`<div class="warn-box" style="margin-top:8px">⚠️ ${cfg.species}: chỉ số ước lượng — sửa ở Pokédex.</div>`:'');
+    const amon=buildMon(cfg,$('#weather').value);
+    const stanceNote=(amon&&amon.stance)?`<div class="stat-mini" style="margin-top:6px;color:var(--acc2)">⚔ Stance Change: khi tấn công tự dùng chỉ số công dạng Blade (Atk ${amon.bladeAtk}/SpA ${amon.bladeSpa}); khi thủ vẫn là bulk Shield.</div>`:'';
+    $('#atkInfo').innerHTML = (cfg.moves&&cfg.moves.length?`<div class="stat-mini" style="margin-top:6px">Chiêu set: ${cfg.moves.join(' · ')}</div>`:'') + formeToggle('atk',cfg.species) + stanceNote + (fromTeamA?'':counterHint(cfg)) + (d.est?`<div class="warn-box" style="margin-top:8px">⚠️ ${cfg.species}: chỉ số ước lượng — sửa ở Pokédex.</div>`:'');
   }else{
     fillNatures($('#defNat'),cfg.nature||'Serious');
     fillItems($('#defItem'),cfg.item||'Không');
@@ -1332,7 +1426,7 @@ function loadCalcSide(side){
     $('#defDefSp').value=cfg.sp&&cfg.sp.def!=null?cfg.sp.def:0;
     $('#defSpdSp').value=cfg.sp&&cfg.sp.spd!=null?cfg.sp.spd:0;
     const fromTeamD=val.startsWith('set:');
-    $('#defInfo').innerHTML=(fromTeamD?'':counterHint(cfg))+(d.est?`<div class="warn-box" style="margin-top:8px">⚠️ ${cfg.species}: chỉ số ước lượng.</div>`:'');
+    $('#defInfo').innerHTML=formeToggle('def',cfg.species)+(fromTeamD?'':counterHint(cfg))+(d.est?`<div class="warn-box" style="margin-top:8px">⚠️ ${cfg.species}: chỉ số ước lượng.</div>`:'');
   }
   runCalc();
 }
@@ -1344,7 +1438,7 @@ function runCalc(){
   acfg.sp=Object.assign({},acfg.sp,{atk:+$('#atkAtkSp').value,spa:+$('#atkSpaSp').value});
   const dcfg=resolvePick(dv);dcfg.nature=$('#defNat').value;dcfg.item=$('#defItem').value;
   dcfg.sp=Object.assign({},dcfg.sp,{hp:+$('#defHpSp').value,def:+$('#defDefSp').value,spd:+$('#defSpdSp').value});
-  const field={weather:$('#weather').value,spread:($('#mode').value==='double'?1:0),crit:+$('#crit').value,burn:+$('#burn').value,screen:+$('#screen').value,aura:$('#aura').checked,hh:$('#hh').checked,
+  const field={weather:$('#weather').value,terrain:$('#terrain').value,spread:($('#mode').value==='double'?1:0),crit:+$('#crit').value,burn:+$('#burn').value,screen:+$('#screen').value,aura:$('#aura').checked,auraDark:$('#auraDark').checked,auraBreak:$('#auraBreak').checked,rSword:$('#rSword').checked,rBeads:$('#rBeads').checked,rVessel:$('#rVessel').checked,rTablets:$('#rTablets').checked,hh:$('#hh').checked,
     stA:+$('#stA').value,stS:+$('#stS').value,stD:+$('#stD').value,stSd:+$('#stSd').value};
   const A=buildMon(acfg,field.weather),D=buildMon(dcfg,field.weather);if(!A||!D)return;
 
@@ -1412,8 +1506,8 @@ const STAGE_OPTS=[
 const stageOptsHtml=sel=>STAGE_OPTS.map(o=>opt(o.v,o.l,o.v===sel)).join('');
 $$('.stageSel').forEach(el=>{el.innerHTML=stageOptsHtml(1);});
 $('#swapBtn').onclick=()=>{const a=$('#atkPick').value,d=$('#defPick').value;setPick('atk',d);setPick('def',a);};
-['atkNat','atkAbil','atkItem','stA','stS','stD','stSd','atkAtkSp','atkSpaSp','defNat','defItem','defHpSp','defDefSp','defSpdSp','weather','mode','crit','burn','screen'].forEach(id=>$('#'+id).addEventListener('input',runCalc));
-$('#aura').addEventListener('change',runCalc);
+['atkNat','atkAbil','atkItem','stA','stS','stD','stSd','atkAtkSp','atkSpaSp','defNat','defItem','defHpSp','defDefSp','defSpdSp','weather','terrain','mode','crit','burn','screen'].forEach(id=>$('#'+id).addEventListener('input',runCalc));
+['aura','auraDark','auraBreak','rSword','rBeads','rVessel','rTablets'].forEach(id=>$('#'+id).addEventListener('change',runCalc));
 $('#hh').addEventListener('change',runCalc);
 wireCalcSearch('atk');wireCalcSearch('def');
 
