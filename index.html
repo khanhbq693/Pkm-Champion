@@ -1146,10 +1146,12 @@ $('#analyzeBtn').onclick=()=>{
      <div class="grid" style="grid-template-columns:repeat(2,1fr)">
        ${picked.map((p,i)=>`<div class="rec-card"><div class="between"><b>${i+1}. ${p.set.species}${isMegaSet(p.set)?' <span class="pill" style="background:#2a2410;color:var(--acc2)">MEGA</span>':''}</b><span class="pill" style="background:#12312e;color:#57d977">${p.avg.toFixed(2)}</span></div>
          <div style="margin:6px 0">${typeChips(DEX[p.set.species].t,1)} <span class="stat-mini">Spe ${p.mon.S.speEff}</span></div>
+         ${ohkoLine(p)}
          <div class="tiny muted">${bestVsWorst(p)}</div></div>`).join('')}
      </div>
      <div class="divider"></div>
      <div class="flex"><span class="pill" style="background:#2a2410;color:var(--acc2)">DẪN ĐẦU</span><b>${lead.set.species}</b> — matchup TB tốt & đủ nhanh.</div>
+     <div class="hint" style="margin-top:6px">💥 <b>OHKO</b> = đòn mạnh nhất của mình hạ gục 1 nhát (≥100% máu) · ☠️ <b>Bị OHKO</b> = con đó hạ gục mình 1 nhát · <b style="color:var(--acc)">▲</b> = bên đó ra đòn trước.</div>
      ${trNote}
    </div>
    <div class="panel" style="margin-top:14px"><h2>Ma trận đối đầu <span class="muted tiny" style="text-transform:none;letter-spacing:0;margin-left:auto">⚔ % dmg đòn mạnh nhất mình gây · 🛡 % dmg nhận lại · ▲ mình nhanh hơn</span></h2>${mtx}
@@ -1185,6 +1187,23 @@ function renderSpeedTier(){
   $('#twMe').onclick=()=>{TW.me=!TW.me;MYTEAM.forEach((_,i)=>SPDB['me:'+i]=TW.me?2:1);renderSpeedTier();};
   $('#twOpp').onclick=()=>{TW.opp=!TW.opp;OPP.forEach((_,j)=>SPDB['opp:'+j]=TW.opp?2:1);renderSpeedTier();};
   $('#twReset').onclick=()=>{SPDB={};TW={me:false,opp:false};renderSpeedTier();};
+}
+function ohkoLine(p){
+  const ko=[],risk=[];
+  OPP.forEach((o,j)=>{const r=p.per[j];
+    if(r.dealt>=100)ko.push({n:o.species,pct:r.dealt,fast:r.faster,mv:r.dealtMove});
+    if(r.recv>=100)risk.push({n:o.species,fast:!r.faster});
+  });
+  let h='';
+  if(ko.length){
+    ko.sort((a,b)=>b.pct-a.pct);
+    h+=`<div class="tiny" style="margin:4px 0;color:var(--good)">💥 <b>OHKO</b>: ${ko.map(k=>`${spriteImg(k.n)}<span title="${k.mv} — ${Math.round(k.pct)}% máu">${k.n}${k.fast?' <b style="color:var(--acc)">▲</b>':''}</span>`).join(' · ')}</div>`;
+  }
+  if(risk.length){
+    h+=`<div class="tiny" style="margin:4px 0;color:var(--bad)">☠️ <b>Bị OHKO</b>: ${risk.map(k=>`${spriteImg(k.n)}<span>${k.n}${k.fast?' <b style="color:var(--bad)">▲</b>':''}</span>`).join(' · ')}</div>`;
+  }
+  if(!h)h='<div class="tiny muted" style="margin:4px 0">Không bên nào OHKO bên nào.</div>';
+  return h;
 }
 function bestVsWorst(p){let best=null,worst=null;OPP.forEach((o,j)=>{const r=p.per[j];if(!best||r.score>best.s)best={o:o.species,s:r.score};if(!worst||r.score<worst.s)worst={o:o.species,s:r.score};});return `Khắc tốt: <b style="color:var(--good)">${best.o}</b> · Ngại: <b style="color:var(--bad)">${worst.o}</b>`;}
 
