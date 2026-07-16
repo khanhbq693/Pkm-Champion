@@ -189,13 +189,22 @@
   /* Bên tấn công / phòng thủ luôn cùng 1 hàng, kể cả mobile */
   @media(max-width:800px){
     #adGrid{grid-template-columns:1fr 1fr!important;gap:8px}
-    #adGrid .row>*{flex:1 1 100%!important;min-width:0!important}
-    #adGrid .panel{padding:11px 9px}
+    #adGrid .panel{padding:11px 8px}
     #adGrid h2{font-size:15px}
+    #adGrid .row{gap:6px}
+    #adGrid .row>*{flex:1 1 100%!important;min-width:0!important}
+    #adGrid .stageSel,#adGrid select,#adGrid input{width:100%}
+    /* buff Atk+SpA (và Def+SpD) đứng cạnh nhau 2 ô/hàng */
+    #adGrid .buff-row .buffcell{flex:1 1 46%!important;min-width:0!important}
+    /* SP: 2 ô (tấn công) hoặc 3 ô (thủ) cùng 1 dòng */
+    #adGrid .sp-row>*{flex:1 1 0!important;min-width:0!important;text-align:center}
   }
   body.force-mobile #adGrid{grid-template-columns:1fr 1fr!important;gap:8px}
+  body.force-mobile #adGrid .panel{padding:11px 8px}
   body.force-mobile #adGrid .row>*{flex:1 1 100%!important;min-width:0!important}
-  body.force-mobile #adGrid .panel{padding:11px 9px}
+  body.force-mobile #adGrid .stageSel,body.force-mobile #adGrid select,body.force-mobile #adGrid input{width:100%}
+  body.force-mobile #adGrid .buff-row .buffcell{flex:1 1 46%!important;min-width:0!important}
+  body.force-mobile #adGrid .sp-row>*{flex:1 1 0!important;min-width:0!important;text-align:center}
   /* ---- Ép giao diện thủ công (nút 📱/🖥) ---- */
   body.force-mobile .wrap{max-width:480px;margin:0 auto}
   body.force-mobile .grid{grid-template-columns:1fr!important}
@@ -343,14 +352,14 @@
         <div><label class="f">Nature</label><select id="atkNat"></select></div>
         <div><label class="f">Ability</label><select id="atkAbil"></select></div>
       </div>
-      <div class="row" style="margin-top:10px">
+      <div class="row buff-row" style="margin-top:10px">
         <div><label class="f">Item</label><select id="atkItem"></select></div>
-        <div style="flex:0 0 105px"><label class="f">Buff Atk</label><select id="stA" class="stageSel"></select></div>
-        <div style="flex:0 0 105px"><label class="f">Buff SpA</label><select id="stS" class="stageSel"></select></div>
+        <div class="buffcell" style="flex:0 0 105px"><label class="f">Buff Atk</label><select id="stA" class="stageSel"></select></div>
+        <div class="buffcell" style="flex:0 0 105px"><label class="f">Buff SpA</label><select id="stS" class="stageSel"></select></div>
       </div>
       <div class="divider"></div>
       <label class="f">SP tấn công</label>
-      <div class="row">
+      <div class="row sp-row">
         <div><span class="stat-mini">Atk</span><input type="number" id="atkAtkSp" min="0" max="32" value="32"></div>
         <div><span class="stat-mini">SpA</span><input type="number" id="atkSpaSp" min="0" max="32" value="0"></div>
       </div>
@@ -364,15 +373,15 @@
       <input type="hidden" id="defPick">
       <div id="defSug" class="sug"></div>
       <div id="defInfo"></div>
-      <div class="row" style="margin-top:10px">
+      <div class="row buff-row" style="margin-top:10px">
         <div><label class="f">Nature</label><select id="defNat"></select></div>
         <div><label class="f">Item</label><select id="defItem"></select></div>
-        <div style="flex:0 0 105px"><label class="f">Buff Def</label><select id="stD" class="stageSel"></select></div>
-        <div style="flex:0 0 105px"><label class="f">Buff SpD</label><select id="stSd" class="stageSel"></select></div>
+        <div class="buffcell" style="flex:0 0 105px"><label class="f">Buff Def</label><select id="stD" class="stageSel"></select></div>
+        <div class="buffcell" style="flex:0 0 105px"><label class="f">Buff SpD</label><select id="stSd" class="stageSel"></select></div>
       </div>
       <div class="divider"></div>
       <label class="f">SP thủ</label>
-      <div class="row">
+      <div class="row sp-row">
         <div><span class="stat-mini">HP</span><input type="number" id="defHpSp" min="0" max="32" value="0"></div>
         <div><span class="stat-mini">Def</span><input type="number" id="defDefSp" min="0" max="32" value="0"></div>
         <div><span class="stat-mini">SpD</span><input type="number" id="defSpdSp" min="0" max="32" value="0"></div>
@@ -604,7 +613,7 @@ const MOVES_DEFAULT={
  'Will-O-Wisp':{t:'Fire',c:'stat',bp:0},'Thunder Wave':{t:'Electric',c:'stat',bp:0},'Taunt':{t:'Dark',c:'stat',bp:0},
  'Tailwind':{t:'Flying',c:'stat',bp:0},'Parting Shot':{t:'Dark',c:'stat',bp:0},'Baton Pass':{t:'Normal',c:'stat',bp:0},'Encore':{t:'Normal',c:'stat',bp:0},'Tickle':{t:'Normal',c:'stat',bp:0},
  // ---- bổ sung ----
- 'Focus Blast':{t:'Fighting',c:'spec',bp:120},'Superpower':{t:'Fighting',c:'phys',bp:120},'Mach Punch':{t:'Fighting',c:'phys',bp:40,pri:1},'Drain Punch':{t:'Fighting',c:'phys',bp:75},'Body Press':{t:'Fighting',c:'phys',bp:80,useDef:1},
+ 'Focus Blast':{t:'Fighting',c:'spec',bp:120},'Superpower':{t:'Fighting',c:'phys',bp:120},'Mach Punch':{t:'Fighting',c:'phys',bp:40,pri:1},'Drain Punch':{t:'Fighting',c:'phys',bp:75},'Body Press':{t:'Fighting',c:'phys',bp:80,useDef:1},'Foul Play':{t:'Dark',c:'phys',bp:95,foul:1},'Psystrike':{t:'Psychic',c:'spec',bp:100,vsDef:1},'Secret Sword':{t:'Fighting',c:'spec',bp:85,vsDef:1},
  'Thunder Punch':{t:'Electric',c:'phys',bp:75},'Volt Tackle':{t:'Electric',c:'phys',bp:120,recoil:.33},'Rising Voltage':{t:'Electric',c:'spec',bp:70,note:'×2 trong Electric Terrain'},'Wild Charge':{t:'Electric',c:'phys',bp:90,recoil:.25},'Electroweb':{t:'Electric',c:'spec',bp:55,spread:1},'Nuzzle':{t:'Electric',c:'phys',bp:20},
  'Ice Punch':{t:'Ice',c:'phys',bp:75},'Icicle Crash':{t:'Ice',c:'phys',bp:85},'Icy Wind':{t:'Ice',c:'spec',bp:55,spread:1},'Freeze-Dry':{t:'Ice',c:'spec',bp:70,fd:1},
  'Fire Punch':{t:'Fire',c:'phys',bp:75},'Burning Jealousy':{t:'Fire',c:'spec',bp:70,spread:1},'Fiery Dance':{t:'Fire',c:'spec',bp:80},
@@ -686,7 +695,13 @@ const store={get(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):(
 let DEX=store.get('champ4_dex')||clone(DEX_DEFAULT);
 let MOVES=Object.assign({},AUTOMOVES,MOVES_DEFAULT,store.get('champ4_moves')||{});
 function reapplySpread(){Object.keys(AUTOMOVES).forEach(n=>{if(AUTOMOVES[n].spread&&MOVES[n])MOVES[n].spread=1;});}
-reapplySpread();
+function fixSpecialMoves(){
+  const set=(n,k)=>{if(MOVES[n])MOVES[n][k]=1;};
+  set('Foul Play','foul');                 // dùng Atk đối thủ
+  set('Body Press','useDef');              // dùng Def người đánh
+  ['Psyshock','Psystrike','Secret Sword'].forEach(n=>set(n,'vsDef')); // đánh vào Def
+}
+reapplySpread();fixSpecialMoves();
 let MYTEAM=store.get('champ3_team')||clone(MYTEAM_DEFAULT);
 let OPP=store.get('champ3_opp')||[];
 function saveDex(){store.set('champ4_dex',DEX);store.set('champ4_moves',MOVES);}
@@ -793,15 +808,15 @@ function calcDamage(atk,def,moveName,field){
   if(m.wratio){const r=(atk.w||50)/(def.w||50);bp=r>=5?120:r>=4?100:r>=3?80:r>=2?60:40;}
   if(bp===0)return null;
 
-  let A=isPhys?(m.useDef?atk.S.def:(atk.bladeAtk||atk.S.atk)):(atk.bladeSpa||atk.S.spa);
+  let A=m.foul?def.S.atk:(isPhys?(m.useDef?atk.S.def:(atk.bladeAtk||atk.S.atk)):(atk.bladeSpa||atk.S.spa));
   let D=(isPhys||m.vsDef)?def.S.def:def.S.spd;
   if(m.acro&&(!atk.item||atk.item==='Không'))bp=bp*2; // Acrobatics không cầm đồ
   const ai=ITEMS[atk.item]||{}, di=ITEMS[def.item]||{};
-  if(isPhys&&ai.atkMult)A=Math.floor(A*ai.atkMult);
+  if(isPhys&&ai.atkMult&&!m.foul)A=Math.floor(A*ai.atkMult);
   if(!isPhys&&ai.spaMult)A=Math.floor(A*ai.spaMult);
-  if(atk.fx.atkX2&&isPhys)A=A*2; // Huge Power
+  if(atk.fx.atkX2&&isPhys&&!m.foul&&!m.useDef)A=A*2; // Huge Power (không áp cho Body Press/Foul Play)
   if(!isPhys&&!m.vsDef&&di.spdMult)D=Math.floor(D*di.spdMult);
-  A=Math.floor(A*(isPhys?(field.stA||1):(field.stS||1)));
+  if(!m.foul&&!m.useDef)A=Math.floor(A*(isPhys?(field.stA||1):(field.stS||1))); // buff công (Body Press/Foul Play dùng chỉ số riêng)
   D=Math.floor(D*((isPhys||m.vsDef)?(field.stD||1):(field.stSd||1)));
   // Ruinous (Tai Ương) — hạ 25% chỉ số của con KHÁC; con giữ ability được miễn
   const aRuin=atk.ability,dRuin=def.ability,dIsDef=(isPhys||m.vsDef);
@@ -1569,7 +1584,7 @@ window.saveMove=(old)=>{const name=$('#vName').value.trim();if(!name)return;cons
   if(old&&old!==name)delete MOVES[old];MOVES[name]=o;saveDex();modalClose();refreshAll();};
 window.delMove=(n)=>{delete MOVES[n];saveDex();modalClose();refreshAll();toast(`Đã xoá chiêu ${n}.`);};
 $('#addMonBtn').onclick=()=>editMon(null);$('#addMoveBtn').onclick=()=>editMove(null);
-$('#resetDexBtn').onclick=()=>arm($('#resetDexBtn'),'Bấm lần nữa để reset!',()=>{DEX=clone(DEX_DEFAULT);MOVES=Object.assign({},AUTOMOVES,MOVES_DEFAULT);reapplySpread();MYTEAM=clone(MYTEAM_DEFAULT);saveDex();saveTeam();refreshAll();toast('Đã khôi phục Pokédex, chiêu và đội mặc định.');});
+$('#resetDexBtn').onclick=()=>arm($('#resetDexBtn'),'Bấm lần nữa để reset!',()=>{DEX=clone(DEX_DEFAULT);MOVES=Object.assign({},AUTOMOVES,MOVES_DEFAULT);reapplySpread();fixSpecialMoves();MYTEAM=clone(MYTEAM_DEFAULT);saveDex();saveTeam();refreshAll();toast('Đã khôi phục Pokédex, chiêu và đội mặc định.');});
 
 /* =========================================================================
    XUẤT / NHẬP
