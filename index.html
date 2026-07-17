@@ -244,6 +244,21 @@
   body.force-mobile .oc-stats .lbl,body.force-mobile .oc-stats .sp{font-size:10px}
   body.force-mobile .oc-tgl{padding:5px 8px;font-size:11px}
   body.force-mobile .oc-stg button{width:20px;height:20px}
+  /* Ma trận Tôi→Đối thủ */
+  .mtx-table .mtx-h{padding:7px 8px;font-size:12px}
+  .mtx-table .mtx-mv{padding:7px 10px}
+  .mtx-table .mtx-c{padding:6px 8px}
+  .mtx-table .mtx-pct{font-size:13px}
+  .mtx-table .mtx-ko{font-size:11px}
+  .mtx-compact{table-layout:fixed}
+  .mtx-compact .mtx-h{padding:4px 1px;font-size:9.5px;word-break:break-word}
+  .mtx-compact .mtx-h .spr{width:22px;height:20px}
+  .mtx-compact .mtx-mv{padding:4px 4px;font-size:10.5px;width:52px}
+  .mtx-compact .mtx-c{padding:3px 1px}
+  .mtx-compact .mtx-pct{font-size:9.5px;line-height:1.15}
+  .mtx-compact .mtx-ko{font-size:8.5px}
+  .mtx-compact .est{padding:0 2px;font-size:8px;border-radius:3px}
+  .mtx-compact .stat-mini{font-size:8.5px}
   body.force-mobile #adGrid .row>*{flex:1 1 100%!important;min-width:0!important}
   body.force-mobile #adGrid .stageSel,body.force-mobile #adGrid select,body.force-mobile #adGrid input{width:100%}
   body.force-mobile #adGrid .buff-row .buffcell{flex:1 1 46%!important;min-width:0!important}
@@ -1186,7 +1201,7 @@ $('#clearOppBtn').onclick=()=>{if(!OPP.length){toast('Chưa có đối thủ nà
     btn.textContent=mode==='mobile'?'📱 ĐT':mode==='desktop'?'🖥 PC':'🔄 Tự động';
     btn.title='Giao diện: '+(mode==='mobile'?'Điện thoại':mode==='desktop'?'Máy tính':'Tự động theo màn hình')+' — bấm để đổi';
   }
-  btn.onclick=()=>{mode=mode==='auto'?'mobile':mode==='mobile'?'desktop':'auto';try{localStorage.setItem('champ_layout',mode);}catch(e){}apply();toast('Giao diện: '+(mode==='mobile'?'Điện thoại':mode==='desktop'?'Máy tính':'Tự động'));};
+  btn.onclick=()=>{mode=mode==='auto'?'mobile':mode==='mobile'?'desktop':'auto';try{localStorage.setItem('champ_layout',mode);}catch(e){}apply();toast('Giao diện: '+(mode==='mobile'?'Điện thoại':mode==='desktop'?'Máy tính':'Tự động'));if(typeof CALC_MODE!=='undefined'&&CALC_MODE==='me'&&typeof renderMyToOpp==='function')renderMyToOpp();};
   apply();
 })();
 function addOpp(name){
@@ -1487,6 +1502,8 @@ function renderMyToOpp(){
   const pool=PICK.length?PICK:MYTEAM.map((_,i)=>i);
   if(!pool.length){box.innerHTML='<div class="mu-place">Chưa có Pokémon trong đội.</div>';return;}
   const field=readField();
+  const compact=document.body.classList.contains('force-mobile')||(window.matchMedia&&window.matchMedia('(max-width:800px)').matches&&!document.body.classList.contains('force-desktop'));
+  const shortKo=t=>t.replace(' chắc','').replace('≥4 đòn','4+').replace('≥','').replace(' đòn','đ');
   const opps=OPP.map(o=>({o,cfg:oppCfgOf(o),mon:buildMon(oppCfgOf(o),field.weather)}));
   const buffOpts=[[-2,'−2'],[-1,'−1'],[0,'×1'],[1,'+1 ×1.5'],[2,'+2 ×2'],[3,'+3 ×2.5'],[4,'+4 ×3'],[6,'+6 ×4']];
   let html='<div class="hint" style="margin-bottom:10px">Chỉ số mình: từ set đã lưu · đối thủ: spread hay gặp. ▲ = mình ra đòn trước. Buff = cấp tăng công (Atk/SpA) của con mình.</div>';
@@ -1502,28 +1519,30 @@ function renderMyToOpp(){
         <span class="stat-mini">Spe ${my.S.speEff}</span>
         <label class="stat-mini" style="margin-left:auto;display:flex;align-items:center;gap:4px">Buff công <select class="mtx-buff" data-i="${i}" style="padding:3px 6px;font-size:12px">${buffOpts.map(([v,l])=>`<option value="${v}"${v===st?' selected':''}>${l}</option>`).join('')}</select></label>
       </div>
-      <div class="scroll"><table class="mtx-table" style="width:100%;border-collapse:collapse">
+      <div class="scroll"><table class="mtx-table${compact?' mtx-compact':''}" style="width:100%;border-collapse:collapse">
         <thead><tr><th style="text-align:left;padding:7px 10px;font-size:12px;color:var(--muted)">Chiêu</th>`;
     opps.forEach(op=>{
       const faster=my.S.speEff>op.mon.S.speEff, tie=my.S.speEff===op.mon.S.speEff;
       const arrow=tie?'':(faster?' <b style="color:var(--good)">▲</b>':' <b style="color:var(--bad)">▼</b>');
-      html+=`<th style="padding:7px 8px;font-size:12px;text-align:center">${spriteImg(op.o.species)}<br>${op.o.species}${arrow}</th>`;
+      const nm=compact?op.o.species.slice(0,7):op.o.species;
+      html+=`<th class="mtx-h" style="text-align:center">${spriteImg(op.o.species)}<br>${nm}${arrow}</th>`;
     });
     html+='</tr></thead><tbody>';
     if(!moves.length){
       html+=`<tr><td colspan="${opps.length+1}" class="stat-mini" style="padding:10px;text-align:center">Con này chưa nhập chiêu tấn công (mở tab Đội của tôi để thêm).</td></tr>`;
     }
     moves.forEach(mv=>{
-      html+=`<tr><td style="padding:7px 10px;font-weight:600;border-top:1px solid var(--line)">${mv}</td>`;
+      html+=`<tr><td class="mtx-mv" style="font-weight:600;border-top:1px solid var(--line)">${mv}</td>`;
       opps.forEach(op=>{
         const r=calcDamage(my,op.mon,mv,f2);
-        if(!r||r.eff===0){html+=`<td style="text-align:center;padding:7px 8px;border-top:1px solid var(--line)"><span class="stat-mini">Miễn nhiễm</span></td>`;return;}
+        if(!r||r.eff===0){html+=`<td class="mtx-c" style="text-align:center;border-top:1px solid var(--line)"><span class="stat-mini">Miễn<br>nhiễm</span></td>`;return;}
         const h=koLabel(r);
         const col={ohko:'#ff6b6b',likely:'#ffb454',slow:'#e8d24a',safe:'#8fd9a0','':'#b9c2d0'}[h.cls]||'#b9c2d0';
         const bg={ohko:'#2a1414',likely:'#2a1e10',slow:'#232010',safe:'#122a1c','':'transparent'}[h.cls]||'transparent';
-        html+=`<td title="${mv} vào ${op.o.species}: ${r.pctMin.toFixed(1)}–${r.pctMax.toFixed(1)}%" style="text-align:center;padding:6px 8px;border-top:1px solid var(--line);background:${bg};line-height:1.3">
-          <div style="color:${col};font-weight:700;font-size:13px">${r.pctMin.toFixed(1)}–${r.pctMax.toFixed(1)}% ${effBadge(r.eff)}</div>
-          <div class="stat-mini" style="color:${col};opacity:.85">${h.t}</div></td>`;
+        const pct=compact?`${Math.round(r.pctMin)}–${Math.round(r.pctMax)}%`:`${r.pctMin.toFixed(1)}–${r.pctMax.toFixed(1)}%`;
+        html+=`<td class="mtx-c" title="${mv} vào ${op.o.species}: ${r.pctMin.toFixed(1)}–${r.pctMax.toFixed(1)}%" style="text-align:center;border-top:1px solid var(--line);background:${bg};line-height:1.25">
+          <div class="mtx-pct" style="color:${col};font-weight:700">${pct} ${effBadge(r.eff)}</div>
+          <div class="mtx-ko" style="color:${col};opacity:.85">${compact?shortKo(h.t):h.t}</div></td>`;
       });
       html+='</tr>';
     });
