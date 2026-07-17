@@ -1132,7 +1132,7 @@ function renderOpp(){
       return `<div><div class="lbl ${up?'up':dn?'dn':''}">${SPLBL[ki]}${up?'⁺':dn?'⁻':''}</div><div class="val">${d.disp[k]}</div><div class="sp">${d.g.sp[k]||0}</div></div>`;}).join('');
     const stg=SPKEYS.map(k=>{if(k==='hp')return '<div class="cell"></div>';const n=(o.stages&&o.stages[k])||0;
       return `<div class="cell"><button data-act="stg" data-k="${k}" data-d="-1" data-i="${i}">−</button><span class="n ${n>0?'pos':n<0?'neg':''}">${n>0?'+'+n:n}</span><button data-act="stg" data-k="${k}" data-d="1" data-i="${i}">+</button></div>`;}).join('');
-    const moves=(o.moves&&o.moves.length?o.moves:(usageOf(o.species)?usageOf(o.species).m.filter(m=>MOVES[m]).slice(0,4):[]));
+    const moves=(o.moves&&o.moves.length?o.moves:(usageOf(o.species)?usageOf(o.species).m.filter(m=>MOVES[m]):[]));
     const moveChips=moves.length?`<div class="oc-tgls" style="margin:8px 0 0">${moves.map(m=>`<span class="pill" style="background:var(--panel);border:1px solid var(--line)">${m}</span>`).join('')}</div>`:'';
     return `<div class="opp-card" data-i="${i}">
       <div class="oc-head">${spriteImg(d.eff)}<b>${d.eff}</b>${o.item&&o.item!=='Không'?`<span class="stat-mini">@ ${o.item}</span>`:''}<span class="oc-x" data-act="del" data-i="${i}" title="Xoá">✕</span></div>
@@ -1714,9 +1714,12 @@ function runCalc(){
   let results=moveList.map(m=>calcDamage(A,D,m,field)).filter(Boolean).sort((a,b)=>b.pctMax-a.pctMax);
   let truncNote='';
   if(fromLearnset&&results.length>18){
-    const hidden=results.slice(18).map(r=>r.move);
-    truncNote=` · <span class="muted">Ẩn ${hidden.length} chiêu yếu hơn: ${hidden.join(', ')}.</span>`;
-    results=results.slice(0,18);
+    const keep=results.slice(0,18);
+    const extra=results.slice(18).filter(r=>MOVES[r.move]&&MOVES[r.move].pri>0); // luôn giữ chiêu ưu tiên
+    const hidden=results.slice(18).filter(r=>!extra.includes(r)).map(r=>r.move);
+    results=[...keep,...extra];
+    if(hidden.length)truncNote=` · <span class="muted">Ẩn ${hidden.length} chiêu yếu hơn: ${hidden.slice(0,12).join(', ')}${hidden.length>12?'…':''}.</span>`;
+    if(extra.length)truncNote=` · <span class="stat-mini" style="color:var(--acc2)">Giữ ${extra.length} chiêu ưu tiên.</span>`+truncNote;
   }
 
   const spdCmp=A.S.speEff>D.S.speEff?`<span class="pill" style="background:#12312e;color:#57d977">Tôi nhanh hơn (+${A.S.speEff-D.S.speEff})</span>`:A.S.speEff<D.S.speEff?`<span class="pill" style="background:#3a1a1a;color:#ff9d9d">Chậm hơn (−${D.S.speEff-A.S.speEff})</span>`:`<span class="pill" style="background:#242a35;color:#b9c2d0">Bằng speed</span>`;
