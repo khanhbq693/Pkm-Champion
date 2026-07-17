@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Implementation Notes — Champions Cố Vấn</title>
+<style>
+  :root{
+    --bg:#0d1017; --panel:#151a24; --panel2:#1b2230; --line:#28303f;
+    --ink:#e7ecf3; --ink-dim:#93a0b4; --ink-faint:#5f6b7d;
+    --acc:#4dd0c8; --acc2:#f6c945; --good:#57d977; --bad:#ff6b6b; --warn:#ffb454;
+    --mono:'DM Mono','SFMono-Regular',ui-monospace,Menlo,Consolas,monospace;
+    --sans:'Inter',system-ui,'Segoe UI',Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.6;padding:0 0 60px}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 18px}
+  header{border-bottom:1px solid var(--line);background:linear-gradient(180deg,#121722,#0d1017);padding:26px 0;margin-bottom:26px}
+  h1{margin:0;font-size:23px;letter-spacing:-.02em}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-dim);margin:32px 0 12px;
+     padding-bottom:7px;border-bottom:1px solid var(--line)}
+  h1 small{display:block;color:var(--ink-faint);font-size:13px;font-weight:400;letter-spacing:0;margin-top:6px}
+  code{font-family:var(--mono);font-size:.9em;background:var(--panel2);border:1px solid var(--line);
+       border-radius:4px;padding:1px 5px;color:var(--acc)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+  th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint)}
+  tr:last-child td{border-bottom:none}
+  .card{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--acc);
+        border-radius:10px;padding:13px 16px;margin:11px 0}
+  .card.warn{border-left-color:var(--warn)}
+  .card.bad{border-left-color:var(--bad)}
+  .card.good{border-left-color:var(--good)}
+  .card h3{margin:0 0 6px;font-size:14.5px}
+  .card p{margin:6px 0}
+  .tag{display:inline-block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;
+       padding:2px 8px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);color:var(--ink-dim)}
+  .tag.new{color:var(--good);border-color:#2a5a44} .tag.chg{color:var(--acc2);border-color:#5a4620}
+  .tag.del{color:var(--bad);border-color:#5a2a2a} .tag.keep{color:var(--acc);border-color:#2a5a5a}
+  .muted{color:var(--ink-faint)}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>Implementation Notes — Champions Cố Vấn
+    <small>Tái cấu trúc giao diện sang bố cục 3 cột kiểu Porygon Labs · 17/07/2026</small></h1>
+</div></header>
+
+<div class="wrap">
+
+<h2>Đợt 3 — Aura tự tắt, Single Target, Speed order hiện dạng Mega</h2>
+
+<div class="card good">
+  <h3>Fairy Aura: sửa 2 lỗi cùng lúc <span class="tag new">sửa bug</span></h3>
+  <p>Code cũ chỉ có đúng một dòng: <code>if(d.ab.includes('Fairy Aura'))$('#aura').checked=true;</code> — kéo theo 2 lỗi:</p>
+  <table>
+    <thead><tr><th style="width:32%">Lỗi</th><th>Hậu quả thật</th></tr></thead>
+    <tbody>
+      <tr><td>Chỉ <b>bật</b>, không bao giờ tắt</td>
+          <td>Chọn Floette (Mega) một lần là <code>#aura</code> dính <code>checked</code> vĩnh viễn. Đổi sang Great Tusk, Mawile… mọi chiêu hệ Tiên vẫn ăn ×1.33 <b>của con đã rời sân</b> — sai âm thầm, không dấu hiệu gì trên giao diện.</td></tr>
+      <tr><td>Chỉ xét <b>bên tấn công</b></td>
+          <td>Aura là hiệu ứng <i>sân</i>: có con nào mang ability là áp cho chiêu của cả hai bên. Đối thủ Floette/Xerneas đứng ở ô <b>phòng thủ</b> thì aura không bao giờ bật.</td></tr>
+    </tbody>
+  </table>
+  <p>Nay <code>syncAura()</code> đồng bộ <b>2 chiều</b> theo ability thật của <b>cả bên công lẫn bên thủ</b>, chạy mỗi lần đổi Pokémon.
+  Trong Champions, Fairy Aura thuộc về <b>Floette (Mega)</b>, <b>Xerneas</b> và <b>Xerneas-Neutral</b> — đổi sang bất kỳ con nào khác là tự tắt.</p>
+</div>
+<div class="card warn">
+  <h3>Làm luôn cho Dark Aura &amp; Aura Break — và cái giá của nó</h3>
+  <p>Ba ability này là cùng một cơ chế nên <code>syncAura()</code> xử lý cả ba (trước đây Dark Aura và Aura Break
+  <b>không tự bật</b> gì cả, dù dòng hint dưới ngăn Nâng cao vẫn ghi là có — tức giao diện hứa một đằng, code làm một nẻo).</p>
+  <p><b>Đánh đổi:</b> ngăn Nâng cao cho phép tick tay khi có <i>con thứ 3</i> mang aura trên sân (đánh đôi). Tick tay đó nay sẽ
+  <b>bị ghi đè</b> ngay khi bạn đổi Pokémon ở một trong hai ô. Đã sửa dòng hint để nói rõ: muốn tick tay thì tick <i>sau</i> khi
+  đã chọn xong cả 2 bên. Đây là hệ quả trực tiếp của yêu cầu “tự động tắt” — không thể vừa tự động theo Pokémon vừa giữ nguyên ý người dùng.</p>
+</div>
+<div class="card">
+  <h3>Single Target là <b>ô ghi đè thủ công</b>, không tự suy ra</h3>
+  <p>Tick vào thì chiêu lan bỏ phạt ×0.75: <code>(field.spread &amp;&amp; spread &amp;&amp; !field.single) ? 0.75 : 1</code>.</p>
+  <p>Tool <b>không biết</b> trên sân đối phương còn mấy con sống — nó không mô phỏng trận đấu. Nên đây là ô để <i>bạn</i> khai báo
+  tình huống “đối thủ chỉ còn 1 con / con kia Protect”. Chỉ có tác dụng khi đang <b>Đấu đôi</b>; ở Đấu đơn thì phạt lan vốn đã không áp,
+  tick hay không cũng vậy. Nhãn trong bảng đổi theo (<span class="muted">lan ×0.75</span> → <span style="color:var(--good)">lan · 1 mục tiêu</span>) để không phải đoán ô có đang ăn không.</p>
+</div>
+<div class="card">
+  <h3>Speed order: dòng “nếu đổi dạng”</h3>
+  <p>Mỗi đối thủ nay đẻ thêm dòng cho <b>mọi dạng Mega</b> của loài đó dù chưa bấm bật — vì Mega đổi Spe rất mạnh
+  (Beedrill 139 → Mega 216) và cần biết trước mình còn ra đòn trước hay không. Nếu đối thủ <i>đang</i> ở dạng Mega thì dạng gốc
+  hiện ngược lại thành dòng giả định, để so 2 chiều.</p>
+  <table>
+    <tbody>
+      <tr><td style="width:32%">Làm mờ + viền đứt</td><td>Để không nhầm với dạng đang <i>thật sự</i> đứng sân.</td></tr>
+      <tr><td>Không có nút −/+ trên dòng giả định</td><td>Cùng một con thì chỉ có một cấp buff; để 2 ô sửa cho cùng một giá trị là mời gọi nhầm lẫn. Buff vẫn <b>lan</b> sang dòng giả định (Lopunny +1 Spe → 172 và 307 cùng nhảy).</td></tr>
+      <tr><td>Bỏ item trên dòng Mega</td><td>Muốn Mega thì phải cầm đá Mega → không thể đang cầm Choice Scarf. Beedrill cầm Scarf: dòng thật 208, dòng Mega 216 — <b>không</b> phải 324 như khi cứ nhân bừa Scarf vào.</td></tr>
+    </tbody>
+  </table>
+  <p class="muted"><b>Đánh đổi:</b> bảng dài thêm. 6 đối thủ toàn loài có Mega (Charizard có 2 dạng) thì thêm tới ~8–12 dòng.
+  Panel speed order tự cuộn trong khung nên không phá bố cục 1 màn hình.</p>
+</div>
+
+<h2>Đợt 2 — Buff về 2 rìa, bỏ ô giữa, nén vừa 1 màn hình</h2>
+<div class="card good">
+  <h3>Gộp 3 hệ thống buff rời rạc thành 1 <span class="tag new">sửa bug nặng</span></h3>
+  <p>Trước đợt này, cấp buff/nerf chỉ số tồn tại ở <b>ba</b> nơi độc lập, không nơi nào biết nơi nào:</p>
+  <table>
+    <thead><tr><th style="width:30%">Nơi</th><th>Ảnh hưởng thật</th></tr></thead>
+    <tbody>
+      <tr><td><code>#stA/#stS/#stD/#stSd</code> (select ở giữa)</td><td>Nguồn <b>duy nhất</b> mà <code>calcDamage</code> đọc.</td></tr>
+      <tr><td><code>o.stages</code> (nút −/+ trên card đối thủ)</td><td><b>Chỉ đổi số hiển thị</b> trên card. Bấm +2 Def cho đối thủ xong bảng damage <b>không hề đổi</b> — sai âm thầm.</td></tr>
+      <tr><td><code>MTX_STAGE</code> (select “Buff công” trong ma trận)</td><td>Chỉ dùng cho tab Tôi → Đối thủ, và ép chung một cấp cho cả Atk lẫn SpA.</td></tr>
+    </tbody>
+  </table>
+  <p>Nay chỉ còn <b>một</b> nguồn: <code>stages</code> gắn trên từng con (<code>MYTEAM[i].stages</code> / <code>OPP[j].stages</code>),
+  đọc qua <code>stagesOf(pickValue)</code>. <code>readField()</code> lấy buff công từ con đang tấn công và buff thủ từ con đang thủ,
+  nên card − damage − speed order luôn khớp nhau.</p>
+  <p class="muted">Ma trận Tôi → Đối thủ nay gọi <code>readField('opp','set:'+i,'opp:'+j)</code> cho <i>từng ô</i>, nên mỗi cặp
+  dùng đúng buff của cặp đó — và tách được Atk với SpA thay vì một cấp dùng chung.</p>
+</div>
+<div class="card">
+  <h3>Cột giữa bị lột sạch input</h3>
+  <p>Nature / Ability / Item / SP / Buff / dòng chỉ số đã bỏ khỏi 2 panel giữa — theo yêu cầu, vì thông tin đó đã nằm trên
+  card 2 rìa. <code>runCalc()</code> không còn override cfg từ ô giữa: set đến thẳng từ <code>resolvePick()</code>.</p>
+  <p><b>Mất đi:</b> pick dạng <code>dex:</code> (loài bất kỳ, tra nhanh) <b>không còn chỉnh được</b> nature/item/SP/buff,
+  vì loài đó không có card ở rìa nào cả — nó dùng spread đoán của <code>guessSpread()</code>. Trước đây chỉnh được ngay ở giữa.
+  Muốn chỉnh thật thì thêm nó vào team đối thủ rồi sửa trên card.</p>
+</div>
+<div class="card">
+  <h3>Bỏng: từ ô sân → trạng thái của từng con</h3>
+  <p>Checkbox “Bỏng (bên công)” ở giữa đã bỏ; nay dùng nút <b>🔥 BRN</b> trên card (cả 2 rìa đều có, đội tôi mới được thêm).
+  <code>readField()</code> trả <code>burn:0</code> cố định và để <code>calcDamage</code> đọc <code>atk.brn</code> — vốn đã hỗ trợ sẵn.
+  Hệ quả tốt: con nào bỏng là của con đó, không còn phụ thuộc việc ai đang đứng ở ô tấn công.</p>
+</div>
+<div class="card warn">
+  <h3>Khoá view Tính damage vừa đúng 1 màn hình</h3>
+  <p>Yêu cầu “không phải dùng thanh cuộn dọc” xung đột với “Speed order full-width dưới cùng” đã chốt ở đợt 1 — panel dưới
+  cùng thì trang luôn cao hơn màn hình (đo được 1428px / 985px).</p>
+  <p>Giải: <code>body.calc-lock</code> biến trang thành flex column cao đúng <code>100vh</code>, <code>overflow:hidden</code>;
+  chỉ 3 vùng con tự cuộn (2 rail, cột giữa, bảng speed order). Dùng flex thay vì <code>calc(100vh - 96px)</code> vì thanh sân
+  có thể xuống 2 dòng — trừ chiều cao cứng sẽ sai.</p>
+  <p><b>Chỉ khoá ở view Tính damage.</b> Chuyển tab là gỡ <code>calc-lock</code>, vì Pokédex / Đội của tôi cần cuộn trang bình thường.
+  Dưới 980px ngang hoặc 620px cao thì cũng tự thả khoá — nhồi 3 cột vào màn nhỏ mà cấm cuộn là không dùng được.</p>
+</div>
+<div class="card">
+  <h3>Nút Reset trên thanh sân nay xoá cả buff 2 rìa</h3>
+  <p>Buff không còn là “điều kiện sân” nữa mà thuộc về từng con. Nếu Reset chỉ xoá thời tiết/màn chắn thì nó xoá đúng một nửa
+  những gì người dùng nhìn thấy — nên nó xoá luôn <code>stages</code>/BRN/PAR của mọi con.</p>
+</div>
+<div class="card bad">
+  <h3>Đã biết: buff/BRN/PAR của đội tôi được lưu vĩnh viễn</h3>
+  <p><code>stages</code> nằm trong <code>MYTEAM</code> nên đi theo <code>saveTeam()</code> xuống localStorage và vào cả file Xuất/Nhập —
+  mở lại app hôm sau vẫn còn +2 Atk từ trận trước. Chấp nhận vì nó khớp cách <code>OPP</code> vốn đã hoạt động, và nút
+  <b>Reset</b> xoá sạch trong một cú bấm. Sửa đúng hơn thì phải tách state trận khỏi state đội — không thuộc phạm vi lần này.</p>
+</div>
+<h2 class="muted" style="margin-top:38px">Đợt 1 — Bố cục 3 cột</h2>
+
+<h2>Phạm vi &amp; quyết định gốc</h2>
+<p>Yêu cầu: dời đội tôi / đội đối thủ ra 2 rìa, gom điều kiện sân thành 1 thanh trên cùng, bỏ tab
+<b>Chọn đội</b>, đưa 2 tab tính damage vào giữa, Speed order xuống dưới cùng. Ba điểm mơ hồ đã hỏi và chốt với người dùng:</p>
+<table>
+  <thead><tr><th style="width:38%">Câu hỏi</th><th>Chốt</th></tr></thead>
+  <tbody>
+    <tr><td>Khối “Phân tích &amp; gợi ý” (gợi ý N con + ma trận đối đầu) đi đâu?</td>
+        <td><b>Bỏ hẳn</b>, chỉ giữ Speed order. Chấp nhận được vì ma trận đối đầu vẫn còn ở tab <b>Tôi → Đối thủ</b> — chức năng không mất, chỉ mất phần <i>tự động gợi ý N con nên chọn</i>.</td></tr>
+    <tr><td>Speed order đặt ở đâu?</td><td>Panel <b>full-width dưới cùng</b>, dưới cả 3 cột.</td></tr>
+    <tr><td>Rail trái có giữ chức năng chọn 3/4 con ra trận (<code>PICK</code>)?</td><td><b>Có</b>, bấm chọn/bỏ như cũ.</td></tr>
+  </tbody>
+</table>
+
+<h2>Vì sao rail nằm trong <code>#view-calc</code>, không phải toàn app</h2>
+<div class="card">
+  <p>Ảnh mẫu là app 1 trang nên rail hiện mọi lúc. App này vẫn còn 3 tab khác (<b>Đội của tôi</b>, <b>Khắc hệ</b>,
+  <b>Pokédex</b>) cần trọn bề ngang — Pokédex là bảng 2 cột dày. Nên rail được đặt <i>bên trong</i> view Tính damage,
+  và view này thành view mặc định khi mở app.</p>
+  <p class="muted">Hệ quả: <code>#view-calc</code> nằm ngoài <code>.wrap</code> (max-width 1200px) trong một
+  <code>.wrapwide</code> riêng để rail chạm được rìa; các view còn lại vẫn trong <code>.wrap</code> như cũ.</p>
+</div>
+
+<h2>Màn chắn: từ 1 select dùng chung → tách theo bên <span class="tag chg">đổi hành vi</span></h2>
+<div class="card warn">
+  <p>Trước: một select <code>#screen</code> cho thẳng hệ số (0.5 / 0.667) và nhân vô điều kiện — không phân biệt
+  bên nào dựng màn, cũng không phân biệt Reflect (chặn vật lý) với Light Screen (chặn đặc biệt).</p>
+  <p>Thanh sân mới có Reflect / Light Screen / Aurora Veil <b>cho từng bên</b>, nên hệ số phải suy ra lúc tính:</p>
+  <table>
+    <tbody>
+      <tr><td><code>defSideOf(val)</code></td><td>Xác định bên thủ theo prefix của pick: <code>set:</code> → bên tôi, còn lại → bên đối thủ.</td></tr>
+      <tr><td><code>readField(defSide)</code></td><td>Trả về <code>screens</code> của <i>bên đang thủ</i>. Bỏ trống thì tự suy từ <code>#defPick</code>.</td></tr>
+      <tr><td><code>calcDamage</code></td><td>Biết <code>isPhys</code> nên tự chọn: Aurora Veil chặn cả hai; Reflect chỉ VL; Light Screen chỉ ĐB. Hệ số ×0.5 (đơn) hoặc ×⅔ (đôi) lấy theo <code>field.spread</code>.</td></tr>
+    </tbody>
+  </table>
+  <p><b>Đánh đổi:</b> pick dạng <code>dex:</code> (loài bất kỳ, không thuộc đội nào) bị xếp vào <b>bên đối thủ</b>.
+  Đây là lựa chọn tuỳ tiện nhưng khớp thực tế dùng: <code>dex:</code> hầu như luôn là con đang dò của đối phương.</p>
+</div>
+<div class="card good">
+  <h3>Sửa kèm: crit xuyên màn chắn <span class="tag new">mới</span></h3>
+  <p>Đúng cơ chế game, đòn chí mạng bỏ qua màn chắn. Điều kiện <code>!field.crit &amp;&amp; !m.crit</code> được thêm
+  vào nhánh màn chắn — bản cũ không có vì hệ số nhân thẳng, bật crit + screen cùng lúc sẽ ra số sai.</p>
+</div>
+<div class="card">
+  <h3><code>renderMyToOpp</code> phải gọi <code>readField('opp')</code></h3>
+  <p>Ở chiều <b>Tôi → Đối thủ</b>, bên thủ <i>luôn</i> là đối thủ, nhưng <code>#defPick</code> lúc đó có thể vẫn đang
+  trỏ vào con của mình (state dùng chung với tab kia). Để mặc định tự suy sẽ lấy nhầm màn chắn bên tôi.</p>
+</div>
+
+<h2>Bảng chọn Pokémon: giữ ngữ nghĩa khớp CHÍNH XÁC bộ hệ <span class="tag keep">giữ nguyên</span></h2>
+<div class="card warn">
+  <p>Ảnh mẫu <i>trông như</i> lọc OR (tích FIRE ra cả Charizard-Mega hệ Lửa/Rồng). Bản này <b>không</b> làm vậy —
+  giữ đúng ngữ nghĩa hàm <code>typeFind</code> cũ: tích 1 hệ = <b>đơn hệ</b>, tích 2 hệ = <b>đúng cặp hệ đó</b>.</p>
+  <p><b>Lý do:</b> công dụng của bộ lọc là <i>đọc icon hệ trên team preview rồi tra ngược ra loài</i>. Team preview
+  cho biết bộ hệ đầy đủ, nên khớp chính xác là câu trả lời đúng; lọc OR sẽ trả về hàng trăm con nhiễu. Người dùng cũng
+  yêu cầu “cấu trúc gõ tên và chọn hệ vẫn giữ nguyên”.</p>
+  <p><b>Đánh đổi đã chấp nhận:</b> lọc theo hệ <b>loại Mega</b> (team preview hiện dạng gốc) nhưng gõ tên thì
+  <b>tìm được Mega</b>. Không nhất quán về mặt lý thuyết, song mỗi đường phục vụ một mục đích khác nhau và cả hai đều
+  đúng với mục đích của mình.</p>
+</div>
+<div class="card">
+  <p>Grid chặn ở <code>DP_CAP=180</code> card. Không lọc gì thì danh sách là toàn bộ DEX (~1000 loài) — dựng hết sẽ
+  giật. <code>#dpCount</code> hiện “180/1013” để người dùng biết còn bị cắt và nên gõ thêm.</p>
+</div>
+
+<h2>Speed order</h2>
+<div class="card good">
+  <h3>Sửa bug cũ: Tailwind không còn bị buff ghi đè <span class="tag new">sửa</span></h3>
+  <p>Bản cũ nút Tailwind <i>ghi thẳng</i> <code>SPDB['me:i']=2</code> — tức tailwind và buff dùng chung một ô. Chỉnh
+  cột <b>Buff</b> của con nào là tailwind của con đó biến mất, im lặng, không dấu hiệu gì.</p>
+  <p>Nay tailwind đọc từ <code>FIELD[side].tailwind</code> và nhân <i>riêng</i>: <code>spe = raw × buff × tailwind</code>.
+  Hai thứ độc lập, hiển thị rõ trong ngoặc (<code>247 ×1.5 Tailwind ×2</code>).</p>
+</div>
+<table>
+  <thead><tr><th style="width:30%">Thay đổi</th><th>Ghi chú</th></tr></thead>
+  <tbody>
+    <tr><td>Luôn hiển thị <span class="tag chg">đổi</span></td>
+        <td>Trước chỉ dựng sau khi bấm “Phân tích”. Nút đó không còn nên Speed order render ngay khi mở app và mỗi khi
+            team/sân đổi (<code>refreshAll</code>, <code>fieldChanged</code>, <code>addOpp</code>).</td></tr>
+    <tr><td>Trick Room <span class="tag new">mới</span></td>
+        <td>Đảo chiều sort. Trước đây TR chỉ là một dòng chữ cảnh báo, không tác động gì.</td></tr>
+    <tr><td>Tê liệt (PAR) <span class="tag new">mới</span></td>
+        <td>Con đối thủ bật PAR nay bị chia đôi speed trong bảng — trước bảng bỏ qua, lệch với card đối thủ vốn đã hiện PAR.</td></tr>
+    <tr><td>Mega <span class="tag chg">đổi</span></td>
+        <td>Dùng <code>o.megaForm||o.species</code>, khớp với chỉ số card đối thủ đang hiện.</td></tr>
+    <tr><td><code>LAST_WEATHER</code> <span class="tag del">bỏ</span></td>
+        <td>Là bản sao thời tiết chụp lúc bấm “Phân tích”. Nay đọc thẳng <code>FIELD.weather</code>, hết nguồn lệch.</td></tr>
+  </tbody>
+</table>
+
+<h2>Ràng buộc Định dạng ↔ Kiểu trận</h2>
+<div class="card">
+  <p><code>#fmt</code> (singles/doubles → giới hạn chọn 3/4) và <code>FIELD.mode</code> (đơn/đôi → chiêu lan ×0.75,
+  hệ số màn chắn) là <b>hai state cho cùng một sự thật</b>. Bản cũ chúng ở hai tab khác nhau nên lệch nhau vô hại;
+  giờ đứng cạnh nhau trên màn hình, lệch là thấy ngay.</p>
+  <p>Nên hai chiều được đồng bộ: đổi <code>#fmt</code> ở rail trái set <code>FIELD.mode</code>, bấm nút Đơn/Đôi trên
+  thanh set ngược lại <code>#fmt</code> (và cắt <code>PICK</code> nếu vượt giới hạn mới).</p>
+  <p class="muted">Chưa gộp làm một biến vì <code>pickLimit()</code> và <code>readField()</code> đọc chúng ở nhiều nơi;
+  gộp là việc dọn dẹp riêng, không thuộc phạm vi lần này.</p>
+</div>
+
+<h2>Vấn đề đã biết — cố ý không sửa</h2>
+<div class="card bad">
+  <h3><code>FIELD</code> không được lưu xuống localStorage</h3>
+  <p>Reload là mất hết thời tiết/địa hình/màn chắn/TR. Giữ đúng hành vi cũ (các select sân cũng không lưu) — điều kiện
+  sân vốn là thứ nhất thời theo từng trận, khác với đội và Pokédex. Muốn lưu thì thêm vào <code>snapshot()</code>
+  của phần đồng bộ, nhưng đó là mở rộng phạm vi.</p>
+</div>
+<div class="card bad">
+  <h3>Rail trái không sửa được set</h3>
+  <p>Bấm con ở rail trái chỉ chọn/bỏ ra trận; sửa chiêu/chỉ số vẫn phải sang tab <b>Đội của tôi</b> (đúng như đã chốt:
+  “Có — bấm để chọn/bỏ như cũ”). Rail phải thì bấm là mở modal sửa — hai rail hành xử khác nhau. Chấp nhận vì tần suất
+  dùng khác nhau: đội mình sửa một lần rồi thôi, đối thủ phải điền dần trong lúc đánh.</p>
+</div>
+<div class="card bad">
+  <h3>Thanh sân xuống 2 dòng khi cửa sổ hẹp</h3>
+  <p>Dưới ~1500px thanh wrap sang dòng thứ hai, đẩy nội dung xuống. Không ép 1 dòng vì cuộn ngang trên thanh sticky
+  còn khó dùng hơn. Dưới 980px rail tự bỏ sticky và xếp dọc.</p>
+</div>
+
+<h2>Code đã xoá</h2>
+<table>
+  <thead><tr><th style="width:34%">Đã bỏ</th><th>Lý do</th></tr></thead>
+  <tbody>
+    <tr><td><code>#view-select</code> + handler <code>#analyzeBtn</code></td><td>Tab Chọn đội bị bỏ theo yêu cầu.</td></tr>
+    <tr><td><code>mxColor</code>, <code>effCell</code>, <code>ohkoLine</code>, <code>bestVsWorst</code></td>
+        <td>Chỉ phục vụ khối phân tích đã xoá.</td></tr>
+    <tr><td><code>typeFind</code>, <code>tfPaint</code>, <code>oppSuggest</code>, <code>pickOptions</code></td>
+        <td>Thay bằng bảng chọn modal (<code>dexPick*</code>).</td></tr>
+    <tr><td><code>TW</code>, <code>LAST_WEATHER</code></td><td>Đã có <code>FIELD</code>.</td></tr>
+    <tr><td><code>SPDB</code>, <code>MTX_STAGE</code>, <code>readAtk</code>, <code>STAGE_OPTS</code>/<code>stageOptsHtml</code> <span class="tag del">đợt 2</span></td>
+        <td>Ba state buff rời rạc + helper của các select đã bỏ. Nay chỉ còn <code>stages</code> trên từng con.</td></tr>
+  </tbody>
+</table>
+<div class="card">
+  <p><b>Giữ lại dù trông như code chết:</b> <code>matchup()</code> và <code>bestHit()</code> — không còn dùng cho ma
+  trận nữa nhưng <code>bestCounter()</code> vẫn gọi để dựng dòng “💡 Gợi ý chọn …” dưới ô chọn bên phòng thủ.</p>
+</div>
+
+<h2>Đã kiểm chứng</h2>
+<p>Chạy Chrome headless trên <code>index.html</code> thật, kịch bản thao tác DOM (không phải test giả định):</p>
+<table>
+  <thead><tr><th style="width:34%">Kiểm tra</th><th>Kết quả</th></tr></thead>
+  <tbody>
+    <tr><td>Lỗi JS khi tải + thao tác</td><td><b>none</b></td></tr>
+    <tr><td>Bảng chọn, tích hệ Lửa</td><td>39 Pokémon đơn hệ Lửa, con hay gặp xếp trước</td></tr>
+    <tr><td>Nút Đơn/Đôi trên thanh</td><td><code>fmt=doubles mode=double limit=4</code></td></tr>
+    <tr><td>Trick Room</td><td>Thứ tự đảo đúng: Staraptor 247 đầu → cuối, Torkoal 36 cuối → đầu</td></tr>
+    <tr><td>Tailwind bên đối thủ</td><td>Chỉ con đối thủ ×2 (Flutter Mane 205→410, Great Tusk 152→304); đội tôi không đổi</td></tr>
+    <tr><td>Reflect bên tôi (đang đấu đôi)</td><td>Megahorn (VL) 136–162 → 91–108 = ×⅔ đúng hệ số đôi</td></tr>
+  </tbody>
+</table>
+<p><b>Đợt 2</b> — Mawile (Mega) → Great Tusk, thao tác thật trên nút của card:</p>
+<table>
+  <thead><tr><th style="width:34%">Kiểm tra</th><th>Kết quả</th></tr></thead>
+  <tbody>
+    <tr><td>Gốc</td><td>Play Rough 234–276</td></tr>
+    <tr><td>+2 Atk trên card <b>rìa trái</b></td><td>462–546 (≈×2) — buff đội tôi vào thẳng damage</td></tr>
+    <tr><td>rồi +2 Def trên card <b>rìa phải</b></td><td>về 234–276 — buff thủ đối thủ bù đúng, thứ trước đây <b>không hề tác dụng</b></td></tr>
+    <tr><td>🔥 BRN trên card đội tôi</td><td>117–138 = ½ đòn vật lý</td></tr>
+    <tr><td>+1 Spe trên card ↔ speed order</td><td>card → bảng: 105 (+1); bấm − trong bảng → <code>MYTEAM[4].stages.spe=0</code> (2 chiều)</td></tr>
+    <tr><td>Reset thanh sân</td><td><code>stages</code> của cả 2 rìa về <code>{}</code></td></tr>
+    <tr><td>Không cuộn dọc @1920×1080 (3 đối thủ)</td><td><code>docH=985 = winH=985</code>, Speed order nằm trọn trong màn; sang tab Pokédex tự thả khoá</td></tr>
+    <tr><td>Lỗi JS</td><td><b>none</b></td></tr>
+  </tbody>
+</table>
+<p><b>Đợt 3</b> — bấm nút thật trên trang, không phải test giả định:</p>
+<table>
+  <thead><tr><th style="width:34%">Kiểm tra</th><th>Kết quả</th></tr></thead>
+  <tbody>
+    <tr><td>Fairy Aura tự tắt</td><td>Floette (Mega) → <code>true</code>; đổi sang Great Tusk → <code>false</code>; Xerneas → <code>true</code></td></tr>
+    <tr><td>Aura theo bên thủ</td><td>thủ = Floette (Mega) → <code>true</code>; thủ = Great Tusk → <code>false</code></td></tr>
+    <tr><td>Single Target (đấu đôi)</td><td>Heat Wave 148–174 → <b>198–234</b> (đúng ÷0.75); nhãn đổi sang “lan · 1 mục tiêu”</td></tr>
+    <tr><td>Chiêu lan khác</td><td>Eruption 234–277 → 313–368 khi tick</td></tr>
+    <tr><td>Speed order dạng Mega</td><td>Beedrill 139 + “Beedrill (Mega) <i>nếu đổi dạng</i>” 216; Lopunny 172 + Mega 205</td></tr>
+    <tr><td>Bật Mega thì đảo vai</td><td>Beedrill (Mega) 216 thành dòng thật, Beedrill 139 thành dòng giả định</td></tr>
+    <tr><td>Buff lan sang dòng giả định</td><td>Lopunny +1 Spe → 258 (thật) và 307 (Mega giả định) cùng nhảy</td></tr>
+    <tr><td>Scarf không dính vào dòng Mega</td><td>Beedrill cầm Choice Scarf: 208 (thật) vs 216 (Mega) — không phải 324</td></tr>
+    <tr><td>Lỗi JS</td><td><b>none</b></td></tr>
+  </tbody>
+</table>
+
+</div>
+</body>
+</html>

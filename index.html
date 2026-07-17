@@ -222,7 +222,7 @@
     #adGrid h2{font-size:15px}
     #adGrid .row{gap:6px}
     #adGrid .row>*{flex:1 1 100%!important;min-width:0!important}
-    #adGrid .stageSel,#adGrid select,#adGrid input{width:100%}
+    #adGrid select,#adGrid input{width:100%}
     /* buff Atk+SpA (và Def+SpD) đứng cạnh nhau 2 ô/hàng */
     #adGrid .buff-row .buffcell{flex:1 1 46%!important;min-width:0!important}
     /* SP: 2 ô (tấn công) hoặc 3 ô (thủ) cùng 1 dòng */
@@ -260,7 +260,7 @@
   .mtx-compact .est{padding:0 2px;font-size:8px;border-radius:3px}
   .mtx-compact .stat-mini{font-size:8.5px}
   body.force-mobile #adGrid .row>*{flex:1 1 100%!important;min-width:0!important}
-  body.force-mobile #adGrid .stageSel,body.force-mobile #adGrid select,body.force-mobile #adGrid input{width:100%}
+  body.force-mobile #adGrid select,body.force-mobile #adGrid input{width:100%}
   body.force-mobile #adGrid .buff-row .buffcell{flex:1 1 46%!important;min-width:0!important}
   body.force-mobile #adGrid .sp-row>*{flex:1 1 0!important;min-width:0!important;text-align:center}
   /* ---- Ép giao diện thủ công (nút 📱/🖥) ---- */
@@ -316,8 +316,33 @@
 
   /* ============ Bố cục 3 cột: rìa trái – giữa – rìa phải ============ */
   .wrapwide{max-width:none;padding:0 14px}
-  .applayout{display:grid;grid-template-columns:var(--rail) minmax(0,1fr) var(--rail);gap:14px;align-items:start;--rail:300px}
+  .applayout{display:grid;grid-template-columns:var(--rail) minmax(0,1fr) var(--rail);gap:12px;align-items:start;--rail:300px}
   .rail{position:sticky;top:96px;max-height:calc(100vh - 108px);overflow-y:auto;display:flex;flex-direction:column;gap:12px}
+
+  /* ---- Khoá view Tính damage vừa đúng 1 màn hình: chỉ các vùng con cuộn ----
+     Dùng flex column trên body để tự co theo header + thanh sân (thanh có thể xuống 2 dòng),
+     thay vì trừ một chiều cao cố định bằng calc(). */
+  body.calc-lock{height:100vh;overflow:hidden;display:flex;flex-direction:column;padding:0}
+  body.calc-lock header,body.calc-lock .fieldbar{flex:0 0 auto;position:static}
+  body.calc-lock .wrapwide{flex:1;min-height:0;display:flex;flex-direction:column;padding-top:10px;padding-bottom:10px}
+  body.calc-lock #view-calc.on{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;padding-top:0}
+  body.calc-lock .applayout{flex:1;min-height:0}
+  body.calc-lock .rail{position:static;height:100%;max-height:100%;gap:0}
+  body.calc-lock #calcCenter{height:100%;overflow-y:auto;padding-right:2px}
+  body.calc-lock #spdPanel{flex:0 0 auto;max-height:31vh;display:flex;flex-direction:column;margin-top:0!important}
+  body.calc-lock #spdPanel #spdWrap{flex:1;min-height:0;overflow-y:auto}
+  body.calc-lock #spdPanel>.hint{flex:0 0 auto}
+  body.calc-lock .rail::-webkit-scrollbar,body.calc-lock #calcCenter::-webkit-scrollbar,
+  body.calc-lock #spdWrap::-webkit-scrollbar{width:5px}
+  body.calc-lock .rail::-webkit-scrollbar-thumb,body.calc-lock #calcCenter::-webkit-scrollbar-thumb,
+  body.calc-lock #spdWrap::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+  /* màn thấp/hẹp: thả khoá, cho cuộn trang bình thường */
+  @media(max-width:980px),(max-height:620px){
+    body.calc-lock{height:auto;overflow:visible;display:block;padding:0 0 60px}
+    body.calc-lock .rail{height:auto;max-height:none}
+    body.calc-lock #calcCenter{height:auto;overflow:visible}
+    body.calc-lock #spdPanel{max-height:none}
+  }
   .rail::-webkit-scrollbar{width:6px}
   .rail::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
   .rail .panel h2{margin-bottom:9px}
@@ -378,12 +403,11 @@
   .pill.on-field{background:#12312e;color:#57d977}
   .pill.mv{background:var(--panel);border:1px solid var(--line);color:var(--ink-dim);font-weight:600}
   .oc-stats .val.boost{color:var(--good)} .oc-stats .val.drop{color:var(--bad)}
-  .oc-stats .sp b{font-weight:800}
-  .oc-stats .sp b.pos{color:var(--good)} .oc-stats .sp b.neg{color:var(--bad)}
   /* nút −/+ dưới mỗi chỉ số */
-  .oc-stg .cell{gap:2px}
-  .oc-stg button{width:100%;height:17px;font-size:12px;border-radius:4px;color:var(--ink-faint)}
+  .oc-stg .cell{gap:1px}
+  .oc-stg button{width:16px;height:16px;font-size:11px;border-radius:4px;color:var(--ink-faint);flex:0 0 auto}
   .oc-stg button:hover{color:var(--ink);border-color:var(--acc);background:var(--panel2)}
+  .oc-stg .n{font-family:var(--mono);font-size:10px;min-width:13px}
   /* nút −/+ trong bảng speed order */
   .spd-stg{display:flex;align-items:center;gap:3px}
   .spd-stg button{width:19px;height:19px;border:1px solid var(--line);background:var(--panel2);color:var(--ink-faint);
@@ -391,6 +415,11 @@
   .spd-stg button:hover{color:var(--ink);border-color:var(--acc)}
   .spd-stg .n{font-family:var(--mono);font-size:11px;min-width:18px;text-align:center;color:var(--ink-faint)}
   .spd-stg .n.pos{color:var(--good)} .spd-stg .n.neg{color:var(--bad)}
+  /* dòng "nếu đổi dạng" trong speed order: mờ đi để không nhầm với dạng đang thật sự đứng sân */
+  .hypo-row{opacity:.62}
+  .hypo-row:hover{opacity:1}
+  .hypo-row td{border-bottom-style:dashed}
+  .pill.hypo{background:#241a33;color:#c4a6ff;font-size:9.5px;font-weight:700}
 
   /* ============ Nén cho vừa 1 màn hình ============ */
   .applayout .panel{padding:10px}
@@ -466,6 +495,7 @@
         <div class="fgrp" style="margin:0">
           <label class="flex tiny"><input type="checkbox" id="crit"> Crit ×1.5</label>
           <label class="flex tiny"><input type="checkbox" id="hh"> Helping Hand ×1.5</label>
+          <label class="flex tiny" title="Chiêu lan chỉ trúng 1 mục tiêu (mục tiêu kia ngất/Protect) → không bị giảm ×0.75"><input type="checkbox" id="single"> Single Target</label>
         </div>
         <div class="flex" style="margin-left:auto">
           <button class="btn ghost sm" id="fieldToggle" title="Aura / Tai Ương">⚙ Nâng cao</button>
@@ -540,7 +570,7 @@
       <label class="flex tiny"><input type="checkbox" id="rVessel"> Vessel (Ting-Lu · −SpA)</label>
       <label class="flex tiny"><input type="checkbox" id="rTablets"> Tablets (Wo-Chien · −Atk)</label>
     </div>
-    <div class="hint" style="margin-top:6px">Aura/Ruinous tự bật khi con tấn công/phòng thủ có ability tương ứng; tick thêm nếu có con thứ 3 trên sân (đánh đôi). Thời tiết, địa hình, màn chắn, Tailwind, Trick Room nằm ở <b>thanh trên cùng</b>.</div>
+    <div class="hint" style="margin-top:6px"><b>Aura</b> tự bật/tắt theo ability của con đang tấn công &amp; phòng thủ — đổi Pokémon là tự cập nhật lại, nên nếu tick tay cho con thứ 3 trên sân thì tick <i>sau</i> khi đã chọn xong 2 bên. <b>Ruinous</b> tự áp khi con công/thủ có ability, chỉ tick thêm cho con thứ 3. Thời tiết, địa hình, màn chắn, Tailwind, Trick Room nằm ở <b>thanh trên cùng</b>.</div>
   </div>
 </section>
 </div>
@@ -995,7 +1025,8 @@ function calcDamage(atk,def,moveName,field){
   if(field.weather==='sun'){if(mtype==='Fire')weather=1.5;if(mtype==='Water')weather=.5;}
   if(field.weather==='rain'){if(mtype==='Water')weather=1.5;if(mtype==='Fire')weather=.5;}
   const crit=(field.crit||m.crit)?1.5:1;
-  const targets=(field.spread&&spread)?0.75:1;
+  // Chiêu lan ×0.75 khi đánh đôi — trừ khi chỉ còn 1 mục tiêu trên sân (Single Target)
+  const targets=(field.spread&&spread&&!field.single)?0.75:1;
   let other=1;
   if(ai.dmg)other*=ai.dmg;
   if(ai.boostType===mtype)other*=ai.boost;
@@ -1085,7 +1116,11 @@ function fillItems(el,v){el.innerHTML=Object.keys(ITEMS).map(i=>opt(i,i,i===v)).
 const SPKEYS=['hp','atk','def','spa','spd','spe'],SPLBL=['HP','Atk','Def','SpA','SpD','Spe'];
 function spTotal(sp){return SPKEYS.reduce((a,k)=>a+(+sp[k]||0),0);}
 
-$$('.tab').forEach(t=>t.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');$$('.view').forEach(v=>v.classList.remove('on'));$('#view-'+t.dataset.view).classList.add('on');if(typeof closeField==='function')closeField();if(t.dataset.view==='calc'&&typeof switchCalcMode==='function')switchCalcMode(CALC_MODE);});
+$$('.tab').forEach(t=>t.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');$$('.view').forEach(v=>v.classList.remove('on'));$('#view-'+t.dataset.view).classList.add('on');if(typeof closeField==='function')closeField();
+  // chỉ view Tính damage bị khoá 1 màn hình; các view khác cuộn trang như thường
+  document.body.classList.toggle('calc-lock',t.dataset.view==='calc');
+  if(t.dataset.view==='calc'&&typeof switchCalcMode==='function')switchCalcMode(CALC_MODE);});
+document.body.classList.add('calc-lock'); // view mặc định là Tính damage
 
 /* =========================================================================
    VIEW: TEAM
@@ -1204,9 +1239,12 @@ function statGrid(disp,sp,nat,stages,idx,kind){
     const cls=st>0?'up':st<0?'dn':(up?'up':dn?'dn':'');
     return `<div><div class="lbl ${cls}">${SPLBL[ki]}${up?'⁺':dn?'⁻':''}</div>
       <div class="val ${st>0?'boost':st<0?'drop':''}">${disp[k]}</div>
-      <div class="sp">${(sp&&sp[k])||0}${st?`<b class="${st>0?'pos':'neg'}"> ${st>0?'+':''}${st}</b>`:''}</div></div>`;}).join('');
+      <div class="sp">${(sp&&sp[k])||0}</div></div>`;}).join('');
+  // hàng nút: − <cấp> +  (HP không có cấp buff)
   const stg=SPKEYS.map(k=>{if(k==='hp')return '<div class="cell"></div>';
+    const n=(stages&&stages[k])||0;
     return `<div class="cell"><button data-act="stg" data-kind="${kind}" data-k="${k}" data-d="-1" data-i="${idx}">−</button>
+      <span class="n ${n>0?'pos':n<0?'neg':''}">${n>0?'+'+n:n}</span>
       <button data-act="stg" data-kind="${kind}" data-k="${k}" data-d="1" data-i="${idx}">+</button></div>`;}).join('');
   return `<div class="oc-stats">${stats}</div><div class="oc-stg">${stg}</div>`;
 }
@@ -1497,12 +1535,28 @@ function renderSpeedTier(){
   const el=$('#spdWrap');if(!el)return;
   const weather=FIELD.weather;
   if(!MYTEAM.length&&!OPP.length){el.innerHTML='<div class="mu-place">Chưa có Pokémon nào để xếp speed.</div>';return;}
+  /* Đối thủ: ngoài dạng hiện tại, liệt kê luôn MỌI dạng Mega của loài đó dù chưa bấm bật —
+     Mega thường đổi Spe rất mạnh, cần thấy trước để biết mình còn nhanh hơn hay không. */
+  const oppRow=(o,j,sp,hypo)=>{
+    // Dòng Mega giả định: muốn Mega thì phải cầm đá Mega → không thể đang cầm Choice Scarf,
+    // nên bỏ item để không cộng nhầm ×1.5 vào một dạng bất khả thi.
+    const item=(hypo&&/\(Mega/.test(sp))?'Không':(o.item||'Không');
+    const m=buildMon({species:sp,nature:'Timid',ability:DEX[sp].ab[0],item,sp:{spe:32}},weather);
+    return {k:'opp:'+j,n:sp,me:0,raw:o.par?Math.floor(m.S.speEff/2):m.S.speEff,
+            base:DEX[sp].s[5],max:1,par:o.par,hypo};
+  };
+  const oppRows=[];
+  OPP.forEach((o,j)=>{
+    const cur=o.megaForm||o.species;
+    oppRows.push(oppRow(o,j,cur,0));
+    megaFormesOf(o.species).forEach(mf=>{if(mf!==cur&&DEX[mf])oppRows.push(oppRow(o,j,mf,1));});
+    // đang ở dạng Mega thì cho thấy lại dạng gốc để so
+    if(o.megaForm&&o.megaForm!==o.species&&DEX[o.species])oppRows.push(oppRow(o,j,o.species,1));
+  });
   const rows=[...MYTEAM.map((s,i)=>({k:'set:'+i,n:s.species,me:1,
                raw:s.par?Math.floor(buildMon(s,weather).S.speEff/2):buildMon(s,weather).S.speEff,
                base:DEX[s.species].s[5],par:s.par})),
-             ...OPP.map((o,j)=>{const sp=o.megaForm||o.species;
-               const m=buildMon({species:sp,nature:'Timid',ability:DEX[sp].ab[0],item:o.item||'Không',sp:{spe:32}},weather);
-               return {k:'opp:'+j,n:sp,me:0,raw:o.par?Math.floor(m.S.speEff/2):m.S.speEff,base:DEX[sp].s[5],max:1,par:o.par};})]
+             ...oppRows]
     .map(x=>{x.stage=stagesOf(x.k).spe||0;x.mult=stageMul(x.stage);
              x.tw=FIELD[x.me?'me':'opp'].tailwind?2:1;
              x.spe=Math.floor(x.raw*x.mult*x.tw);return x;})
@@ -1513,8 +1567,9 @@ function renderSpeedTier(){
   h+=`<div class="scroll"><table><thead><tr><th>#</th><th>Pokémon</th><th class="num">Base</th><th style="width:96px">Buff Spe</th><th class="num">Speed</th><th>Bên</th></tr></thead><tbody>`;
   rows.forEach((x,i)=>{const ex=[];
     if(x.mult!==1)ex.push('×'+(Math.round(x.mult*100)/100));if(x.tw!==1)ex.push('Tailwind ×2');if(x.par)ex.push('PAR ½');
-    h+=`<tr><td class="mono">${i+1}</td><td>${spriteImg(x.n)}${x.n}</td><td class="num">${x.base}</td>
-    <td><div class="spd-stg"><button data-sk="${x.k}" data-d="-1">−</button><span class="n ${x.stage>0?'pos':x.stage<0?'neg':''}">${x.stage>0?'+':''}${x.stage}</span><button data-sk="${x.k}" data-d="1">+</button></div></td>
+    const tag=x.hypo?` <span class="pill hypo" title="Dạng đối thủ CHƯA bật — số liệu tham khảo nếu họ Mega">nếu đổi dạng</span>`:'';
+    h+=`<tr class="${x.hypo?'hypo-row':''}"><td class="mono">${i+1}</td><td>${spriteImg(x.n)}${x.n}${tag}</td><td class="num">${x.base}</td>
+    <td>${x.hypo?'<span class="stat-mini">—</span>':`<div class="spd-stg"><button data-sk="${x.k}" data-d="-1">−</button><span class="n ${x.stage>0?'pos':x.stage<0?'neg':''}">${x.stage>0?'+':''}${x.stage}</span><button data-sk="${x.k}" data-d="1">+</button></div>`}</td>
     <td class="num"><b>${x.spe}</b>${ex.length?` <span class="stat-mini">(${x.raw} ${ex.join(' ')})</span>`:''}${x.max?' <span class="stat-mini">(≤max)</span>':''}</td>
     <td>${x.me?'<span class="pill" style="background:#12312e;color:#57d977">TÔI</span>':'<span class="pill" style="background:#3a1a1a;color:#ff9d9d">ĐỐI THỦ</span>'}</td></tr>`;});
   h+=`</tbody></table></div>`;
@@ -1643,7 +1698,7 @@ function readField(defSide,atkVal,defVal){
     screens:{reflect:sc.reflect,lscreen:sc.lscreen,aurora:sc.aurora},
     aura:$('#aura').checked,auraDark:$('#auraDark').checked,auraBreak:$('#auraBreak').checked,
     rSword:$('#rSword').checked,rBeads:$('#rBeads').checked,rVessel:$('#rVessel').checked,rTablets:$('#rTablets').checked,
-    hh:$('#hh').checked,
+    hh:$('#hh').checked,single:$('#single').checked,
     stA:stageMul(as.atk||0),stS:stageMul(as.spa||0),
     stD:stageMul(ds.def||0),stSd:stageMul(ds.spd||0)};}
 
@@ -1811,11 +1866,25 @@ function formeToggle(side,species){
 }
 window.swapForme=function(side,alt){setPick(side,'dex:'+alt);};
 
+/* Aura là hiệu ứng SÂN: có con nào mang ability trên sân là áp cho mọi chiêu, bất kể bên nào.
+   Trước đây chỉ BẬT (và chỉ xét bên tấn công) mà không bao giờ tắt → đổi sang con khác vẫn
+   dính ×1.33 của con cũ. Nay đồng bộ 2 chiều theo ability thật của bên công + bên thủ. */
+const AURA_ABIL={aura:'Fairy Aura',auraDark:'Dark Aura',auraBreak:'Aura Break'};
+function syncAura(){
+  const abils=['atk','def'].map(s=>{
+    const cfg=resolvePick($('#'+s+'Pick').value);
+    return cfg.ability||((DEX[cfg.species]||{}).ab||[])[0];
+  }).filter(Boolean);
+  Object.keys(AURA_ABIL).forEach(id=>{
+    const el=$('#'+id);if(!el)return;
+    const has=abils.includes(AURA_ABIL[id]);
+    if(el.checked!==has){el.checked=has;el.dataset.auto='1';}
+  });
+}
 function loadCalcSide(side){
   const val=$('#'+side+'Pick').value; const cfg=resolvePick(val);
   const d=DEX[cfg.species];
   if(side==='atk'){
-    if(d.ab&&d.ab.includes('Fairy Aura'))$('#aura').checked=true;
     // Drought auto nắng
     const fx=ABIL_FX[cfg.ability||d.ab[0]]||{};if(fx.weather){FIELD.weather=fx.weather;renderFieldBar();}
     ATK_MOVES=(cfg.moves&&cfg.moves.length)?cfg.moves.slice():null;
@@ -1827,6 +1896,7 @@ function loadCalcSide(side){
     const fromTeamD=val.startsWith('set:');
     $('#defInfo').innerHTML=formeToggle('def',cfg.species)+(fromTeamD?'':counterHint(cfg))+(d.est?`<div class="warn-box" style="margin-top:8px">⚠️ ${cfg.species}: chỉ số ước lượng.</div>`:'');
   }
+  syncAura();
   runCalc();
 }
 /* Set (nature/ability/item/SP) nay chỉ đến từ card ở 2 rìa — sửa qua modal ✎ trên card.
@@ -1883,7 +1953,7 @@ function runCalc(){
 
   $('#calcBody').innerHTML=results.map(r=>{const k=koLabel(r);const w=Math.min(100,r.pctMax);
     const bc=r.pctMin>=100?'#ff6b6b':r.pctMax>=100?'#ffb454':r.pctMax>=50?'#f6c945':'#4dd0c8';
-    return `<tr><td><b>${r.move}</b>${r.eff!==1?` <span class="stat-mini">×${r.eff}</span>`:''}${field.spread&&MOVES[r.move]&&MOVES[r.move].spread?' <span class="stat-mini" style="color:var(--acc2)">lan ×0.75</span>':''}</td><td>${chip(r.type,1)}</td>
+    return `<tr><td><b>${r.move}</b>${r.eff!==1?` <span class="stat-mini">×${r.eff}</span>`:''}${field.spread&&MOVES[r.move]&&MOVES[r.move].spread?(field.single?' <span class="stat-mini" style="color:var(--good)">lan · 1 mục tiêu</span>':' <span class="stat-mini" style="color:var(--acc2)">lan ×0.75</span>'):''}</td><td>${chip(r.type,1)}</td>
       <td><span class="cat ${r.cat}">${r.cat==='phys'?'VL':'ĐB'}</span></td><td class="num">${r.bp}</td>
       <td class="num">${r.min}–${r.max}</td><td class="num">${r.pctMin.toFixed(1)}–${r.pctMax.toFixed(1)}%</td>
       <td><div class="bar"><span style="width:${w}%;background:${bc}"></span><em>${r.pctMax.toFixed(0)}%</em></div></td>
@@ -1892,12 +1962,12 @@ function runCalc(){
   const best=results[0];
   const scOn=Object.keys(field.screens).filter(k=>field.screens[k]);
   const scNote=scOn.length?`, màn chắn bên thủ (${scOn.map(k=>({reflect:'Reflect',lscreen:'Light Screen',aurora:'Aurora Veil'})[k]).join(' + ')})`:'';
-  $('#calcNote').innerHTML=`${spdCmp} &nbsp; ${best?`Mạnh nhất: <b>${best.move}</b> → ${koLabel(best).t} (${best.pctMin.toFixed(0)}–${best.pctMax.toFixed(0)}%).`:''}${truncNote} ${(statusMoves.length&&!fromLearnset)?`<span class="muted">· Chiêu status trong set: ${statusMoves.join(', ')}</span>`:''}<br><span class="tiny muted">Đã áp: STAB${A.fx.adapt?' (Adaptability ×2)':''}, hệ, thời tiết, crit, bỏng, item, ${A.fx.atkX2?'Huge Power, ':''}${field.aura?'Fairy Aura, ':''}${field.hh?'Helping Hand, ':''}stage${scNote}${field.spread?', đấu đôi (chiêu lan ×0.75)':''}.</span>`;
+  $('#calcNote').innerHTML=`${spdCmp} &nbsp; ${best?`Mạnh nhất: <b>${best.move}</b> → ${koLabel(best).t} (${best.pctMin.toFixed(0)}–${best.pctMax.toFixed(0)}%).`:''}${truncNote} ${(statusMoves.length&&!fromLearnset)?`<span class="muted">· Chiêu status trong set: ${statusMoves.join(', ')}</span>`:''}<br><span class="tiny muted">Đã áp: STAB${A.fx.adapt?' (Adaptability ×2)':''}, hệ, thời tiết, crit, bỏng, item, ${A.fx.atkX2?'Huge Power, ':''}${field.aura?'Fairy Aura, ':''}${field.hh?'Helping Hand, ':''}stage${scNote}${field.spread?(field.single?', đấu đôi (Single Target — chiêu lan KHÔNG giảm)':', đấu đôi (chiêu lan ×0.75)'):''}.</span>`;
 }
 $('#swapBtn').onclick=()=>{const a=$('#atkPick').value,d=$('#defPick').value;setPick('atk',d);setPick('def',a);};
 function calcRefresh(){runCalc();if(CALC_MODE==='me')renderMyToOpp();}
 // điều kiện sân còn lại (thanh trên cùng lo thời tiết/địa hình/màn chắn/TR; buff & BRN nằm trên card 2 rìa)
-['crit','hh','aura','auraDark','auraBreak','rSword','rBeads','rVessel','rTablets'].forEach(id=>$('#'+id).addEventListener('change',calcRefresh));
+['crit','hh','single','aura','auraDark','auraBreak','rSword','rBeads','rVessel','rTablets'].forEach(id=>$('#'+id).addEventListener('change',calcRefresh));
 wireCalcSearch('atk');wireCalcSearch('def');
 switchCalcMode('opp');
 function openField(){$('#calcFieldPanel').classList.add('open');$('#fieldBackdrop').classList.add('open');$('#fieldToggle').classList.add('hot');}
