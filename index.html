@@ -1115,12 +1115,17 @@ function oppDisplay(o){
     if(k==='atk'&&o.brn)v=Math.floor(v/2);if(k==='spe'&&o.par)v=Math.floor(v/2);disp[k]=v;});
   return {eff,g,mon,disp,ability:cfg.ability};
 }
+let _megaFormsCache=null;
+function megaFormesOf(base){
+  if(!_megaFormsCache){_megaFormsCache={};Object.keys(DEX).forEach(n=>{const b=n.match(/^(.*) \(Mega( [XY])?\)$/);if(b){(_megaFormsCache[b[1]]=_megaFormsCache[b[1]]||[]).push(n);}});}
+  return _megaFormsCache[base]||[];
+}
 function renderOpp(){
   const box=$('#oppBox');
   if(!OPP.length){box.innerHTML='<span class="hint">Chưa có đối thủ.</span>';return;}
   box.innerHTML=OPP.map((o,i)=>{
     const d=oppDisplay(o);const nat=NATURES[d.g.nature]||['',''];
-    const megaList=MEGA[o.species]||[];
+    const megaList=megaFormesOf(o.species).map(to=>({to}));
     const megaBtns=megaList.map(m=>{const lbl=m.to.match(/Mega ?([XY])/i);const on=o.megaForm===m.to;
       return `<button class="oc-tgl mega${on?' on':''}" data-act="mega" data-to="${m.to}" data-i="${i}">◆ MEGA${lbl?' '+lbl[1].toUpperCase():''}</button>`;}).join('');
     const stats=SPKEYS.map((k,ki)=>{const up=nat[0]===k,dn=nat[1]===k;
