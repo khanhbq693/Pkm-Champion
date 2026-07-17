@@ -134,6 +134,35 @@
   .fgrp{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:8px}
   .fgrp .flex{cursor:pointer}
   .ftag{font-size:11px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:var(--acc2);background:var(--panel2);border:1px solid var(--line);padding:2px 9px;border-radius:20px}
+  /* Ngăn kéo Điều kiện sân */
+  .field-drawer{position:fixed;top:0;left:0;height:100%;width:min(360px,88vw);z-index:60;transform:translateX(-100%);transition:transform .25s ease;overflow-y:auto;border-radius:0;border-right:1px solid var(--line);box-shadow:3px 0 24px rgba(0,0,0,.55);margin:0!important}
+  .field-drawer.open{transform:translateX(0)}
+  .field-drawer .fd-head{display:flex;align-items:center;gap:8px;margin:-4px -4px 10px;padding-bottom:10px;border-bottom:1px solid var(--line);position:sticky;top:-14px;background:var(--panel);z-index:1}
+  #fieldClose{margin-left:auto;background:none;border:none;color:var(--muted);font-size:24px;cursor:pointer;line-height:1;padding:0 4px}
+  #fieldBackdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:59;opacity:0;pointer-events:none;transition:opacity .25s}
+  #fieldBackdrop.open{opacity:1;pointer-events:auto}
+  #fieldToggle.hot{border-color:var(--acc);color:var(--acc)}
+  /* Card đối thủ chi tiết */
+  .opp-card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin-bottom:10px}
+  .opp-card .oc-head{display:flex;align-items:center;gap:8px}
+  .opp-card .oc-head b{font-size:15px}
+  .opp-card .oc-x{margin-left:auto;color:var(--muted);cursor:pointer;font-size:15px;padding:0 4px}
+  .oc-tgls{display:flex;flex-wrap:wrap;gap:6px;margin:9px 0}
+  .oc-tgl{border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:8px;padding:6px 11px;font-weight:800;font-size:12px;cursor:pointer;letter-spacing:.3px;transition:.12s}
+  .oc-tgl.on{background:#2a2410;border-color:var(--acc2);color:var(--acc2)}
+  .oc-tgl.mega.on{background:#241a33;border-color:#9d7bff;color:#c4a6ff}
+  .oc-tgl.brn.on{background:#331a12;border-color:#ff8a4c;color:#ff9d6b}
+  .oc-tgl.par.on{background:#2e2a10;border-color:#e8d24a;color:#f0dd5a}
+  .oc-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:8px;text-align:center}
+  .oc-stats .lbl{font-size:11px;color:var(--muted);font-weight:700}
+  .oc-stats .lbl.up{color:var(--good)} .oc-stats .lbl.dn{color:var(--bad)}
+  .oc-stats .val{font-size:17px;font-weight:800;line-height:1.1}
+  .oc-stats .sp{font-size:11px;color:var(--acc)}
+  .oc-stg{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:6px}
+  .oc-stg .cell{display:flex;align-items:center;justify-content:center;gap:3px}
+  .oc-stg button{width:22px;height:22px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:6px;cursor:pointer;font-weight:800;line-height:1;padding:0}
+  .oc-stg .n{font-size:11px;min-width:14px;text-align:center;color:var(--muted)}
+  .oc-stg .n.pos{color:var(--good)} .oc-stg .n.neg{color:var(--bad)}
   .mon-tag .spr{margin:-3px 1px -3px -2px}
 
   .btnrow{display:flex;align-items:flex-end;gap:6px}
@@ -337,9 +366,16 @@
 <!-- ============ VIEW: CALC ============ -->
 <section class="view" id="view-calc">
   <div class="between" style="margin-bottom:10px">
+    <button class="btn ghost sm" id="fieldToggle" title="Hiện điều kiện sân">⚙ Sàn đấu</button>
     <h2 style="font-size:16px">Tính damage</h2>
-    <button class="btn ghost sm" id="swapBtn">⇄ Đổi bên tấn công/thủ</button>
+    <button class="btn ghost sm" id="swapBtn">⇄ Đổi bên</button>
   </div>
+  <div id="fieldBackdrop"></div>
+  <div class="calc-tabs" style="display:flex;gap:0;margin-bottom:14px;border:1px solid var(--line);border-radius:10px;overflow:hidden">
+    <button class="ctab on" id="ctabOpp" style="flex:1;padding:11px;border:none;background:var(--acc);color:#08201e;font-weight:800;cursor:pointer">Đối thủ → Tôi</button>
+    <button class="ctab" id="ctabMe" style="flex:1;padding:11px;border:none;background:var(--panel2);color:var(--ink);font-weight:800;cursor:pointer">Tôi → Đối thủ</button>
+  </div>
+  <div id="calcMode2" style="display:none"></div>
   <div class="grid" id="adGrid" style="grid-template-columns:1fr 1fr">
     <div class="panel" id="atkPanel">
       <h2 style="color:#ff9d6b">⚔ Bên tấn công</h2>
@@ -390,8 +426,8 @@
     </div>
   </div>
 
-  <div class="panel" style="margin-top:14px">
-    <h2>Điều kiện sân (Field)</h2>
+  <div class="panel field-drawer" id="calcFieldPanel">
+    <div class="fd-head"><b>Điều kiện sân (Field)</b><button id="fieldClose" title="Đóng">×</button></div>
     <div class="row">
       <div><label class="f">Thời tiết</label><select id="weather"><option value="none">Không</option><option value="sun">Nắng</option><option value="rain">Mưa</option><option value="sand">Cát</option><option value="snow">Tuyết</option></select></div>
       <div><label class="f">Địa hình (Terrain)</label><select id="terrain"><option value="none">Không</option><option value="electric">Electric ⚡ (+Điện)</option><option value="grassy">Grassy 🌿 (+Cỏ, −EQ)</option><option value="psychic">Psychic 🔮 (+Siêu Linh)</option><option value="misty">Misty 🌫️ (−Rồng)</option></select></div>
@@ -419,7 +455,7 @@
   </div>
 
 
-  <div class="panel" style="margin-top:14px">
+  <div class="panel" id="calcTablePanel" style="margin-top:14px">
     <h2>Bảng damage</h2>
     <div id="spdCompare" style="margin:-4px 0 12px"></div>
     <div class="scroll"><table id="calcTable"><thead>
@@ -780,8 +816,9 @@ function buildMon(cfg,weather){
   if(it.speMult)spe=Math.floor(spe*it.speMult);
   const fx=ABIL_FX[ability]||{};
   if(fx.spdWx2 && fx.spdWx2===weather)spe=spe*2;
+  if(cfg.par)spe=Math.floor(spe/2); // tê liệt: tốc độ ½
   S.speEff=spe;
-  const mon={species,baseSpecies:cfg.species,types:d.t,base:d.s,w:d.w||50,ability,item:cfg.item||'Không',nature:cfg.nature,S,est:d.est,mega,fx};
+  const mon={species,baseSpecies:cfg.species,types:d.t,base:d.s,w:d.w||50,ability,item:cfg.item||'Không',nature:cfg.nature,S,est:d.est,mega,fx,brn:!!cfg.brn,par:!!cfg.par};
   // Stance Change: khi tấn công dùng chỉ số công của dạng Blade
   if(ability==='Stance Change' && !/-Blade$/.test(species)){
     const bn=species+'-Blade';
@@ -864,7 +901,7 @@ function calcDamage(atk,def,moveName,field){
     let dmg=base;
     dmg=pokeRound(dmg*targets); dmg=pokeRound(dmg*weather); dmg=pokeRound(dmg*crit);
     dmg=Math.floor(dmg*r/100); dmg=pokeRound(dmg*stab); dmg=Math.floor(dmg*e);
-    if(field.burn&&isPhys)dmg=pokeRound(dmg*0.5);
+    if((field.burn||atk.brn)&&isPhys)dmg=pokeRound(dmg*0.5);
     if(other!==1)dmg=pokeRound(dmg*other);
     if(e>0&&dmg<1)dmg=1;
     rolls.push(dmg*hits);
@@ -922,7 +959,7 @@ function fillItems(el,v){el.innerHTML=Object.keys(ITEMS).map(i=>opt(i,i,i===v)).
 const SPKEYS=['hp','atk','def','spa','spd','spe'],SPLBL=['HP','Atk','Def','SpA','SpD','Spe'];
 function spTotal(sp){return SPKEYS.reduce((a,k)=>a+(+sp[k]||0),0);}
 
-$$('.tab').forEach(t=>t.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');$$('.view').forEach(v=>v.classList.remove('on'));$('#view-'+t.dataset.view).classList.add('on');});
+$$('.tab').forEach(t=>t.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('on'));t.classList.add('on');$$('.view').forEach(v=>v.classList.remove('on'));$('#view-'+t.dataset.view).classList.add('on');if(typeof closeField==='function')closeField();if(t.dataset.view==='calc'&&typeof switchCalcMode==='function')switchCalcMode(CALC_MODE);});
 
 /* =========================================================================
    VIEW: TEAM
@@ -1036,12 +1073,53 @@ function renderMyPick(){
     renderMyPick();});
   $('#myCount').textContent=PICK.length;
 }
+function stageMul(n){return n>=0?(2+n)/2:2/(2-n);}
+function oppDisplay(o){
+  const eff=o.megaForm||o.species;
+  const g=guessSpread(o.species);
+  const cfg={species:eff,nature:g.nature,ability:(DEX[eff]||DEX[o.species]).ab[0],item:o.item||'Không',sp:g.sp,moves:o.moves||[]};
+  const mon=buildMon(cfg,'none');
+  const st=o.stages||{};
+  const base={hp:mon.S.hp,atk:mon.S.atk,def:mon.S.def,spa:mon.S.spa,spd:mon.S.spd,spe:mon.S.spe};
+  const disp={};
+  SPKEYS.forEach(k=>{let v=base[k];const s=st[k]||0;if(s&&k!=='hp')v=Math.floor(v*stageMul(s));
+    if(k==='atk'&&o.brn)v=Math.floor(v/2);if(k==='spe'&&o.par)v=Math.floor(v/2);disp[k]=v;});
+  return {eff,g,mon,disp,ability:cfg.ability};
+}
 function renderOpp(){
-  $('#oppBox').innerHTML=OPP.length?OPP.map((o,i)=>
-    `<div class="mon-tag sel" data-i="${i}">${spriteImg(o.species)}${o.species}${o.moves&&o.moves.length?` <span class="stat-mini">(${o.moves.length})</span>`:''}<span class="x" data-x="${i}">✕</span></div>`
-  ).join(''):'<span class="hint">Chưa có đối thủ.</span>';
-  $('#oppBox').querySelectorAll('.mon-tag').forEach(el=>el.onclick=e=>{if(e.target.dataset.x!==undefined)return;editOpp(+el.dataset.i);});
-  $('#oppBox').querySelectorAll('.x').forEach(el=>el.onclick=e=>{e.stopPropagation();OPP.splice(+el.dataset.x,1);saveOpp();renderOpp();syncPicks();});
+  const box=$('#oppBox');
+  if(!OPP.length){box.innerHTML='<span class="hint">Chưa có đối thủ.</span>';return;}
+  box.innerHTML=OPP.map((o,i)=>{
+    const d=oppDisplay(o);const nat=NATURES[d.g.nature]||['',''];
+    const megaList=MEGA[o.species]||[];
+    const megaBtns=megaList.map(m=>{const lbl=m.to.match(/Mega ?([XY])/i);const on=o.megaForm===m.to;
+      return `<button class="oc-tgl mega${on?' on':''}" data-act="mega" data-to="${m.to}" data-i="${i}">◆ MEGA${lbl?' '+lbl[1].toUpperCase():''}</button>`;}).join('');
+    const stats=SPKEYS.map((k,ki)=>{const up=nat[0]===k,dn=nat[1]===k;
+      return `<div><div class="lbl ${up?'up':dn?'dn':''}">${SPLBL[ki]}${up?'⁺':dn?'⁻':''}</div><div class="val">${d.disp[k]}</div><div class="sp">${d.g.sp[k]||0}</div></div>`;}).join('');
+    const stg=SPKEYS.map(k=>{if(k==='hp')return '<div class="cell"></div>';const n=(o.stages&&o.stages[k])||0;
+      return `<div class="cell"><button data-act="stg" data-k="${k}" data-d="-1" data-i="${i}">−</button><span class="n ${n>0?'pos':n<0?'neg':''}">${n>0?'+'+n:n}</span><button data-act="stg" data-k="${k}" data-d="1" data-i="${i}">+</button></div>`;}).join('');
+    const moves=(o.moves&&o.moves.length?o.moves:(usageOf(o.species)?usageOf(o.species).m.filter(m=>MOVES[m]).slice(0,4):[]));
+    const moveChips=moves.length?`<div class="oc-tgls" style="margin:8px 0 0">${moves.map(m=>`<span class="pill" style="background:var(--panel);border:1px solid var(--line)">${m}</span>`).join('')}</div>`:'';
+    return `<div class="opp-card" data-i="${i}">
+      <div class="oc-head">${spriteImg(d.eff)}<b>${d.eff}</b>${o.item&&o.item!=='Không'?`<span class="stat-mini">@ ${o.item}</span>`:''}<span class="oc-x" data-act="del" data-i="${i}" title="Xoá">✕</span></div>
+      <div class="oc-tgls">${megaBtns}<button class="oc-tgl brn${o.brn?' on':''}" data-act="brn" data-i="${i}">🔥 BRN</button><button class="oc-tgl par${o.par?' on':''}" data-act="par" data-i="${i}">⚡ PAR</button><button class="oc-tgl" data-act="edit" data-i="${i}">✎ Sửa chiêu/đồ</button></div>
+      <div>${typeChips(DEX[d.eff].t,1)} <span class="stat-mini" style="margin-left:6px">● ${d.ability}</span></div>
+      <div class="oc-stats">${stats}</div>
+      <div class="oc-stg">${stg}</div>
+      ${moveChips}
+    </div>`;
+  }).join('');
+  box.querySelectorAll('[data-act]').forEach(el=>el.onclick=e=>{
+    e.stopPropagation();const i=+el.dataset.i,o=OPP[i];if(!o)return;const act=el.dataset.act;
+    if(act==='del'){OPP.splice(i,1);saveOpp();renderOpp();syncPicks();return;}
+    if(act==='edit'){editOpp(i);return;}
+    if(act==='mega'){o.megaForm=(o.megaForm===el.dataset.to)?null:el.dataset.to;}
+    if(act==='brn'){o.brn=!o.brn;}
+    if(act==='par'){o.par=!o.par;}
+    if(act==='stg'){const k=el.dataset.k;o.stages=o.stages||{};o.stages[k]=Math.max(-6,Math.min(6,(o.stages[k]||0)+(+el.dataset.d)));}
+    saveOpp();renderOpp();
+    if(typeof CALC_MODE!=='undefined'&&CALC_MODE==='me'&&typeof renderMyToOpp==='function')renderMyToOpp();
+  });
 }
 // ---- Tìm đối thủ theo hệ (tích ô hệ như bảng Khắc hệ) ----
 let TF_SEL=[];
@@ -1173,12 +1251,13 @@ function usageOf(species){
   return null;
 }
 function oppCfgOf(o){
+  const species=o.megaForm||o.species;
   const g=guessSpread(o.species);
   const u=usageOf(o.species);
   const revealed=(o.moves||[]).length;
   const moves=revealed?o.moves:(u?u.m.filter(m=>MOVES[m]):[]);
-  const ability=(u&&u.a&&DEX[o.species].ab.includes(u.a))?u.a:DEX[o.species].ab[0];
-  return {species:o.species,nature:g.nature,ability,item:o.item||'Không',sp:g.sp,moves,usage:!revealed&&!!u};
+  const ability=(u&&u.a&&(DEX[species]||DEX[o.species]).ab.includes(u.a))?u.a:(DEX[species]||DEX[o.species]).ab[0];
+  return {species,nature:g.nature,ability,item:o.item||'Không',sp:g.sp,moves,usage:!revealed&&!!u,brn:!!o.brn,par:!!o.par};
 }
 function matchup(mySet,oppSet,weather){
   const oppCfg=oppCfgOf(oppSet);
@@ -1335,19 +1414,107 @@ function setPick(side,val){
   $('#'+side+'Search').value=labelOf(val);
   loadCalcSide(side);
 }
-function calcCandidates(q){ // q lowercase; rỗng -> danh sách nhanh
+function calcCandidates(q, side){ // q lowercase; rỗng -> danh sách nhanh
   const out=[];
   const push=(val,label,sub,sp)=>out.push({val,label,sub,sp});
-  OPP.forEach((o,j)=>{if(!q||o.species.toLowerCase().includes(q))push('opp:'+j,'✦ '+o.species,DEX[o.species].t.map(t=>TYPE_VI[t]).join('/'),o.species);});
-  MYTEAM.forEach((s,i)=>{if(!q||s.species.toLowerCase().includes(q))push('set:'+i,'★ '+s.species+' ('+s.nature+')',DEX[s.species].t.map(t=>TYPE_VI[t]).join('/'),s.species);});
+  const tv=n=>DEX[n].t.map(t=>TYPE_VI[t]).join('/');
+  // Tab "Đối thủ → Tôi": tấn công chỉ 6 đối thủ, phòng thủ chỉ pkm đã chọn ra trận
+  if(CALC_MODE==='opp'){
+    if(side==='atk'){
+      OPP.forEach((o,j)=>{if(!q||o.species.toLowerCase().includes(q))push('opp:'+j,'✦ '+o.species,tv(o.species),o.species);});
+      if(out.length||OPP.length)return out.slice(0,12);
+    }else if(side==='def'){
+      const pool=PICK.length?PICK:MYTEAM.map((_,i)=>i);
+      pool.forEach(i=>{const s=MYTEAM[i];if(s&&(!q||s.species.toLowerCase().includes(q)))push('set:'+i,'★ '+s.species,tv(s.species),s.species);});
+      if(out.length)return out.slice(0,12);
+    }
+  }
+  OPP.forEach((o,j)=>{if(!q||o.species.toLowerCase().includes(q))push('opp:'+j,'✦ '+o.species,tv(o.species),o.species);});
+  MYTEAM.forEach((s,i)=>{if(!q||s.species.toLowerCase().includes(q))push('set:'+i,'★ '+s.species+' ('+s.nature+')',tv(s.species),s.species);});
   if(q&&q.length>=2){
     const names=Object.keys(DEX);
     const starts=names.filter(n=>n.toLowerCase().startsWith(q));
     const incl=names.filter(n=>!starts.includes(n)&&n.toLowerCase().includes(q));
-    for(const n of [...starts,...incl]){if(out.length>=12)break;push('dex:'+n,n,DEX[n].t.map(t=>TYPE_VI[t]).join('/'),n);}
+    for(const n of [...starts,...incl]){if(out.length>=12)break;push('dex:'+n,n,tv(n),n);}
   }
   return out.slice(0,12);
 }
+function readField(){return {weather:$('#weather').value,terrain:$('#terrain').value,spread:($('#mode').value==='double'?1:0),crit:+$('#crit').value,burn:+$('#burn').value,screen:+$('#screen').value,aura:$('#aura').checked,auraDark:$('#auraDark').checked,auraBreak:$('#auraBreak').checked,rSword:$('#rSword').checked,rBeads:$('#rBeads').checked,rVessel:$('#rVessel').checked,rTablets:$('#rTablets').checked,hh:$('#hh').checked,stA:+$('#stA').value,stS:+$('#stS').value,stD:+$('#stD').value,stSd:+$('#stSd').value};}
+
+// ===== 2 tab của Tính damage =====
+let CALC_MODE='opp';
+function switchCalcMode(mode){
+  CALC_MODE=mode;
+  $('#ctabOpp').classList.toggle('on',mode==='opp');$('#ctabMe').classList.toggle('on',mode==='me');
+  $('#ctabOpp').style.background=mode==='opp'?'var(--acc)':'var(--panel2)';$('#ctabOpp').style.color=mode==='opp'?'#08201e':'var(--ink)';
+  $('#ctabMe').style.background=mode==='me'?'var(--acc)':'var(--panel2)';$('#ctabMe').style.color=mode==='me'?'#08201e':'var(--ink)';
+  const show1=mode==='opp';
+  ['adGrid','calcTablePanel'].forEach(id=>{const el=$('#'+id);if(el)el.style.display=show1?'':'none';});
+  $('#calcMode2').style.display=show1?'none':'';
+  if(show1){
+    const av=$('#atkPick').value, dv=$('#defPick').value;
+    if(OPP.length && !av.startsWith('opp:'))setPick('atk','opp:0');       // tấn công = 1 trong đối thủ
+    if(!dv.startsWith('set:')){const fp=PICK.length?PICK[0]:0;if(MYTEAM[fp])setPick('def','set:'+fp);} // thủ = 1 trong pkm đã chọn
+  }else{
+    renderMyToOpp();
+  }
+}
+function effBadge(e){
+  if(e===0)return '';
+  if(e>=4)return '<span class="est" style="background:#3a1a1a;color:#ff6b6b;border-color:#5a2a2a">4×</span>';
+  if(e>=2)return '<span class="est" style="background:#3a2418;color:#ffb454;border-color:#5a3a1a">2×</span>';
+  if(e<=0.25)return '<span class="est" style="background:#12314a;color:#6bb6ff;border-color:#204a6a">¼×</span>';
+  if(e<0.9)return '<span class="est" style="background:#16314a;color:#7db8ff;border-color:#204a6a">½×</span>';
+  return '';
+}
+function renderMyToOpp(){
+  const box=$('#calcMode2');
+  if(!OPP.length){box.innerHTML='<div class="mu-place">Chưa có đối thủ. Thêm ở tab <b>Chọn đội</b> trước.</div>';return;}
+  const pool=PICK.length?PICK:MYTEAM.map((_,i)=>i);
+  if(!pool.length){box.innerHTML='<div class="mu-place">Chưa có Pokémon trong đội.</div>';return;}
+  const field=readField();
+  const opps=OPP.map(o=>({o,cfg:oppCfgOf(o),mon:buildMon(oppCfgOf(o),field.weather)}));
+  let html='<div class="hint" style="margin-bottom:10px">Chỉ số mình: từ set đã lưu · đối thủ: spread hay gặp. ▲ = mình ra đòn trước. Bấm ô để xem chi tiết roll ở tab kia.</div>';
+  pool.forEach(i=>{
+    const set=MYTEAM[i];if(!set||!DEX[set.species])return;
+    const my=buildMon(set,field.weather);if(!my)return;
+    const moves=(set.moves||[]).filter(m=>MOVES[m]&&MOVES[m].c!=='stat');
+    html+=`<div class="panel" style="margin-bottom:12px;padding:0;overflow:hidden">
+      <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--panel2);border-bottom:1px solid var(--line)">
+        ${spriteImg(set.species)}<b>${set.species}</b> ${isMegaSet(set)?'<span class="pill" style="background:#2a2410;color:var(--acc2)">MEGA</span>':''}
+        <span class="stat-mini" style="margin-left:auto">${typeChips(DEX[set.species].t,1)} · Spe ${my.S.speEff}</span>
+      </div>
+      <div class="scroll"><table class="mtx-table" style="width:100%;border-collapse:collapse">
+        <thead><tr><th style="text-align:left;padding:7px 10px;font-size:12px;color:var(--muted)">Chiêu</th>`;
+    opps.forEach(op=>{
+      const faster=my.S.speEff>op.mon.S.speEff, tie=my.S.speEff===op.mon.S.speEff;
+      const arrow=tie?'':(faster?' <b style="color:var(--good)">▲</b>':' <b style="color:var(--bad)">▼</b>');
+      html+=`<th style="padding:7px 8px;font-size:12px;text-align:center">${spriteImg(op.o.species)}<br>${op.o.species}${arrow}</th>`;
+    });
+    html+='</tr></thead><tbody>';
+    if(!moves.length){
+      html+=`<tr><td colspan="${opps.length+1}" class="stat-mini" style="padding:10px;text-align:center">Con này chưa nhập chiêu tấn công (mở tab Đội của tôi để thêm).</td></tr>`;
+    }
+    moves.forEach(mv=>{
+      html+=`<tr><td style="padding:7px 10px;font-weight:600;border-top:1px solid var(--line)">${mv}</td>`;
+      opps.forEach(op=>{
+        const r=calcDamage(my,op.mon,mv,field);
+        if(!r||r.eff===0){html+=`<td style="text-align:center;padding:7px 8px;border-top:1px solid var(--line)"><span class="stat-mini">Miễn nhiễm</span></td>`;return;}
+        const h=koLabel(r);
+        const col={ohko:'#ff6b6b',likely:'#ffb454',slow:'#e8d24a',safe:'#8fd9a0','':'#b9c2d0'}[h.cls]||'#b9c2d0';
+        const bg={ohko:'#2a1414',likely:'#2a1e10',slow:'#232010',safe:'#122a1c','':'transparent'}[h.cls]||'transparent';
+        html+=`<td title="${mv} vào ${op.o.species}: ${r.pctMin.toFixed(1)}–${r.pctMax.toFixed(1)}%" style="text-align:center;padding:6px 8px;border-top:1px solid var(--line);background:${bg};line-height:1.3">
+          <div style="color:${col};font-weight:700;font-size:13px">${r.pctMin.toFixed(1)}–${r.pctMax.toFixed(1)}% ${effBadge(r.eff)}</div>
+          <div class="stat-mini" style="color:${col};opacity:.85">${h.t}</div></td>`;
+      });
+      html+='</tr>';
+    });
+    html+='</tbody></table></div></div>';
+  });
+  box.innerHTML=html;
+}
+$('#ctabOpp').onclick=()=>switchCalcMode('opp');
+$('#ctabMe').onclick=()=>switchCalcMode('me');
 function wireCalcSearch(side){
   const inp=$('#'+side+'Search'),box=$('#'+side+'Sug');
   function show(typing){
@@ -1355,7 +1522,7 @@ function wireCalcSearch(side){
     // focus vào ô đang hiển thị nhãn lựa chọn hiện tại -> mở danh sách nhanh; còn đang gõ thì tìm theo chữ
     const cur=labelOf($('#'+side+'Pick').value);
     const qq=(!typing&&inp.value===cur)?'':q;
-    const list=calcCandidates(qq);
+    const list=calcCandidates(qq, side);
     if(!list.length){box.classList.remove('on');return;}
     box.innerHTML=list.map((c,i)=>`<div class="it${i===0?' hl':''}" data-v="${c.val}">${c.sp?spriteImg(c.sp):''}${c.label} <span class="stat-mini" style="margin-left:auto">${c.sub}</span></div>`).join('');
     box.classList.add('on');
@@ -1380,8 +1547,8 @@ function guessSpread(species){
 function resolvePick(val){ // -> cfg {species,nature,ability,item,sp,moves?}
   if(!val)val='dex:Great Tusk';
   if(val.startsWith('set:')&&MYTEAM[+val.slice(4)])return clone(MYTEAM[+val.slice(4)]);
-  if(val.startsWith('opp:')&&OPP[+val.slice(4)]){const o=OPP[+val.slice(4)];const g=guessSpread(o.species);
-    return {species:o.species,nature:g.nature,ability:DEX[o.species].ab[0],item:o.item||'Không',sp:g.sp,moves:o.moves||[],guessed:1};}
+  if(val.startsWith('opp:')&&OPP[+val.slice(4)]){const o=OPP[+val.slice(4)];const g=guessSpread(o.species);const sp=o.megaForm||o.species;
+    return {species:sp,nature:g.nature,ability:(DEX[sp]||DEX[o.species]).ab[0],item:o.item||'Không',sp:g.sp,moves:o.moves||[],guessed:1,brn:!!o.brn,par:!!o.par};}
   let n=val.slice(4);if(!DEX[n])n='Great Tusk';
   const g=guessSpread(n);
   return {species:n,nature:g.nature,ability:DEX[n].ab[0],item:'Không',sp:g.sp,guessed:1};
@@ -1463,8 +1630,7 @@ function runCalc(){
   acfg.sp=Object.assign({},acfg.sp,{atk:+$('#atkAtkSp').value,spa:+$('#atkSpaSp').value});
   const dcfg=resolvePick(dv);dcfg.nature=$('#defNat').value;dcfg.item=$('#defItem').value;
   dcfg.sp=Object.assign({},dcfg.sp,{hp:+$('#defHpSp').value,def:+$('#defDefSp').value,spd:+$('#defSpdSp').value});
-  const field={weather:$('#weather').value,terrain:$('#terrain').value,spread:($('#mode').value==='double'?1:0),crit:+$('#crit').value,burn:+$('#burn').value,screen:+$('#screen').value,aura:$('#aura').checked,auraDark:$('#auraDark').checked,auraBreak:$('#auraBreak').checked,rSword:$('#rSword').checked,rBeads:$('#rBeads').checked,rVessel:$('#rVessel').checked,rTablets:$('#rTablets').checked,hh:$('#hh').checked,
-    stA:+$('#stA').value,stS:+$('#stS').value,stD:+$('#stD').value,stSd:+$('#stSd').value};
+  const field=readField();
   const A=buildMon(acfg,field.weather),D=buildMon(dcfg,field.weather);if(!A||!D)return;
 
   $('#atkStats').innerHTML=`${A.mega?`<span class="pill" style="background:#2a2410;color:var(--acc2)">MEGA ${A.species}</span> `:''}Atk <b>${A.S.atk}</b>${A.fx.atkX2?' <span class="stat-mini">(Huge→'+A.S.atk*2+')</span>':''} · SpA <b>${A.S.spa}</b> · Spe <b>${A.S.speEff}</b> — ${typeChips(A.types,1)} · ${A.ability}`;
@@ -1531,10 +1697,17 @@ const STAGE_OPTS=[
 const stageOptsHtml=sel=>STAGE_OPTS.map(o=>opt(o.v,o.l,o.v===sel)).join('');
 $$('.stageSel').forEach(el=>{el.innerHTML=stageOptsHtml(1);});
 $('#swapBtn').onclick=()=>{const a=$('#atkPick').value,d=$('#defPick').value;setPick('atk',d);setPick('def',a);};
-['atkNat','atkAbil','atkItem','stA','stS','stD','stSd','atkAtkSp','atkSpaSp','defNat','defItem','defHpSp','defDefSp','defSpdSp','weather','terrain','mode','crit','burn','screen'].forEach(id=>$('#'+id).addEventListener('input',runCalc));
-['aura','auraDark','auraBreak','rSword','rBeads','rVessel','rTablets'].forEach(id=>$('#'+id).addEventListener('change',runCalc));
-$('#hh').addEventListener('change',runCalc);
+function calcRefresh(){runCalc();if(CALC_MODE==='me')renderMyToOpp();}
+['atkNat','atkAbil','atkItem','stA','stS','stD','stSd','atkAtkSp','atkSpaSp','defNat','defItem','defHpSp','defDefSp','defSpdSp','weather','terrain','mode','crit','burn','screen'].forEach(id=>$('#'+id).addEventListener('input',calcRefresh));
+['aura','auraDark','auraBreak','rSword','rBeads','rVessel','rTablets'].forEach(id=>$('#'+id).addEventListener('change',calcRefresh));
+$('#hh').addEventListener('change',calcRefresh);
 wireCalcSearch('atk');wireCalcSearch('def');
+switchCalcMode('opp');
+function openField(){$('#calcFieldPanel').classList.add('open');$('#fieldBackdrop').classList.add('open');$('#fieldToggle').classList.add('hot');}
+function closeField(){$('#calcFieldPanel').classList.remove('open');$('#fieldBackdrop').classList.remove('open');$('#fieldToggle').classList.remove('hot');}
+$('#fieldToggle').onclick=()=>{$('#calcFieldPanel').classList.contains('open')?closeField():openField();};
+$('#fieldClose').onclick=closeField;
+$('#fieldBackdrop').onclick=closeField;
 
 /* =========================================================================
    VIEW: DEX
