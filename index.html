@@ -408,6 +408,10 @@
   .pill.mg{background:#2a2410;color:var(--acc2)}
   .pill.on-field{background:#12312e;color:#57d977}
   .pill.mv{background:var(--panel);border:1px solid var(--line);color:var(--ink-dim);font-weight:600}
+  /* ô chọn số con đã ngất, nằm cạnh tên chiêu Last Respects */
+  .faint-sel{width:auto;display:inline-block;padding:1px 4px;font-size:11px;font-family:var(--mono);
+             background:var(--panel2);border:1px solid var(--acc2);color:var(--acc2);border-radius:5px;vertical-align:middle}
+  .faint-sel:focus{border-color:var(--acc)}
   .oc-stats .val.boost{color:var(--good)} .oc-stats .val.drop{color:var(--bad)}
   /* nút −/+ dưới mỗi chỉ số */
   .oc-stg .cell{gap:1px}
@@ -895,6 +899,7 @@ function fixSpecialMoves(){
   const set=(n,k)=>{if(MOVES[n])MOVES[n][k]=1;};
   set('Foul Play','foul');                 // dùng Atk đối thủ
   set('Body Press','useDef');              // dùng Def người đánh
+  set('Last Respects','lastResp');         // BP tăng theo số đồng đội đã ngất
   ['Psyshock','Psystrike','Secret Sword'].forEach(n=>set(n,'vsDef')); // đánh vào Def
 }
 reapplySpread();fixSpecialMoves();
@@ -998,6 +1003,8 @@ function calcDamage(atk,def,moveName,field){
   // Weather Ball đổi hệ/power theo thời tiết
   let mtype=m.t,bp=m.bp,spread=m.spread;
   if(m.weatherBall){const map={sun:['Fire',100],rain:['Water',100],sand:['Rock',100],snow:['Ice',100],none:['Normal',50]};const w=map[field.weather]||map.none;mtype=w[0];bp=w[1];}
+  // Last Respects: BP 50 +50 mỗi đồng đội ĐÃ NGẤT của bên dùng chiêu (tối đa 5 → 300)
+  if(m.lastResp)bp=50+50*Math.max(0,Math.min(5,field.faint||0));
   // Pixilate: chiêu Normal -> Fairy +1.2
   let ateBoost=1;
   if(atk.fx.ateType && mtype==='Normal'){mtype=atk.fx.ateType;ateBoost=1.2;}
@@ -1682,6 +1689,7 @@ function renderFieldBar(){
   $('#fbReset').onclick=()=>{
     FIELD.weather='none';FIELD.terrain='none';FIELD.mode='single';FIELD.tr=0;
     ['me','opp'].forEach(s=>Object.keys(FIELD[s]).forEach(k=>FIELD[s][k]=0));
+    FAINT.me=0;FAINT.opp=0;
     // xoá luôn buff/BRN/PAR trên card 2 rìa — nếu không, "Reset" chỉ xoá được nửa sân
     [...MYTEAM,...OPP].forEach(m=>{m.stages={};m.brn=false;m.par=false;});
     saveTeam();saveOpp();renderMyPick();renderOpp();
@@ -1692,6 +1700,9 @@ function fieldChanged(){renderFieldBar();calcRefresh();renderSpeedTier();}
 /* Bên nào đang thủ → dùng màn chắn của bên đó.
    'set:' = con trong đội tôi; mọi giá trị khác (opp:/dex:) coi như bên đối thủ. */
 function defSideOf(val){return String(val||'').startsWith('set:')?'me':'opp';}
+/* Số Pokémon ĐÃ NGẤT của mỗi bên — hiện chỉ Last Respects dùng.
+   BP của nó đếm đồng đội đã ngất của CHÍNH bên tung chiêu, nên phải tách 2 bên. */
+const FAINT={me:0,opp:0};
 /* Buff công lấy từ con ĐANG TẤN CÔNG, buff thủ lấy từ con ĐANG THỦ — cả hai đọc
    thẳng từ card ở 2 rìa, không còn ô select riêng ở giữa để lệch nhau. */
 function readField(defSide,atkVal,defVal){
@@ -1705,6 +1716,7 @@ function readField(defSide,atkVal,defVal){
     aura:$('#aura').checked,auraDark:$('#auraDark').checked,auraBreak:$('#auraBreak').checked,
     rSword:$('#rSword').checked,rBeads:$('#rBeads').checked,rVessel:$('#rVessel').checked,rTablets:$('#rTablets').checked,
     hh:$('#hh').checked,single:$('#single').checked,
+    faint:FAINT[defSideOf(av)==='me'?'me':'opp'], // đồng đội đã ngất của bên TẤN CÔNG
     stA:stageMul(as.atk||0),stS:stageMul(as.spa||0),
     stD:stageMul(ds.def||0),stSd:stageMul(ds.spd||0)};}
 
@@ -1771,7 +1783,9 @@ function renderMyToOpp(){
       html+=`<tr><td colspan="${opps.length+1}" class="stat-mini" style="padding:10px;text-align:center">Con này chưa nhập chiêu tấn công (mở tab Đội của tôi để thêm).</td></tr>`;
     }
     moves.forEach(mv=>{
-      html+=`<tr><td class="mtx-mv" style="font-weight:600;border-top:1px solid var(--line)">${mv}</td>`;
+      // Last Respects: cho chỉnh số con đã ngất ngay tại đây, khỏi phải quay về tab kia
+      const fs=(MOVES[mv]&&MOVES[mv].lastResp)?faintSel('me'):'';
+      html+=`<tr><td class="mtx-mv" style="font-weight:600;border-top:1px solid var(--line)">${mv}${fs}</td>`;
       opps.forEach(op=>{
         // mỗi cặp có buff riêng: công của con mình (rìa trái) vs thủ của con đối thủ (rìa phải)
         const f2=readField('opp','set:'+i,'opp:'+OPP.indexOf(op.o));
@@ -1790,6 +1804,8 @@ function renderMyToOpp(){
     html+='</tbody></table></div></div>';
   });
   box.innerHTML=html;
+  box.querySelectorAll('.faint-sel').forEach(s=>s.onchange=()=>{
+    FAINT[s.dataset.side]=+s.value;calcRefresh();});
 }
 $('#ctabOpp').onclick=()=>switchCalcMode('opp');
 $('#ctabMe').onclick=()=>switchCalcMode('me');
@@ -1905,10 +1921,20 @@ function loadCalcSide(side){
   syncAura();
   runCalc();
 }
+/* Ô chọn số đồng đội đã ngất, hiện ngay cạnh tên chiêu Last Respects (như bản mẫu).
+   Tối đa 5: con thứ 6 chính là con đang tung chiêu, ngất nốt thì không còn ai để đánh. */
+function faintSel(side){
+  const n=FAINT[side]||0;
+  const who=side==='me'?'đội tôi':'đối thủ';
+  return ` <select class="faint-sel" data-side="${side}" title="Số Pokémon ${who} đã ngất — Last Respects +50 BP mỗi con">`
+    +[0,1,2,3,4,5].map(v=>`<option value="${v}"${v===n?' selected':''}>${v} ngất</option>`).join('')
+    +`</select>`;
+}
 /* Set (nature/ability/item/SP) nay chỉ đến từ card ở 2 rìa — sửa qua modal ✎ trên card.
    runCalc không còn override gì từ ô giữa nữa. */
 function runCalc(){
   const av=$('#atkPick').value, dv=$('#defPick').value;
+  const atkSide=defSideOf(av)==='me'?'me':'opp'; // bên đang tấn công
   const acfg=resolvePick(av), dcfg=resolvePick(dv);
   const field=readField();
   const A=buildMon(acfg,field.weather),D=buildMon(dcfg,field.weather);if(!A||!D)return;
@@ -1959,11 +1985,13 @@ function runCalc(){
 
   $('#calcBody').innerHTML=results.map(r=>{const k=koLabel(r);const w=Math.min(100,r.pctMax);
     const bc=r.pctMin>=100?'#ff6b6b':r.pctMax>=100?'#ffb454':r.pctMax>=50?'#f6c945':'#4dd0c8';
-    return `<tr><td><b>${r.move}</b>${r.eff!==1?` <span class="stat-mini">×${r.eff}</span>`:''}${field.spread&&MOVES[r.move]&&MOVES[r.move].spread?(field.single?' <span class="stat-mini" style="color:var(--good)">lan · 1 mục tiêu</span>':' <span class="stat-mini" style="color:var(--acc2)">lan ×0.75</span>'):''}</td><td>${chip(r.type,1)}</td>
+    return `<tr><td><b>${r.move}</b>${r.eff!==1?` <span class="stat-mini">×${r.eff}</span>`:''}${field.spread&&MOVES[r.move]&&MOVES[r.move].spread?(field.single?' <span class="stat-mini" style="color:var(--good)">lan · 1 mục tiêu</span>':' <span class="stat-mini" style="color:var(--acc2)">lan ×0.75</span>'):''}${MOVES[r.move]&&MOVES[r.move].lastResp?faintSel(atkSide):''}</td><td>${chip(r.type,1)}</td>
       <td><span class="cat ${r.cat}">${r.cat==='phys'?'VL':'ĐB'}</span></td><td class="num">${r.bp}</td>
       <td class="num">${r.min}–${r.max}</td><td class="num">${r.pctMin.toFixed(1)}–${r.pctMax.toFixed(1)}%</td>
       <td><div class="bar"><span style="width:${w}%;background:${bc}"></span><em>${r.pctMax.toFixed(0)}%</em></div></td>
       <td><span class="ko ${k.cls}">${k.t}</span></td></tr>`;}).join('')||`<tr><td colspan="8" class="muted">Không có chiêu tấn công.</td></tr>`;
+  $('#calcBody').querySelectorAll('.faint-sel').forEach(s=>s.onchange=()=>{
+    FAINT[s.dataset.side]=+s.value;calcRefresh();});
 
   const best=results[0];
   const scOn=Object.keys(field.screens).filter(k=>field.screens[k]);
