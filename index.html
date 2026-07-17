@@ -368,6 +368,54 @@
   body.force-mobile .applayout{grid-template-columns:1fr}
   body.force-mobile .rail{position:static;max-height:none;overflow:visible}
   body.force-mobile .wrapwide{max-width:480px;margin:0 auto}
+
+  /* ============ Card Pokémon trên 2 rìa ============ */
+  .opp-card.mine{border-left:3px solid #2f3b4d}
+  .opp-card.mine.sel{border-left-color:var(--acc);background:#14262b}
+  .opp-card .oc-head b{cursor:pointer}
+  .opp-card.mine .oc-head b:hover{color:var(--acc)}
+  .pill.mg{background:#2a2410;color:var(--acc2)}
+  .pill.on-field{background:#12312e;color:#57d977}
+  .pill.mv{background:var(--panel);border:1px solid var(--line);color:var(--ink-dim);font-weight:600}
+  .oc-stats .val.boost{color:var(--good)} .oc-stats .val.drop{color:var(--bad)}
+  .oc-stats .sp b{font-weight:800}
+  .oc-stats .sp b.pos{color:var(--good)} .oc-stats .sp b.neg{color:var(--bad)}
+  /* nút −/+ dưới mỗi chỉ số */
+  .oc-stg .cell{gap:2px}
+  .oc-stg button{width:100%;height:17px;font-size:12px;border-radius:4px;color:var(--ink-faint)}
+  .oc-stg button:hover{color:var(--ink);border-color:var(--acc);background:var(--panel2)}
+  /* nút −/+ trong bảng speed order */
+  .spd-stg{display:flex;align-items:center;gap:3px}
+  .spd-stg button{width:19px;height:19px;border:1px solid var(--line);background:var(--panel2);color:var(--ink-faint);
+                  border-radius:4px;font-weight:800;line-height:1;padding:0;font-size:12px}
+  .spd-stg button:hover{color:var(--ink);border-color:var(--acc)}
+  .spd-stg .n{font-family:var(--mono);font-size:11px;min-width:18px;text-align:center;color:var(--ink-faint)}
+  .spd-stg .n.pos{color:var(--good)} .spd-stg .n.neg{color:var(--bad)}
+
+  /* ============ Nén cho vừa 1 màn hình ============ */
+  .applayout .panel{padding:10px}
+  .rail .opp-card{padding:8px 9px;margin-bottom:7px}
+  .rail .opp-card:last-child{margin-bottom:0}
+  .rail .oc-head b{font-size:13px}
+  .rail .spr{width:26px;height:22px}
+  .rail .oc-tgls{gap:4px;margin:6px 0}
+  .rail .oc-tgl{padding:3px 7px;font-size:10.5px}
+  .rail .oc-stats{margin-top:6px}
+  .rail .oc-stats .lbl{font-size:9.5px}
+  .rail .oc-stats .val{font-size:14px}
+  .rail .oc-stats .sp{font-size:9.5px}
+  .rail .pill{font-size:10px;padding:1px 6px}
+  .rail .chip{font-size:9.5px;padding:1px 5px}
+  .rail .hint{font-size:11px}
+  .rail select{padding:5px 8px;font-size:12px}
+  #calcCenter .panel.pk{padding:9px 10px}
+  #calcCenter .panel.pk h2{margin-bottom:6px;font-size:12px}
+  #calcTablePanel th,#calcTablePanel td{padding:4px 7px}
+  #calcTablePanel h2{margin-bottom:7px}
+  #spdPanel{padding:10px}
+  #spdPanel th,#spdPanel td{padding:3px 7px}
+  #spdPanel .spr{width:24px;height:20px}
+  .fgrp{margin-top:0}
 </style>
 </head>
 <body>
@@ -401,11 +449,10 @@
     <aside class="rail" id="railMe">
       <div class="panel">
         <h2>Đội của tôi <span class="mono" style="margin-left:auto;color:var(--acc)"><span id="myCount">0</span>/<span id="myLimit">4</span></span></h2>
-        <label class="f">Định dạng</label>
         <select id="fmt"><option value="singles">Singles — chọn 3</option><option value="doubles">Doubles — chọn 4</option></select>
+        <div class="hint" style="margin:7px 0 0">Bấm tên để chọn/bỏ ra trận · <b>+/−</b> để tăng/giảm chỉ số.</div>
         <div class="divider"></div>
-        <div class="box-list rail-list" id="myPick"></div>
-        <div class="hint" style="margin-top:9px">Bấm để chọn/bỏ con ra trận. Chưa chọn đủ → tool tính cho cả đội. Sửa set ở tab <b>Đội của tôi</b>.</div>
+        <div id="myPick"></div>
       </div>
     </aside>
 
@@ -415,11 +462,10 @@
         <button class="ctab on" id="ctabOpp" style="flex:1;padding:11px;border:none;background:var(--acc);color:#08201e;font-weight:800;cursor:pointer">Đối thủ → Tôi</button>
         <button class="ctab" id="ctabMe" style="flex:1;padding:11px;border:none;background:var(--panel2);color:var(--ink);font-weight:800;cursor:pointer">Tôi → Đối thủ</button>
       </div>
-      <div class="between" style="margin-bottom:12px;gap:8px">
+      <div class="between" style="margin-bottom:10px;gap:8px">
         <div class="fgrp" style="margin:0">
           <label class="flex tiny"><input type="checkbox" id="crit"> Crit ×1.5</label>
           <label class="flex tiny"><input type="checkbox" id="hh"> Helping Hand ×1.5</label>
-          <label class="flex tiny"><input type="checkbox" id="burn"> Bỏng (bên công)</label>
         </div>
         <div class="flex" style="margin-left:auto">
           <button class="btn ghost sm" id="fieldToggle" title="Aura / Tai Ương">⚙ Nâng cao</button>
@@ -427,57 +473,25 @@
         </div>
       </div>
       <div id="calcMode2" style="display:none"></div>
-      <div class="grid" id="adGrid" style="grid-template-columns:1fr 1fr">
-        <div class="panel" id="atkPanel">
+      <div class="grid" id="adGrid" style="grid-template-columns:1fr 1fr;gap:10px">
+        <div class="panel pk" id="atkPanel">
           <h2 style="color:#ff9d6b">⚔ Bên tấn công</h2>
-          <label class="f">Chọn — gõ tên (★ đội tôi nạp sẵn set · ✦ đối thủ · hoặc loài bất kỳ)</label>
-          <input type="text" id="atkSearch" autocomplete="off" placeholder="Bấm để hiện đội/đối thủ, hoặc gõ tên…">
+          <input type="text" id="atkSearch" autocomplete="off" placeholder="Gõ tên — ★ đội tôi · ✦ đối thủ · loài bất kỳ">
           <input type="hidden" id="atkPick">
           <div id="atkSug" class="sug"></div>
           <div id="atkInfo"></div>
-          <div class="row" style="margin-top:10px">
-            <div><label class="f">Nature</label><select id="atkNat"></select></div>
-            <div><label class="f">Ability</label><select id="atkAbil"></select></div>
-          </div>
-          <div class="row buff-row" style="margin-top:10px">
-            <div><label class="f">Item</label><select id="atkItem"></select></div>
-            <div class="buffcell" style="flex:0 0 105px"><label class="f">Buff Atk</label><select id="stA" class="stageSel"></select></div>
-            <div class="buffcell" style="flex:0 0 105px"><label class="f">Buff SpA</label><select id="stS" class="stageSel"></select></div>
-          </div>
-          <div class="divider"></div>
-          <label class="f">SP tấn công</label>
-          <div class="row sp-row">
-            <div><span class="stat-mini">Atk</span><input type="number" id="atkAtkSp" min="0" max="32" value="32"></div>
-            <div><span class="stat-mini">SpA</span><input type="number" id="atkSpaSp" min="0" max="32" value="0"></div>
-          </div>
-          <div class="stat-mini" id="atkStats" style="margin-top:8px"></div>
         </div>
 
-        <div class="panel" id="defPanel">
+        <div class="panel pk" id="defPanel">
           <h2 style="color:#7db8ff">🛡 Bên phòng thủ</h2>
-          <label class="f">Chọn — gõ tên (✦ đối thủ · ★ đội tôi · loài bất kỳ)</label>
-          <input type="text" id="defSearch" autocomplete="off" placeholder="Bấm để hiện đối thủ/đội, hoặc gõ tên…">
+          <input type="text" id="defSearch" autocomplete="off" placeholder="Gõ tên — ✦ đối thủ · ★ đội tôi · loài bất kỳ">
           <input type="hidden" id="defPick">
           <div id="defSug" class="sug"></div>
           <div id="defInfo"></div>
-          <div class="row buff-row" style="margin-top:10px">
-            <div><label class="f">Nature</label><select id="defNat"></select></div>
-            <div><label class="f">Item</label><select id="defItem"></select></div>
-            <div class="buffcell" style="flex:0 0 105px"><label class="f">Buff Def</label><select id="stD" class="stageSel"></select></div>
-            <div class="buffcell" style="flex:0 0 105px"><label class="f">Buff SpD</label><select id="stSd" class="stageSel"></select></div>
-          </div>
-          <div class="divider"></div>
-          <label class="f">SP thủ</label>
-          <div class="row sp-row">
-            <div><span class="stat-mini">HP</span><input type="number" id="defHpSp" min="0" max="32" value="0"></div>
-            <div><span class="stat-mini">Def</span><input type="number" id="defDefSp" min="0" max="32" value="0"></div>
-            <div><span class="stat-mini">SpD</span><input type="number" id="defSpdSp" min="0" max="32" value="0"></div>
-          </div>
-          <div class="stat-mini" id="defStats" style="margin-top:8px"></div>
         </div>
       </div>
 
-      <div class="panel" id="calcTablePanel" style="margin-top:14px">
+      <div class="panel" id="calcTablePanel" style="margin-top:10px">
         <h2>Bảng damage</h2>
         <div id="spdCompare" style="margin:-4px 0 12px"></div>
         <div class="scroll"><table id="calcTable"><thead>
@@ -1170,20 +1184,81 @@ window.delSet=(i)=>{const n=MYTEAM[i]?MYTEAM[i].species:'';MYTEAM.splice(i,1);sa
    ========================================================================= */
 let PICK=[]; // index vào MYTEAM
 function pickLimit(){return $('#fmt').value==='singles'?3:4;}
+/* Cấp buff/nerf chỉ số nay là thuộc tính của TỪNG con (như đối thủ), không còn là
+   ô select dùng chung ở giữa. Đây là nguồn duy nhất cho cả damage lẫn speed order. */
+function stagesOf(val){
+  const v=String(val||'');
+  if(v.startsWith('set:')){const s=MYTEAM[+v.slice(4)];return (s&&s.stages)||{};}
+  if(v.startsWith('opp:')){const o=OPP[+v.slice(4)];return (o&&o.stages)||{};}
+  return {}; // dex: — loài tra nhanh, không gắn với con nào trên sân
+}
+function bumpStage(obj,k,d,save){
+  obj.stages=obj.stages||{};
+  obj.stages[k]=Math.max(-6,Math.min(6,(obj.stages[k]||0)+d));
+  save();renderMyPick();renderOpp();calcRefresh();renderSpeedTier();
+}
+// lưới 6 chỉ số + hàng nút −/+ : dùng chung cho card đội tôi và card đối thủ
+function statGrid(disp,sp,nat,stages,idx,kind){
+  const stats=SPKEYS.map((k,ki)=>{const up=nat[0]===k,dn=nat[1]===k;
+    const st=(stages&&stages[k])||0;
+    const cls=st>0?'up':st<0?'dn':(up?'up':dn?'dn':'');
+    return `<div><div class="lbl ${cls}">${SPLBL[ki]}${up?'⁺':dn?'⁻':''}</div>
+      <div class="val ${st>0?'boost':st<0?'drop':''}">${disp[k]}</div>
+      <div class="sp">${(sp&&sp[k])||0}${st?`<b class="${st>0?'pos':'neg'}"> ${st>0?'+':''}${st}</b>`:''}</div></div>`;}).join('');
+  const stg=SPKEYS.map(k=>{if(k==='hp')return '<div class="cell"></div>';
+    return `<div class="cell"><button data-act="stg" data-kind="${kind}" data-k="${k}" data-d="-1" data-i="${idx}">−</button>
+      <button data-act="stg" data-kind="${kind}" data-k="${k}" data-d="1" data-i="${idx}">+</button></div>`;}).join('');
+  return `<div class="oc-stats">${stats}</div><div class="oc-stg">${stg}</div>`;
+}
 function renderMyPick(){
-  $('#myPick').innerHTML=MYTEAM.map((s,i)=>{
+  const box=$('#myPick');
+  if(!MYTEAM.length){box.innerHTML='<span class="hint">Chưa có con nào trong đội. Sang tab “Đội của tôi”.</span>';
+    $('#myCount').textContent=0;$('#myLimit').textContent=pickLimit();return;}
+  box.innerHTML=MYTEAM.map((s,i)=>{
+    if(!DEX[s.species])return '';
     const sel=PICK.includes(i);
-    const mg=isMegaSet(s)?' <span class="est" style="border-color:#5a4620">M</span>':'';
-    const spe=DEX[s.species]?`<span class="stat-mini">${buildMon(s,FIELD.weather).S.speEff}</span>`:'';
-    return `<div class="mon-tag ${sel?'sel':''}" data-i="${i}" title="${s.species} — bấm để chọn/bỏ ra trận">${spriteImg(s.species)}<span class="nm">${s.species}${mg}</span>${spe}</div>`;
-  }).join('')||'<span class="hint">Chưa có con nào trong đội. Sang tab “Đội của tôi”.</span>';
-  $('#myPick').querySelectorAll('.mon-tag').forEach(el=>el.onclick=()=>{const i=+el.dataset.i;
-    if(PICK.includes(i)){PICK=PICK.filter(x=>x!==i);}
-    else if(PICK.length<pickLimit()){
-      if(isMegaSet(MYTEAM[i])&&PICK.some(j=>isMegaSet(MYTEAM[j]))){toast('⚠ Mỗi trận chỉ mang 1 Pokémon Mega.');return;}
-      PICK.push(i);
+    const mon=buildMon(s,FIELD.weather);
+    const nat=NATURES[s.nature]||['',''];
+    const st=s.stages||{};
+    const base={hp:mon.S.hp,atk:mon.S.atk,def:mon.S.def,spa:mon.S.spa,spd:mon.S.spd,spe:mon.S.spe};
+    const disp={};
+    SPKEYS.forEach(k=>{let v=base[k];const n=st[k]||0;
+      if(n&&k!=='hp')v=Math.floor(v*stageMul(n));
+      if(k==='atk'&&s.brn)v=Math.floor(v/2);
+      if(k==='spe'&&s.par)v=Math.floor(v/2);disp[k]=v;});
+    const moves=(s.moves||[]).filter(Boolean);
+    return `<div class="opp-card mine${sel?' sel':''}" data-i="${i}">
+      <div class="oc-head">${spriteImg(mon.mega?mon.species:s.species)}
+        <b data-act="pick" data-i="${i}" title="Bấm để chọn/bỏ ra trận">${s.species}</b>
+        ${mon.mega?'<span class="pill mg">MEGA</span>':''}
+        ${sel?'<span class="pill on-field">RA TRẬN</span>':''}
+        ${s.item&&s.item!=='Không'?`<span class="stat-mini">@ ${s.item}</span>`:''}</div>
+      <div class="oc-tgls">
+        <button class="oc-tgl brn${s.brn?' on':''}" data-act="brn" data-kind="me" data-i="${i}">🔥 BRN</button>
+        <button class="oc-tgl par${s.par?' on':''}" data-act="par" data-kind="me" data-i="${i}">⚡ PAR</button>
+        <button class="oc-tgl" data-act="edit" data-kind="me" data-i="${i}">✎ Sửa set</button>
+      </div>
+      <div>${typeChips(DEX[mon.species]?DEX[mon.species].t:DEX[s.species].t,1)} <span class="stat-mini" style="margin-left:6px">● ${s.ability||''}</span></div>
+      ${statGrid(disp,s.sp,nat,st,i,'me')}
+      ${moves.length?`<div class="oc-tgls" style="margin:7px 0 0">${moves.map(m=>`<span class="pill mv">${m}</span>`).join('')}</div>`:''}
+    </div>`;
+  }).join('');
+  box.querySelectorAll('[data-act]').forEach(el=>el.onclick=e=>{
+    e.stopPropagation();const i=+el.dataset.i,s=MYTEAM[i];if(!s)return;const act=el.dataset.act;
+    if(act==='pick'){
+      if(PICK.includes(i))PICK=PICK.filter(x=>x!==i);
+      else if(PICK.length<pickLimit()){
+        if(isMegaSet(MYTEAM[i])&&PICK.some(j=>isMegaSet(MYTEAM[j]))){toast('⚠ Mỗi trận chỉ mang 1 Pokémon Mega.');return;}
+        PICK.push(i);
+      }else{toast(`Đã chọn đủ ${pickLimit()} con.`);return;}
+      renderMyPick();calcRefresh();return;
     }
-    renderMyPick();calcRefresh();});
+    if(act==='edit'){editSet(i);return;}
+    if(act==='brn'){s.brn=!s.brn;}
+    if(act==='par'){s.par=!s.par;}
+    if(act==='stg'){bumpStage(s,el.dataset.k,+el.dataset.d,saveTeam);return;}
+    saveTeam();renderMyPick();calcRefresh();renderSpeedTier();
+  });
   $('#myCount').textContent=PICK.length;
   $('#myLimit').textContent=pickLimit();
 }
@@ -1214,31 +1289,25 @@ function renderOpp(){
     const megaList=megaFormesOf(o.species).map(to=>({to}));
     const megaBtns=megaList.map(m=>{const lbl=m.to.match(/Mega ?([XY])/i);const on=o.megaForm===m.to;
       return `<button class="oc-tgl mega${on?' on':''}" data-act="mega" data-to="${m.to}" data-i="${i}">◆ MEGA${lbl?' '+lbl[1].toUpperCase():''}</button>`;}).join('');
-    const stats=SPKEYS.map((k,ki)=>{const up=nat[0]===k,dn=nat[1]===k;
-      return `<div><div class="lbl ${up?'up':dn?'dn':''}">${SPLBL[ki]}${up?'⁺':dn?'⁻':''}</div><div class="val">${d.disp[k]}</div><div class="sp">${d.g.sp[k]||0}</div></div>`;}).join('');
-    const stg=SPKEYS.map(k=>{if(k==='hp')return '<div class="cell"></div>';const n=(o.stages&&o.stages[k])||0;
-      return `<div class="cell"><button data-act="stg" data-k="${k}" data-d="-1" data-i="${i}">−</button><span class="n ${n>0?'pos':n<0?'neg':''}">${n>0?'+'+n:n}</span><button data-act="stg" data-k="${k}" data-d="1" data-i="${i}">+</button></div>`;}).join('');
     const moves=(o.moves&&o.moves.length?o.moves:(usageOf(o.species)?usageOf(o.species).m.filter(m=>MOVES[m]):[]));
-    const moveChips=moves.length?`<div class="oc-tgls" style="margin:8px 0 0">${moves.map(m=>`<span class="pill" style="background:var(--panel);border:1px solid var(--line)">${m}</span>`).join('')}</div>`:'';
+    const moveChips=moves.length?`<div class="oc-tgls" style="margin:7px 0 0">${moves.map(m=>`<span class="pill mv">${m}</span>`).join('')}</div>`:'';
     return `<div class="opp-card" data-i="${i}">
       <div class="oc-head">${spriteImg(d.eff)}<b>${d.eff}</b>${o.item&&o.item!=='Không'?`<span class="stat-mini">@ ${o.item}</span>`:''}<span class="oc-x" data-act="del" data-i="${i}" title="Xoá">✕</span></div>
       <div class="oc-tgls">${megaBtns}<button class="oc-tgl brn${o.brn?' on':''}" data-act="brn" data-i="${i}">🔥 BRN</button><button class="oc-tgl par${o.par?' on':''}" data-act="par" data-i="${i}">⚡ PAR</button><button class="oc-tgl" data-act="edit" data-i="${i}">✎ Sửa chiêu/đồ</button></div>
       <div>${typeChips(DEX[d.eff].t,1)} <span class="stat-mini" style="margin-left:6px">● ${d.ability}</span></div>
-      <div class="oc-stats">${stats}</div>
-      <div class="oc-stg">${stg}</div>
+      ${statGrid(d.disp,d.g.sp,nat,o.stages,i,'opp')}
       ${moveChips}
     </div>`;
   }).join('');
   box.querySelectorAll('[data-act]').forEach(el=>el.onclick=e=>{
     e.stopPropagation();const i=+el.dataset.i,o=OPP[i];if(!o)return;const act=el.dataset.act;
-    if(act==='del'){OPP.splice(i,1);saveOpp();renderOpp();syncPicks();return;}
+    if(act==='del'){OPP.splice(i,1);saveOpp();renderOpp();syncPicks();renderSpeedTier();return;}
     if(act==='edit'){editOpp(i);return;}
+    if(act==='stg'){bumpStage(o,el.dataset.k,+el.dataset.d,saveOpp);return;}
     if(act==='mega'){o.megaForm=(o.megaForm===el.dataset.to)?null:el.dataset.to;}
     if(act==='brn'){o.brn=!o.brn;}
     if(act==='par'){o.par=!o.par;}
-    if(act==='stg'){const k=el.dataset.k;o.stages=o.stages||{};o.stages[k]=Math.max(-6,Math.min(6,(o.stages[k]||0)+(+el.dataset.d)));}
-    saveOpp();renderOpp();
-    if(typeof CALC_MODE!=='undefined'&&CALC_MODE==='me'&&typeof renderMyToOpp==='function')renderMyToOpp();
+    saveOpp();renderOpp();calcRefresh();renderSpeedTier();
   });
 }
 /* =========================================================================
@@ -1422,31 +1491,39 @@ $('#fmt').addEventListener('change',()=>{
   const L=pickLimit();if(PICK.length>L)PICK=PICK.slice(0,L);
   FIELD.mode=$('#fmt').value==='doubles'?'double':'single'; // định dạng ↔ kiểu trận đi cùng nhau
   renderMyPick();renderFieldBar();calcRefresh();});
-let SPDB={}; // buff speed từng con: key 'me:i' / 'opp:j' -> hệ số
+/* Cấp buff Spe đọc thẳng từ card 2 rìa (stages.spe) — không còn state riêng cho bảng này,
+   nên chỉnh Spe ở card là speed order đổi theo, và ngược lại. */
 function renderSpeedTier(){
   const el=$('#spdWrap');if(!el)return;
   const weather=FIELD.weather;
   if(!MYTEAM.length&&!OPP.length){el.innerHTML='<div class="mu-place">Chưa có Pokémon nào để xếp speed.</div>';return;}
-  const rows=[...MYTEAM.map((s,i)=>({k:'me:'+i,n:s.species,me:1,raw:buildMon(s,weather).S.speEff,base:DEX[s.species].s[5]})),
+  const rows=[...MYTEAM.map((s,i)=>({k:'set:'+i,n:s.species,me:1,
+               raw:s.par?Math.floor(buildMon(s,weather).S.speEff/2):buildMon(s,weather).S.speEff,
+               base:DEX[s.species].s[5],par:s.par})),
              ...OPP.map((o,j)=>{const sp=o.megaForm||o.species;
                const m=buildMon({species:sp,nature:'Timid',ability:DEX[sp].ab[0],item:o.item||'Không',sp:{spe:32}},weather);
                return {k:'opp:'+j,n:sp,me:0,raw:o.par?Math.floor(m.S.speEff/2):m.S.speEff,base:DEX[sp].s[5],max:1,par:o.par};})]
-    .map(x=>{x.mult=SPDB[x.k]||1;x.tw=FIELD[x.me?'me':'opp'].tailwind?2:1;
+    .map(x=>{x.stage=stagesOf(x.k).spe||0;x.mult=stageMul(x.stage);
+             x.tw=FIELD[x.me?'me':'opp'].tailwind?2:1;
              x.spe=Math.floor(x.raw*x.mult*x.tw);return x;})
     // Trick Room: chậm nhất đi trước
     .sort((a,b)=>FIELD.tr?(a.spe-b.spe):(b.spe-a.spe));
   let h='';
   if(FIELD.tr)h+=`<div class="warn-box" style="margin-bottom:9px">🔄 <b>Trick Room</b> đang bật — con <b>chậm</b> ra đòn trước, thứ tự dưới đây đã đảo ngược.</div>`;
-  h+=`<div class="scroll"><table><thead><tr><th>#</th><th>Pokémon</th><th class="num">Base</th><th style="width:86px">Buff</th><th class="num">Speed</th><th>Bên</th></tr></thead><tbody>`;
+  h+=`<div class="scroll"><table><thead><tr><th>#</th><th>Pokémon</th><th class="num">Base</th><th style="width:96px">Buff Spe</th><th class="num">Speed</th><th>Bên</th></tr></thead><tbody>`;
   rows.forEach((x,i)=>{const ex=[];
-    if(x.mult!==1)ex.push('×'+x.mult);if(x.tw!==1)ex.push('Tailwind ×2');if(x.par)ex.push('PAR ½');
+    if(x.mult!==1)ex.push('×'+(Math.round(x.mult*100)/100));if(x.tw!==1)ex.push('Tailwind ×2');if(x.par)ex.push('PAR ½');
     h+=`<tr><td class="mono">${i+1}</td><td>${spriteImg(x.n)}${x.n}</td><td class="num">${x.base}</td>
-    <td><select class="spdBuff" data-k="${x.k}" style="padding:4px 6px">${stageOptsHtml(x.mult)}</select></td>
+    <td><div class="spd-stg"><button data-sk="${x.k}" data-d="-1">−</button><span class="n ${x.stage>0?'pos':x.stage<0?'neg':''}">${x.stage>0?'+':''}${x.stage}</span><button data-sk="${x.k}" data-d="1">+</button></div></td>
     <td class="num"><b>${x.spe}</b>${ex.length?` <span class="stat-mini">(${x.raw} ${ex.join(' ')})</span>`:''}${x.max?' <span class="stat-mini">(≤max)</span>':''}</td>
     <td>${x.me?'<span class="pill" style="background:#12312e;color:#57d977">TÔI</span>':'<span class="pill" style="background:#3a1a1a;color:#ff9d9d">ĐỐI THỦ</span>'}</td></tr>`;});
   h+=`</tbody></table></div>`;
   el.innerHTML=h;
-  el.querySelectorAll('.spdBuff').forEach(s=>s.onchange=()=>{SPDB[s.dataset.k]=+s.value;renderSpeedTier();});
+  el.querySelectorAll('[data-sk]').forEach(b=>b.onclick=()=>{
+    const k=b.dataset.sk;
+    const obj=k.startsWith('set:')?MYTEAM[+k.slice(4)]:OPP[+k.slice(4)];
+    if(obj)bumpStage(obj,'spe',+b.dataset.d,k.startsWith('set:')?saveTeam:saveOpp);
+  });
 }
 // ---- learnset ----
 function learnsetOf(species){
@@ -1544,21 +1621,31 @@ function renderFieldBar(){
   $('#fbReset').onclick=()=>{
     FIELD.weather='none';FIELD.terrain='none';FIELD.mode='single';FIELD.tr=0;
     ['me','opp'].forEach(s=>Object.keys(FIELD[s]).forEach(k=>FIELD[s][k]=0));
-    SPDB={};fieldChanged();toast('Đã xoá mọi điều kiện sân & buff speed.');};
+    // xoá luôn buff/BRN/PAR trên card 2 rìa — nếu không, "Reset" chỉ xoá được nửa sân
+    [...MYTEAM,...OPP].forEach(m=>{m.stages={};m.brn=false;m.par=false;});
+    saveTeam();saveOpp();renderMyPick();renderOpp();
+    fieldChanged();toast('Đã xoá điều kiện sân và buff/trạng thái của mọi Pokémon.');};
 }
 function fieldChanged(){renderFieldBar();calcRefresh();renderSpeedTier();}
 
 /* Bên nào đang thủ → dùng màn chắn của bên đó.
    'set:' = con trong đội tôi; mọi giá trị khác (opp:/dex:) coi như bên đối thủ. */
 function defSideOf(val){return String(val||'').startsWith('set:')?'me':'opp';}
-function readField(defSide){
-  const sc=FIELD[defSide||defSideOf($('#defPick').value)];
+/* Buff công lấy từ con ĐANG TẤN CÔNG, buff thủ lấy từ con ĐANG THỦ — cả hai đọc
+   thẳng từ card ở 2 rìa, không còn ô select riêng ở giữa để lệch nhau. */
+function readField(defSide,atkVal,defVal){
+  const dv=defVal!==undefined?defVal:$('#defPick').value;
+  const av=atkVal!==undefined?atkVal:$('#atkPick').value;
+  const sc=FIELD[defSide||defSideOf(dv)];
+  const as=stagesOf(av), ds=stagesOf(dv);
   return {weather:FIELD.weather,terrain:FIELD.terrain,spread:(FIELD.mode==='double'?1:0),
-    crit:+$('#crit').checked,burn:+$('#burn').checked,
+    crit:+$('#crit').checked,burn:0, // bỏng nay là trạng thái của từng con (nút BRN trên card)
     screens:{reflect:sc.reflect,lscreen:sc.lscreen,aurora:sc.aurora},
     aura:$('#aura').checked,auraDark:$('#auraDark').checked,auraBreak:$('#auraBreak').checked,
     rSword:$('#rSword').checked,rBeads:$('#rBeads').checked,rVessel:$('#rVessel').checked,rTablets:$('#rTablets').checked,
-    hh:$('#hh').checked,stA:+$('#stA').value,stS:+$('#stS').value,stD:+$('#stD').value,stSd:+$('#stSd').value};}
+    hh:$('#hh').checked,
+    stA:stageMul(as.atk||0),stS:stageMul(as.spa||0),
+    stD:stageMul(ds.def||0),stSd:stageMul(ds.spd||0)};}
 
 // ===== 2 tab của Tính damage =====
 let CALC_MODE='opp';
@@ -1596,19 +1683,19 @@ function renderMyToOpp(){
   const compact=document.body.classList.contains('force-mobile')||(window.matchMedia&&window.matchMedia('(max-width:800px)').matches&&!document.body.classList.contains('force-desktop'));
   const shortKo=t=>t.replace(' chắc','').replace('≥4 đòn','4+').replace('≥','').replace(' đòn','đ');
   const opps=OPP.map(o=>({o,cfg:oppCfgOf(o),mon:buildMon(oppCfgOf(o),field.weather)}));
-  const buffOpts=[[-2,'−2'],[-1,'−1'],[0,'×1'],[1,'+1 ×1.5'],[2,'+2 ×2'],[3,'+3 ×2.5'],[4,'+4 ×3'],[6,'+6 ×4']];
-  let html='<div class="hint" style="margin-bottom:10px">Chỉ số mình: từ set đã lưu · đối thủ: spread hay gặp. ▲ = mình ra đòn trước. Buff = cấp tăng công (Atk/SpA) của con mình.</div>';
+  let html='<div class="hint" style="margin-bottom:10px">Chỉ số mình: từ set đã lưu · đối thủ: spread hay gặp. ▲ = mình ra đòn trước. Buff Atk/SpA đặt trên card <b>rìa trái</b>, buff thủ của đối thủ trên card <b>rìa phải</b>.</div>';
   pool.forEach(i=>{
     const set=MYTEAM[i];if(!set||!DEX[set.species])return;
     const my=buildMon(set,field.weather);if(!my)return;
-    const st=MTX_STAGE[i]||0;
-    const f2=Object.assign({},field,{stA:stageMul(st),stS:stageMul(st)});
+    const st=set.stages||{};
+    const stLbl=[['atk','Atk'],['spa','SpA']].filter(([k])=>st[k]).map(([k,l])=>`${l} ${st[k]>0?'+':''}${st[k]}`).join(' · ');
     const moves=(set.moves||[]).filter(m=>MOVES[m]&&MOVES[m].c!=='stat');
     html+=`<div class="panel" style="margin-bottom:12px;padding:0;overflow:hidden">
       <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--panel2);border-bottom:1px solid var(--line);flex-wrap:wrap">
         ${spriteImg(set.species)}<b>${set.species}</b> ${isMegaSet(set)?'<span class="pill" style="background:#2a2410;color:var(--acc2)">MEGA</span>':''}
         <span class="stat-mini">Spe ${my.S.speEff}</span>
-        <label class="stat-mini" style="margin-left:auto;display:flex;align-items:center;gap:4px">Buff công <select class="mtx-buff" data-i="${i}" style="padding:3px 6px;font-size:12px">${buffOpts.map(([v,l])=>`<option value="${v}"${v===st?' selected':''}>${l}</option>`).join('')}</select></label>
+        ${set.brn?'<span class="pill" style="background:#331a12;color:#ff9d6b">🔥 BRN</span>':''}
+        ${stLbl?`<span class="pill" style="background:#12312e;color:#57d977;margin-left:auto">Buff ${stLbl}</span>`:''}
       </div>
       <div class="scroll"><table class="mtx-table${compact?' mtx-compact':''}" style="width:100%;border-collapse:collapse">
         <thead><tr><th style="text-align:left;padding:7px 10px;font-size:12px;color:var(--muted)">Chiêu</th>`;
@@ -1625,6 +1712,8 @@ function renderMyToOpp(){
     moves.forEach(mv=>{
       html+=`<tr><td class="mtx-mv" style="font-weight:600;border-top:1px solid var(--line)">${mv}</td>`;
       opps.forEach(op=>{
+        // mỗi cặp có buff riêng: công của con mình (rìa trái) vs thủ của con đối thủ (rìa phải)
+        const f2=readField('opp','set:'+i,'opp:'+OPP.indexOf(op.o));
         const r=calcDamage(my,op.mon,mv,f2);
         if(!r||r.eff===0){html+=`<td class="mtx-c" style="text-align:center;border-top:1px solid var(--line)"><span class="stat-mini">Miễn<br>nhiễm</span></td>`;return;}
         const h=koLabel(r);
@@ -1640,9 +1729,7 @@ function renderMyToOpp(){
     html+='</tbody></table></div></div>';
   });
   box.innerHTML=html;
-  box.querySelectorAll('.mtx-buff').forEach(sel=>sel.onchange=()=>{MTX_STAGE[+sel.dataset.i]=+sel.value;renderMyToOpp();});
 }
-let MTX_STAGE={};
 $('#ctabOpp').onclick=()=>switchCalcMode('opp');
 $('#ctabMe').onclick=()=>switchCalcMode('me');
 function wireCalcSearch(side){
@@ -1728,11 +1815,6 @@ function loadCalcSide(side){
   const val=$('#'+side+'Pick').value; const cfg=resolvePick(val);
   const d=DEX[cfg.species];
   if(side==='atk'){
-    fillNatures($('#atkNat'),cfg.nature||'Serious');
-    $('#atkAbil').innerHTML=(d.ab||['']).map(a=>opt(a,a,a===cfg.ability)).join('');
-    fillItems($('#atkItem'),cfg.item||'Không');
-    $('#atkAtkSp').value=cfg.sp&&cfg.sp.atk!=null?cfg.sp.atk:32;
-    $('#atkSpaSp').value=cfg.sp&&cfg.sp.spa!=null?cfg.sp.spa:0;
     if(d.ab&&d.ab.includes('Fairy Aura'))$('#aura').checked=true;
     // Drought auto nắng
     const fx=ABIL_FX[cfg.ability||d.ab[0]]||{};if(fx.weather){FIELD.weather=fx.weather;renderFieldBar();}
@@ -1742,29 +1824,18 @@ function loadCalcSide(side){
     const stanceNote=(amon&&amon.stance)?`<div class="stat-mini" style="margin-top:6px;color:var(--acc2)">⚔ Stance Change: khi tấn công tự dùng chỉ số công dạng Blade (Atk ${amon.bladeAtk}/SpA ${amon.bladeSpa}); khi thủ vẫn là bulk Shield.</div>`:'';
     $('#atkInfo').innerHTML = (cfg.moves&&cfg.moves.length?`<div class="stat-mini" style="margin-top:6px">Chiêu set: ${cfg.moves.join(' · ')}</div>`:'') + formeToggle('atk',cfg.species) + stanceNote + (fromTeamA?'':counterHint(cfg)) + (d.est?`<div class="warn-box" style="margin-top:8px">⚠️ ${cfg.species}: chỉ số ước lượng — sửa ở Pokédex.</div>`:'');
   }else{
-    fillNatures($('#defNat'),cfg.nature||'Serious');
-    fillItems($('#defItem'),cfg.item||'Không');
-    $('#defHpSp').value=cfg.sp&&cfg.sp.hp!=null?cfg.sp.hp:0;
-    $('#defDefSp').value=cfg.sp&&cfg.sp.def!=null?cfg.sp.def:0;
-    $('#defSpdSp').value=cfg.sp&&cfg.sp.spd!=null?cfg.sp.spd:0;
     const fromTeamD=val.startsWith('set:');
     $('#defInfo').innerHTML=formeToggle('def',cfg.species)+(fromTeamD?'':counterHint(cfg))+(d.est?`<div class="warn-box" style="margin-top:8px">⚠️ ${cfg.species}: chỉ số ước lượng.</div>`:'');
   }
   runCalc();
 }
-function readAtk(){return {species:$('#atkPick').value.startsWith('set:')||$('#atkPick').value.startsWith('opp:')||$('#atkPick').value.startsWith('dex:')?resolvePick($('#atkPick').value).species:'',
-  nature:$('#atkNat').value,ability:$('#atkAbil').value,item:$('#atkItem').value,sp:{atk:+$('#atkAtkSp').value,spa:+$('#atkSpaSp').value}};}
+/* Set (nature/ability/item/SP) nay chỉ đến từ card ở 2 rìa — sửa qua modal ✎ trên card.
+   runCalc không còn override gì từ ô giữa nữa. */
 function runCalc(){
   const av=$('#atkPick').value, dv=$('#defPick').value;
-  const acfg=resolvePick(av);acfg.nature=$('#atkNat').value;acfg.ability=$('#atkAbil').value;acfg.item=$('#atkItem').value;
-  acfg.sp=Object.assign({},acfg.sp,{atk:+$('#atkAtkSp').value,spa:+$('#atkSpaSp').value});
-  const dcfg=resolvePick(dv);dcfg.nature=$('#defNat').value;dcfg.item=$('#defItem').value;
-  dcfg.sp=Object.assign({},dcfg.sp,{hp:+$('#defHpSp').value,def:+$('#defDefSp').value,spd:+$('#defSpdSp').value});
+  const acfg=resolvePick(av), dcfg=resolvePick(dv);
   const field=readField();
   const A=buildMon(acfg,field.weather),D=buildMon(dcfg,field.weather);if(!A||!D)return;
-
-  $('#atkStats').innerHTML=`${A.mega?`<span class="pill" style="background:#2a2410;color:var(--acc2)">MEGA ${A.species}</span> `:''}Atk <b>${A.S.atk}</b>${A.fx.atkX2?' <span class="stat-mini">(Huge→'+A.S.atk*2+')</span>':''} · SpA <b>${A.S.spa}</b> · Spe <b>${A.S.speEff}</b> — ${typeChips(A.types,1)} · ${A.ability}`;
-  $('#defStats').innerHTML=`HP <b>${D.S.hp}</b> · Def <b>${D.S.def}</b> · SpD <b>${D.S.spd}</b> · Spe <b>${D.S.speEff}</b> — ${typeChips(D.types,1)}`;
   (function(){
     const as=A.S.speEff, ds=D.S.speEff;
     const faster=as>ds, eqv=as===ds;
@@ -1823,20 +1894,10 @@ function runCalc(){
   const scNote=scOn.length?`, màn chắn bên thủ (${scOn.map(k=>({reflect:'Reflect',lscreen:'Light Screen',aurora:'Aurora Veil'})[k]).join(' + ')})`:'';
   $('#calcNote').innerHTML=`${spdCmp} &nbsp; ${best?`Mạnh nhất: <b>${best.move}</b> → ${koLabel(best).t} (${best.pctMin.toFixed(0)}–${best.pctMax.toFixed(0)}%).`:''}${truncNote} ${(statusMoves.length&&!fromLearnset)?`<span class="muted">· Chiêu status trong set: ${statusMoves.join(', ')}</span>`:''}<br><span class="tiny muted">Đã áp: STAB${A.fx.adapt?' (Adaptability ×2)':''}, hệ, thời tiết, crit, bỏng, item, ${A.fx.atkX2?'Huge Power, ':''}${field.aura?'Fairy Aura, ':''}${field.hh?'Helping Hand, ':''}stage${scNote}${field.spread?', đấu đôi (chiêu lan ×0.75)':''}.</span>`;
 }
-// hệ số buff: mỗi bậc +0.5 → ×0.5 … ×4
-const STAGE_OPTS=[
- {v:0.4,l:'×0.4'},{v:0.5,l:'×0.5'},{v:0.667,l:'×0.67'},
- {v:1,l:'×1'},
- {v:1.5,l:'×1.5'},{v:2,l:'×2'},{v:2.5,l:'×2.5'},{v:3,l:'×3'},{v:3.5,l:'×3.5'},{v:4,l:'×4'}
-];
-const stageOptsHtml=sel=>STAGE_OPTS.map(o=>opt(o.v,o.l,o.v===sel)).join('');
-$$('.stageSel').forEach(el=>{el.innerHTML=stageOptsHtml(1);});
 $('#swapBtn').onclick=()=>{const a=$('#atkPick').value,d=$('#defPick').value;setPick('atk',d);setPick('def',a);};
 function calcRefresh(){runCalc();if(CALC_MODE==='me')renderMyToOpp();}
-// nature/ability/item/SP/buff: đổi con hoặc chỉ số → tính lại; speed tier cũng đổi theo set
-['atkNat','atkAbil','atkItem','stA','stS','stD','stSd','atkAtkSp','atkSpaSp','defNat','defItem','defHpSp','defDefSp','defSpdSp'].forEach(id=>$('#'+id).addEventListener('input',calcRefresh));
-// điều kiện sân còn lại (thanh trên cùng lo thời tiết/địa hình/màn chắn/TR)
-['crit','burn','hh','aura','auraDark','auraBreak','rSword','rBeads','rVessel','rTablets'].forEach(id=>$('#'+id).addEventListener('change',calcRefresh));
+// điều kiện sân còn lại (thanh trên cùng lo thời tiết/địa hình/màn chắn/TR; buff & BRN nằm trên card 2 rìa)
+['crit','hh','aura','auraDark','auraBreak','rSword','rBeads','rVessel','rTablets'].forEach(id=>$('#'+id).addEventListener('change',calcRefresh));
 wireCalcSearch('atk');wireCalcSearch('def');
 switchCalcMode('opp');
 function openField(){$('#calcFieldPanel').classList.add('open');$('#fieldBackdrop').classList.add('open');$('#fieldToggle').classList.add('hot');}
