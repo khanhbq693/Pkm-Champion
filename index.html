@@ -328,10 +328,16 @@
   body.calc-lock #view-calc.on{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px;padding-top:0}
   body.calc-lock .applayout{flex:1;min-height:0}
   body.calc-lock .rail{position:static;height:100%;max-height:100%;gap:0}
-  body.calc-lock #calcCenter{height:100%;overflow-y:auto;padding-right:2px}
-  body.calc-lock #spdPanel{flex:0 0 auto;max-height:31vh;display:flex;flex-direction:column;margin-top:0!important}
+  /* Cột giữa tự cuộn; Speed order là con CUỐI của chính vùng cuộn đó và sticky ghim đáy.
+     Nằm cùng container với bảng damage → bề ngang khớp tuyệt đối, không cần bù trừ thanh cuộn.
+     KHÔNG để #calcCenter thành flex column: các con sẽ thành flex item và bị co
+     (thanh 2 tab có overflow:hidden ⇒ min-height 0 ⇒ bị ép mất hút). */
+  body.calc-lock #calcCenter{height:100%;overflow-y:auto;padding-right:3px}
+  body.calc-lock #spdPanel{position:sticky;bottom:0;z-index:2;
+                           max-height:31vh;display:flex;flex-direction:column;
+                           box-shadow:0 -10px 20px -8px rgba(4,7,12,.85)}
   body.calc-lock #spdPanel #spdWrap{flex:1;min-height:0;overflow-y:auto}
-  body.calc-lock #spdPanel>.hint{flex:0 0 auto}
+  body.calc-lock #spdPanel>h2,body.calc-lock #spdPanel>.hint{flex:0 0 auto}
   body.calc-lock .rail::-webkit-scrollbar,body.calc-lock #calcCenter::-webkit-scrollbar,
   body.calc-lock #spdWrap::-webkit-scrollbar{width:5px}
   body.calc-lock .rail::-webkit-scrollbar-thumb,body.calc-lock #calcCenter::-webkit-scrollbar-thumb,
@@ -340,8 +346,8 @@
   @media(max-width:980px),(max-height:620px){
     body.calc-lock{height:auto;overflow:visible;display:block;padding:0 0 60px}
     body.calc-lock .rail{height:auto;max-height:none}
-    body.calc-lock #calcCenter{height:auto;overflow:visible}
-    body.calc-lock #spdPanel{max-height:none}
+    body.calc-lock #calcCenter{height:auto;overflow:visible;padding-right:0}
+    body.calc-lock #spdPanel{max-height:none;display:block;position:static;box-shadow:none}
   }
   .rail::-webkit-scrollbar{width:6px}
   .rail::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
@@ -529,6 +535,13 @@
         </thead><tbody id="calcBody"></tbody></table></div>
         <div class="hint" id="calcNote" style="margin-top:10px"></div>
       </div>
+
+      <!-- ---- SPEED ORDER: trong cột giữa, ghim đáy — bảng damage cuộn phía sau ---- -->
+      <div class="panel" id="spdPanel" style="margin-top:10px">
+        <h2>Speed order <span class="muted tiny" style="text-transform:none;letter-spacing:0;margin-left:auto">đội tôi = set thật · đối thủ = giả định max (+Spe 32, Timid)</span></h2>
+        <div id="spdWrap"></div>
+        <div class="hint" style="margin-top:6px">Cột <b>Buff Spe</b>: mỗi bậc = +0.5 vào hệ số (×1.5 = 1 bậc). Icy Wind/Tickle = ×0.67. Tailwind (×2) và Trick Room bật ở <b>thanh trên cùng</b>.</div>
+      </div>
     </div>
 
     <!-- ---- RÌA PHẢI: đội đối thủ ---- -->
@@ -545,13 +558,6 @@
       </div>
     </aside>
 
-  </div>
-
-  <!-- ---- SPEED ORDER: full-width dưới cùng ---- -->
-  <div class="panel" id="spdPanel" style="margin-top:14px">
-    <h2>Speed order <span class="muted tiny" style="text-transform:none;letter-spacing:0;margin-left:auto">đội tôi = set thật · đối thủ = giả định max (+Spe 32, Timid)</span></h2>
-    <div id="spdWrap"></div>
-    <div class="hint" style="margin-top:6px">Cột <b>Buff</b>: hệ số như game hiển thị (mỗi bậc = +0.5 vào hệ số; ×1.5 = 1 bậc). Icy Wind/Tickle = ×0.67. Tailwind (×2) và Trick Room bật ở <b>thanh trên cùng</b>.</div>
   </div>
 
   <div id="fieldBackdrop"></div>
