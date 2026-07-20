@@ -993,9 +993,15 @@ const stageMult=s=>s>=0?(2+s)/2:2/(2-s);
 function buildMon(cfg,weather){
   let species=cfg.species; let d=DEX[species]; if(!d)return null;
   let ability=cfg.ability||(d.ab?d.ab[0]:''); let mega=false;
-  const mg=MEGA[species];
-  if(mg){const hit=mg.find(m=>m.stone===cfg.item&&DEX[m.to]);
-    if(hit){d=DEX[hit.to];species=hit.to;ability=d.ab[0];mega=true;}}
+  // Mega qua NÚT toggle (megaForm chỉ thẳng dạng) — dùng cho cả đội tôi lẫn đối thủ, không cần đá.
+  // Guard megaFormesOf: megaForm phải là dạng Mega CỦA loài này (tránh sót khi đổi loài trong set).
+  if(cfg.megaForm && DEX[cfg.megaForm] && megaFormesOf(species).includes(cfg.megaForm)){
+    d=DEX[cfg.megaForm];species=cfg.megaForm;ability=d.ab[0];mega=true;
+  } else {
+    const mg=MEGA[species]; // hoặc Mega qua cầm đá (đội tôi cầm stone)
+    if(mg){const hit=mg.find(m=>m.stone===cfg.item&&DEX[m.to]);
+      if(hit){d=DEX[hit.to];species=hit.to;ability=d.ab[0];mega=true;}}
+  }
   const sp=cfg.sp||{};
   const S={
     hp:calcStat(d.s[0],sp.hp,cfg.nature,'hp'),
@@ -1307,13 +1313,16 @@ function renderMyPick(){
       if(k==='atk'&&s.brn)v=Math.floor(v/2);
       if(k==='spe'&&s.par)v=Math.floor(v/2);disp[k]=v;});
     const moves=(s.moves||[]).filter(Boolean);
+    const megaBtns=megaFormesOf(s.species).map(to=>{const lbl=to.match(/Mega ?([XY])/i);const on=s.megaForm===to;
+      return `<button class="oc-tgl mega${on?' on':''}" data-act="mega" data-kind="me" data-to="${to}" data-i="${i}">◆ MEGA${lbl?' '+lbl[1].toUpperCase():''}</button>`;}).join('');
     return `<div class="opp-card mine${sel?' sel':''}" data-i="${i}">
       <div class="oc-head">${spriteImg(mon.mega?mon.species:s.species)}
-        <b data-act="pick" data-i="${i}" title="Bấm để chọn/bỏ ra trận">${s.species}</b>
+        <b data-act="pick" data-i="${i}" title="Bấm để chọn/bỏ ra trận">${mon.mega?mon.species:s.species}</b>
         ${mon.mega?'<span class="pill mg">MEGA</span>':''}
         ${sel?'<span class="pill on-field">RA TRẬN</span>':''}
         ${s.item&&s.item!=='Không'?`<span class="stat-mini">@ ${s.item}</span>`:''}</div>
       <div class="oc-tgls">
+        ${megaBtns}
         <button class="oc-tgl brn${s.brn?' on':''}" data-act="brn" data-kind="me" data-i="${i}">🔥 BRN</button>
         <button class="oc-tgl par${s.par?' on':''}" data-act="par" data-kind="me" data-i="${i}">⚡ PAR</button>
         <button class="oc-tgl" data-act="edit" data-kind="me" data-i="${i}">✎ Sửa set</button>
@@ -1334,6 +1343,7 @@ function renderMyPick(){
       renderMyPick();calcRefresh();return;
     }
     if(act==='edit'){editSet(i);return;}
+    if(act==='mega'){s.megaForm=(s.megaForm===el.dataset.to)?null:el.dataset.to;}
     if(act==='brn'){s.brn=!s.brn;}
     if(act==='par'){s.par=!s.par;}
     if(act==='stg'){bumpStage(s,el.dataset.k,+el.dataset.d,saveTeam);return;}
@@ -1487,11 +1497,9 @@ $('#clearOppBtn').onclick=()=>{if(!OPP.length){toast('Chưa có đối thủ nà
 function addOpp(name){
   if(!DEX[name])return;
   if(OPP.length>=6){toast('Team đối thủ đã đủ 6 con.');return;}
-  // Nạp sẵn build chuẩn của meta theo usage thật (item + dạng Mega). Chỉ bật sẵn Mega khi
-  // card có nút để TẮT nó đi — không thì người dùng kẹt ở dạng không gỡ được.
+  // Nạp sẵn item theo usage, nhưng KHÔNG tự Mega — người dùng tự bấm nút ◆ MEGA trên card.
   const u=usageOf(name);
-  const mg=(u&&u.mg&&megaFormesOf(name).includes(u.mg))?u.mg:null;
-  OPP.push({species:name,item:(u&&u.it)||'Không',moves:[],megaForm:mg});
+  OPP.push({species:name,item:(u&&u.it)||'Không',moves:[],megaForm:null});
   saveOpp();renderOpp();renderSpeedTier();
   setPick('def','opp:'+(OPP.length-1));
   toast('Đã thêm '+name+(OPP.length>=6?' — đủ 6 con.':''));
@@ -1607,9 +1615,10 @@ function renderSpeedTier(){
     // đang ở dạng Mega thì cho thấy lại dạng gốc để so
     if(o.megaForm&&o.megaForm!==o.species&&DEX[o.species])oppRows.push(oppRow(o,j,o.species,1));
   });
-  const rows=[...MYTEAM.map((s,i)=>({k:'set:'+i,n:s.species,me:1,
-               raw:buildMon(s,weather).S.speEff, // buildMon đã xử lý PAR — chia lại là ra ¼
-               base:DEX[s.species].s[5],par:s.par})),
+  const rows=[...MYTEAM.map((s,i)=>{const m=buildMon(s,weather);
+               return {k:'set:'+i,n:m.mega?m.species:s.species,me:1,
+                 raw:m.S.speEff, // buildMon đã xử lý PAR & Mega — chia lại là ra ¼
+                 base:(m.mega?DEX[m.species]:DEX[s.species]).s[5],par:s.par};}),
              ...oppRows]
     .map(x=>{x.stage=stagesOf(x.k).spe||0;x.mult=stageMul(x.stage);
              x.tw=FIELD[x.me?'me':'opp'].tailwind?2:1;
@@ -1748,13 +1757,16 @@ function renderFieldBar(){
     }
     fieldChanged();});
   $('#fbReset').onclick=()=>{
-    FIELD.weather='none';FIELD.terrain='none';FIELD.mode='single';FIELD.tr=0;
+    // KHÔNG động vào FIELD.mode (đơn/đôi ăn theo ô Định dạng, không phải điều kiện sân)
+    FIELD.weather='none';FIELD.terrain='none';FIELD.tr=0;
     ['me','opp'].forEach(s=>Object.keys(FIELD[s]).forEach(k=>FIELD[s][k]=0));
     FAINT.me=0;FAINT.opp=0;
-    // xoá luôn buff/BRN/PAR trên card 2 rìa — nếu không, "Reset" chỉ xoá được nửa sân
+    PICK=[]; // xoá luôn pkm đã chọn ra trận
+    // xoá buff/BRN/PAR/Mega trên card 2 rìa — nếu không, "Reset" chỉ xoá được nửa sân
     [...MYTEAM,...OPP].forEach(m=>{m.stages={};m.brn=false;m.par=false;});
+    OPP.forEach(o=>o.megaForm=null);MYTEAM.forEach(s=>s.megaForm=null);
     saveTeam();saveOpp();renderMyPick();renderOpp();
-    fieldChanged();toast('Đã xoá điều kiện sân và buff/trạng thái của mọi Pokémon.');};
+    fieldChanged();toast('Đã xoá điều kiện sân, buff/trạng thái, Mega và lựa chọn ra trận.');};
 }
 function fieldChanged(){renderFieldBar();calcRefresh();renderSpeedTier();}
 
