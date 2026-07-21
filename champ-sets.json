@@ -1,0 +1,4748 @@
+[
+ {
+  "id": "4b4fa531-cc7e-4fe6-b9c4-724bd333288d",
+  "species": "Gardevoir",
+  "item": "Gardevoirite",
+  "nature": "Timid",
+  "ability": "Synchronize",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Hyper Voice",
+   "Psychic",
+   "Trick Room"
+  ]
+ },
+ {
+  "id": "dbebbec6-4860-4e21-bf94-b547727a6786",
+  "species": "Hatterene",
+  "item": "Leftovers",
+  "nature": "Quiet",
+  "ability": "Magic Bounce",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 2,
+   "spa": 32,
+   "spd": 0,
+   "spe": 0
+  },
+  "moves": [
+   "Dazzling Gleam",
+   "Trick Room",
+   "Protect",
+   "Psychic"
+  ]
+ },
+ {
+  "id": "426671d8-ff12-40a7-9374-2e36ee38f1ae",
+  "species": "Scrafty",
+  "item": "Scraftinite",
+  "nature": "Adamant",
+  "ability": "Shed Skin",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Fake Out",
+   "Knock Off",
+   "Drain Punch",
+   "Close Combat"
+  ]
+ },
+ {
+  "id": "8af3314e-29e2-4eb7-9ccb-e38e0322a051",
+  "species": "Armarouge",
+  "item": "Life Orb",
+  "nature": "Modest",
+  "ability": "Flash Fire",
+  "evs": {
+   "hp": 31,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 3,
+   "spe": 0
+  },
+  "moves": [
+   "Armor Cannon",
+   "Psychic",
+   "Trick Room",
+   "Protect"
+  ]
+ },
+ {
+  "id": "ac7a7661-9037-47bb-ac25-23648bb19c52",
+  "species": "Oranguru",
+  "item": "Mental Herb",
+  "nature": "Relaxed",
+  "ability": "Inner Focus",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 32,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Instruct",
+   "Trick Room",
+   "Protect",
+   "Psychic"
+  ]
+ },
+ {
+  "id": "a7ddb041-ed50-4fa6-94e9-7de28ac47c5c",
+  "species": "Tinkaton",
+  "item": "Shuca Berry",
+  "nature": "Jolly",
+  "ability": "Mold Breaker",
+  "evs": {
+   "hp": 1,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Gigaton Hammer",
+   "Fake Out",
+   "Protect",
+   "Play Rough"
+  ]
+ },
+ {
+  "id": "2202c237-5cb3-4ba2-b8b1-68d202066848",
+  "species": "Pikachu",
+  "item": "Light Ball",
+  "nature": "Timid",
+  "ability": "Lightning Rod",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Fake Out",
+   "Protect",
+   "Rising Voltage",
+   "Grass Knot"
+  ]
+ },
+ {
+  "id": "7fc8fd9e-ecd8-4b19-90db-c540f03f9bab",
+  "species": "Kleavor",
+  "item": "Choice Scarf",
+  "nature": "Jolly",
+  "ability": "Sharpness",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Stone Axe",
+   "X-Scissor",
+   "Protect",
+   "Close Combat"
+  ]
+ },
+ {
+  "id": "825c9817-2aad-4a07-bc68-37d7e4cc1bcf",
+  "species": "Mimikyu",
+  "item": "Life Orb",
+  "nature": "Brave",
+  "ability": "Disguise",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Play Rough",
+   "Shadow Sneak",
+   "Trick Room",
+   "Swords Dance"
+  ]
+ },
+ {
+  "id": "8a11d25e-5735-48c3-8d5f-486d1a9cf19c",
+  "species": "Clawitzer",
+  "item": "Life Orb",
+  "nature": "Modest",
+  "ability": "Mega Launcher",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Water Pulse",
+   "Dark Pulse",
+   "Aura Sphere",
+   "Protect"
+  ]
+ },
+ {
+  "id": "f408c53a-d17f-4fde-992c-3a63c740be6c",
+  "species": "Mudsdale",
+  "item": "Life Orb",
+  "nature": "Brave",
+  "ability": "Inner Focus",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "High Horsepower",
+   "Protect",
+   "Rock Slide",
+   "Earthquake"
+  ]
+ },
+ {
+  "id": "2bc6e07d-c15d-4d43-b5b4-c732b2c529bd",
+  "species": "Dragapult",
+  "item": "Life Orb",
+  "nature": "Jolly",
+  "ability": "Clear Body",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Dragon Darts",
+   "Phantom Force",
+   "Draco Meteor"
+  ]
+ },
+ {
+  "id": "c1c143c2-7848-4053-9c77-e033718f9666",
+  "species": "Umbreon",
+  "item": "Leftovers",
+  "nature": "Calm",
+  "ability": "Inner Focus",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 2,
+   "spa": 0,
+   "spd": 32,
+   "spe": 0
+  },
+  "moves": [
+   "Foul Play",
+   "Snarl",
+   "Protect",
+   "Moonlight"
+  ]
+ },
+ {
+  "id": "39253936-c07f-4cf3-8da5-03b139f60cb0",
+  "species": "Weavile",
+  "item": "Focus Sash",
+  "nature": "Jolly",
+  "ability": "Pressure",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Fake Out",
+   "Knock Off",
+   "Triple Axel",
+   "Protect"
+  ]
+ },
+ {
+  "id": "c6ebfc26-fa11-45a5-9113-7a4069975692",
+  "species": "Araquanid",
+  "item": "Mystic Water",
+  "nature": "Brave",
+  "ability": "Water Bubble",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 2,
+   "spa": 0,
+   "spd": 0,
+   "spe": 0
+  },
+  "moves": [
+   "Liquidation",
+   "Wide Guard",
+   "Protect",
+   "Leech Life"
+  ]
+ },
+ {
+  "id": "95aab9e9-f09b-4d9e-b5a5-9802dbc4b344",
+  "species": "Vanilluxe",
+  "item": "Choice Scarf",
+  "nature": "Modest",
+  "ability": "Snow Warning",
+  "evs": {
+   "hp": 5,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 29
+  },
+  "moves": [
+   "Blizzard",
+   "Freeze-Dry",
+   "Icy Wind",
+   "Aurora Veil"
+  ]
+ },
+ {
+  "id": "05f2f283-53bf-411c-b1ad-73359d2e2a4f",
+  "species": "Blaziken",
+  "item": "Blazikenite",
+  "nature": "Adamant",
+  "ability": "Speed Boost",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Close Combat",
+   "Flare Blitz",
+   "Protect",
+   "Rock Slide"
+  ]
+ },
+ {
+  "id": "6d720415-8a60-4731-b761-3291bb0ba87f",
+  "species": "Gyarados",
+  "item": "Gyaradosite",
+  "nature": "Adamant",
+  "ability": "Intimidate",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Waterfall",
+   "Protect",
+   "Dragon Dance",
+   "Crunch"
+  ]
+ },
+ {
+  "id": "206958fd-60bd-40fb-9bc3-7e59988b4faa",
+  "species": "Houndstone",
+  "item": "Sitrus Berry",
+  "nature": "Adamant",
+  "ability": "Sand Rush",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Last Respects",
+   "Protect",
+   "Will-O-Wisp",
+   "Ally Switch"
+  ]
+ },
+ {
+  "id": "d7893ba6-29e9-49b5-ad7b-e38140fab700",
+  "species": "Volcarona",
+  "item": "Leftovers",
+  "nature": "Modest",
+  "ability": "Flame Body",
+  "evs": {
+   "hp": 1,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Quiver Dance",
+   "Heat Wave",
+   "Rage Powder"
+  ]
+ },
+ {
+  "id": "80acaaae-c4bd-4e51-be11-a3e1bb54b5b4",
+  "species": "Froslass",
+  "item": "Froslassite",
+  "nature": "Timid",
+  "ability": "Snow Cloak",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Blizzard",
+   "Protect",
+   "Shadow Ball",
+   "Aurora Veil"
+  ]
+ },
+ {
+  "id": "90ffd947-608d-46ae-a1be-ba2083b41e64",
+  "species": "Ninetales",
+  "item": "Choice Scarf",
+  "nature": "Modest",
+  "ability": "Drought",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Heat Wave",
+   "Solar Beam",
+   "Overheat",
+   "Fake Tears"
+  ]
+ },
+ {
+  "id": "4e9a3531-2b8a-4fe1-b2df-dbf5aab2ac68",
+  "species": "Raichu",
+  "item": "Raichunite Y",
+  "nature": "Timid",
+  "ability": "Static",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Fake Out",
+   "Protect",
+   "Zap Cannon",
+   "Focus Blast"
+  ]
+ },
+ {
+  "id": "2347f788-f68d-4ef0-afb8-83f3fc134f93",
+  "species": "Tyranitar",
+  "item": "Tyranitarite",
+  "nature": "Adamant",
+  "ability": "Sand Stream",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Rock Slide",
+   "Protect",
+   "Knock Off",
+   "Dragon Dance"
+  ]
+ },
+ {
+  "id": "0d295c8f-8df3-490f-a7a7-54ce96ef5d21",
+  "species": "Charizard",
+  "item": "Charizardite Y",
+  "nature": "Timid",
+  "ability": "Blaze",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Heat Wave",
+   "Solar Beam",
+   "Weather Ball"
+  ]
+ },
+ {
+  "id": "30f0a337-d940-4e85-a9c2-f6b9483b52bd",
+  "species": "Clefable",
+  "item": "Sitrus Berry",
+  "nature": "Calm",
+  "ability": "Unaware",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 2,
+   "spd": 32,
+   "spe": 0
+  },
+  "moves": [
+   "Follow Me",
+   "Moonblast",
+   "Protect",
+   "Life Dew"
+  ]
+ },
+ {
+  "id": "c64d2ca9-5833-4abc-a4d3-869c5a68a5c8",
+  "species": "Typhlosion-Hisui",
+  "item": "Choice Scarf",
+  "nature": "Modest",
+  "ability": "Frisk",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Eruption",
+   "Shadow Ball",
+   "Heat Wave",
+   "Burn Up"
+  ]
+ },
+ {
+  "id": "8aba9538-4599-47a0-a0b8-e27c18a1995d",
+  "species": "Staraptor",
+  "item": "Staraptite",
+  "nature": "Jolly",
+  "ability": "Intimidate",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Close Combat",
+   "Brave Bird",
+   "Protect",
+   "Roost"
+  ]
+ },
+ {
+  "id": "db9f9b30-acad-4682-a1f7-a3789b5fc1ad",
+  "species": "Meowscarada",
+  "item": "Choice Scarf",
+  "nature": "Jolly",
+  "ability": "Protean",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Flower Trick",
+   "Triple Axel",
+   "Knock Off",
+   "U-turn"
+  ]
+ },
+ {
+  "id": "4ce79cb3-72c1-4edf-8c22-6408afc6f7f3",
+  "species": "Aegislash",
+  "item": "Leftovers",
+  "nature": "Adamant",
+  "ability": "Stance Change",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "King's Shield",
+   "Iron Head",
+   "Shadow Sneak",
+   "Poltergeist"
+  ]
+ },
+ {
+  "id": "490bd249-3014-405b-9576-80a6d9a3aceb",
+  "species": "Overqwil",
+  "item": "Life Orb",
+  "nature": "Adamant",
+  "ability": "Swift Swim",
+  "evs": {
+   "hp": 1,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Throat Chop",
+   "Barb Barrage",
+   "Crunch"
+  ]
+ },
+ {
+  "id": "e5c104ce-f753-4bb9-9515-60b70c84ff16",
+  "species": "Dragonite",
+  "item": "Dragoninite",
+  "nature": "Modest",
+  "ability": "Multiscale",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Extreme Speed",
+   "Hurricane",
+   "Tailwind"
+  ]
+ },
+ {
+  "id": "891a753e-d969-49d3-989d-7e7f38a36f4c",
+  "species": "Snorlax",
+  "item": "Leftovers",
+  "nature": "Relaxed",
+  "ability": "Thick Fat",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 32,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Protect",
+   "Fissure",
+   "Stockpile",
+   "Body Slam"
+  ]
+ },
+ {
+  "id": "d0e71d57-362c-463c-be76-bd181ec25b98",
+  "species": "Rotom-Heat",
+  "item": "Choice Scarf",
+  "nature": "Timid",
+  "ability": "Levitate",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Overheat",
+   "Volt Switch",
+   "Discharge",
+   "Thunderbolt"
+  ]
+ },
+ {
+  "id": "f1da2818-5357-41df-bcc8-abf34a57fc0d",
+  "species": "Azumarill",
+  "item": "Sitrus Berry",
+  "nature": "Adamant",
+  "ability": "Huge Power",
+  "evs": {
+   "hp": 31,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 3,
+   "spe": 0
+  },
+  "moves": [
+   "Aqua Jet",
+   "Play Rough",
+   "Protect",
+   "Belly Drum"
+  ]
+ },
+ {
+  "id": "62fd45b3-a112-44df-baa8-fbbdd2403a2e",
+  "species": "Gallade",
+  "item": "Focus Sash",
+  "nature": "Jolly",
+  "ability": "Sharpness",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Sacred Sword",
+   "Psycho Cut",
+   "Leaf Blade",
+   "Protect"
+  ]
+ },
+ {
+  "id": "5ace2e0e-92b3-495a-9b89-602e66b29ef3",
+  "species": "Glimmora",
+  "item": "Focus Sash",
+  "nature": "Timid",
+  "ability": "Toxic Debris",
+  "evs": {
+   "hp": 1,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Power Gem",
+   "Sludge Bomb",
+   "Earth Power",
+   "Spiky Shield"
+  ]
+ },
+ {
+  "id": "dc26aefb-828f-4f98-af88-aa150b864127",
+  "species": "Corviknight",
+  "item": "Leftovers",
+  "nature": "Impish",
+  "ability": "Mirror Armor",
+  "evs": {
+   "hp": 32,
+   "atk": 2,
+   "def": 32,
+   "spa": 0,
+   "spd": 0,
+   "spe": 0
+  },
+  "moves": [
+   "Brave Bird",
+   "Tailwind",
+   "Roost",
+   "Body Press"
+  ]
+ },
+ {
+  "id": "2c4c92af-ef7b-4a16-96e4-e5f1c6fef605",
+  "species": "Samurott-Hisui",
+  "item": "Choice Scarf",
+  "nature": "Jolly",
+  "ability": "Sharpness",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Sacred Sword",
+   "Ceaseless Edge",
+   "Aqua Cutter",
+   "Protect"
+  ]
+ },
+ {
+  "id": "a8a14adf-efe7-45cd-bd7d-b647fd79b3c9",
+  "species": "Kommo-o",
+  "item": "Leftovers",
+  "nature": "Modest",
+  "ability": "Soundproof",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Clanging Scales",
+   "Clangorous Soul",
+   "Aura Sphere"
+  ]
+ },
+ {
+  "id": "92de58d4-66ea-401e-9934-cfa40d5cf174",
+  "species": "Arcanine-Hisui",
+  "item": "Focus Sash",
+  "nature": "Jolly",
+  "ability": "Rock Head",
+  "evs": {
+   "hp": 1,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Flare Blitz",
+   "Protect",
+   "Head Smash",
+   "Extreme Speed"
+  ]
+ },
+ {
+  "id": "c05a45ee-8f09-4eab-ac60-5624f3394c59",
+  "species": "Excadrill",
+  "item": "Focus Sash",
+  "nature": "Adamant",
+  "ability": "Sand Rush",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Iron Head",
+   "Protect",
+   "Rock Slide",
+   "Earthquake"
+  ]
+ },
+ {
+  "id": "d1c1887d-187e-4dd2-a0e0-aad15e22e55f",
+  "species": "Vivillon",
+  "item": "Focus Sash",
+  "nature": "Timid",
+  "ability": "Compound Eyes",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Sleep Powder",
+   "Rage Powder",
+   "Hurricane",
+   "Tailwind"
+  ]
+ },
+ {
+  "id": "75cc3e86-ee12-47a1-a75d-b47edd25acdf",
+  "species": "Primarina",
+  "item": "Leftovers",
+  "nature": "Modest",
+  "ability": "Liquid Voice",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Hyper Voice",
+   "Protect",
+   "Moonblast",
+   "Calm Mind"
+  ]
+ },
+ {
+  "id": "69283d70-81b3-4357-a519-5919f420811b",
+  "species": "Kangaskhan",
+  "item": "Silk Scarf",
+  "nature": "Jolly",
+  "ability": "Scrappy",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Fake Out",
+   "Last Resort",
+   "Double-Edge",
+   "Sucker Punch"
+  ]
+ },
+ {
+  "id": "b495949f-eea2-4cbc-9a3f-a2c4072a8322",
+  "species": "Annihilape",
+  "item": "Leftovers",
+  "nature": "Jolly",
+  "ability": "Defiant",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Rage Fist",
+   "Protect",
+   "Drain Punch",
+   "Bulk Up"
+  ]
+ },
+ {
+  "id": "8ea029f0-a854-473c-8bd4-92f582d7e799",
+  "species": "Tsareena",
+  "item": "Choice Scarf",
+  "nature": "Jolly",
+  "ability": "Queenly Majesty",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Triple Axel",
+   "Trop Kick",
+   "Protect",
+   "Low Kick"
+  ]
+ },
+ {
+  "id": "b8f95ead-b554-4da0-943b-4b3e1120af66",
+  "species": "Vileplume",
+  "item": "Focus Sash",
+  "nature": "Timid",
+  "ability": "Chlorophyll",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "After You",
+   "Sludge Bomb",
+   "Sleep Powder",
+   "Protect"
+  ]
+ },
+ {
+  "id": "60caba31-0db8-4b3b-93e0-1edde753b08c",
+  "species": "Ceruledge",
+  "item": "Colbur Berry",
+  "nature": "Adamant",
+  "ability": "Flash Fire",
+  "evs": {
+   "hp": 31,
+   "atk": 25,
+   "def": 10,
+   "spa": 0,
+   "spd": 0,
+   "spe": 0
+  },
+  "moves": [
+   "Bitter Blade",
+   "Shadow Sneak",
+   "Protect",
+   "Bulk Up"
+  ]
+ },
+ {
+  "id": "9fc55499-ed3e-4877-85d4-4e5681122353",
+  "species": "Politoed",
+  "item": "Sitrus Berry",
+  "nature": "Calm",
+  "ability": "Drizzle",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 2,
+   "spd": 32,
+   "spe": 0
+  },
+  "moves": [
+   "Protect",
+   "Weather Ball",
+   "Perish Song",
+   "Ice Beam"
+  ]
+ },
+ {
+  "id": "c19ace30-d7d0-4a84-83c1-0d596bcb79fc",
+  "species": "Mamoswine",
+  "item": "Focus Sash",
+  "nature": "Jolly",
+  "ability": "Oblivious",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Ice Shard",
+   "Protect",
+   "Icicle Crash",
+   "High Horsepower"
+  ]
+ },
+ {
+  "id": "6ba3285b-98a8-4b8f-8bf9-9f8dd76c1013",
+  "species": "Talonflame",
+  "item": "Sharp Beak",
+  "nature": "Jolly",
+  "ability": "Gale Wings",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Tailwind",
+   "Protect",
+   "Flare Blitz",
+   "Brave Bird"
+  ]
+ },
+ {
+  "id": "e96c2f10-3b97-4838-b537-b9991321243e",
+  "species": "Toxapex",
+  "item": "Leftovers",
+  "nature": "Bold",
+  "ability": "Regenerator",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 18,
+   "spa": 0,
+   "spd": 16,
+   "spe": 0
+  },
+  "moves": [
+   "Baneful Bunker",
+   "Toxic",
+   "Infestation",
+   "Wide Guard"
+  ]
+ },
+ {
+  "id": "4ea39e1a-f116-4e8f-8585-4181bb516769",
+  "species": "Lycanroc-Dusk",
+  "item": "Focus Sash",
+  "nature": "Jolly",
+  "ability": "Tough Claws",
+  "evs": {
+   "hp": 1,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Accelerock",
+   "Protect",
+   "Close Combat",
+   "Rock Slide"
+  ]
+ },
+ {
+  "id": "1167daf8-a1e5-4b97-82e4-93166029f4f2",
+  "species": "Milotic",
+  "item": "Leftovers",
+  "nature": "Bold",
+  "ability": "Competitive",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 32,
+   "spa": 2,
+   "spd": 0,
+   "spe": 0
+  },
+  "moves": [
+   "Protect",
+   "Scald",
+   "Muddy Water",
+   "Coil"
+  ]
+ },
+ {
+  "id": "4fac5193-d126-45db-863a-9833a0023f5f",
+  "species": "Whimsicott",
+  "item": "Focus Sash",
+  "nature": "Timid",
+  "ability": "Prankster",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Tailwind",
+   "Moonblast",
+   "Encore",
+   "Protect"
+  ]
+ },
+ {
+  "id": "47b715e1-f806-473b-8746-bd6ff582328a",
+  "species": "Aerodactyl",
+  "item": "Focus Sash",
+  "nature": "Jolly",
+  "ability": "Unnerve",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Rock Slide",
+   "Tailwind",
+   "Dual Wingbeat",
+   "Protect"
+  ]
+ },
+ {
+  "id": "d90d4f6f-87e0-41d2-b9af-6e13fe51de3b",
+  "species": "Grimmsnarl",
+  "item": "Light Clay",
+  "nature": "Careful",
+  "ability": "Prankster",
+  "evs": {
+   "hp": 32,
+   "atk": 2,
+   "def": 0,
+   "spa": 0,
+   "spd": 32,
+   "spe": 0
+  },
+  "moves": [
+   "Parting Shot",
+   "Reflect",
+   "Light Screen",
+   "Spirit Break"
+  ]
+ },
+ {
+  "id": "f7b1aef8-3844-44f2-afef-da6d84aa6faf",
+  "species": "Gholdengo",
+  "item": "Life Orb",
+  "nature": "Timid",
+  "ability": "Good As Gold",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Make It Rain",
+   "Shadow Ball",
+   "Protect",
+   "Nasty Plot"
+  ]
+ },
+ {
+  "id": "81984b02-d3ed-4bc0-a2dd-b6b191a8e901",
+  "species": "Maushold",
+  "item": "Wide Lens",
+  "nature": "Jolly",
+  "ability": "Friend Guard",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Follow Me",
+   "Protect",
+   "Population Bomb",
+   "Super Fang"
+  ]
+ },
+ {
+  "id": "ea52a3dc-bb6e-4d28-8012-f9e679e25866",
+  "species": "Torkoal",
+  "item": "Charcoal",
+  "nature": "Quiet",
+  "ability": "Drought",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Protect",
+   "Eruption",
+   "Heat Wave",
+   "Weather Ball"
+  ]
+ },
+ {
+  "id": "4934b7da-4194-4099-8b93-a42b1047eb6b",
+  "species": "Hydreigon",
+  "item": "Choice Scarf",
+  "nature": "Modest",
+  "ability": "Levitate",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Dark Pulse",
+   "Draco Meteor",
+   "Snarl",
+   "Earth Power"
+  ]
+ },
+ {
+  "id": "619f8312-7187-4b79-83d7-47d47d4c0f54",
+  "species": "Sableye",
+  "item": "Roseli Berry",
+  "nature": "Calm",
+  "ability": "Prankster",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 2,
+   "spa": 0,
+   "spd": 32,
+   "spe": 0
+  },
+  "moves": [
+   "Rain Dance",
+   "Encore",
+   "Light Screen",
+   "Reflect"
+  ]
+ },
+ {
+  "id": "a32a717c-4b4d-425d-bf5a-9c2c9992bc5c",
+  "species": "Ninetales-Alola",
+  "item": "Light Clay",
+  "nature": "Timid",
+  "ability": "Snow Warning",
+  "evs": {
+   "hp": 1,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Blizzard",
+   "Aurora Veil",
+   "Protect",
+   "Freeze-Dry"
+  ]
+ },
+ {
+  "id": "7b8fa041-5b83-48a4-9dce-a7874e06b6d8",
+  "species": "Venusaur",
+  "item": "Venusaurite",
+  "nature": "Modest",
+  "ability": "Chlorophyll",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Sludge Bomb",
+   "Protect",
+   "Earth Power",
+   "Giga Drain"
+  ]
+ },
+ {
+  "id": "ec896a3c-385f-4227-88b4-20d8aaeab35c",
+  "species": "Rotom-Wash",
+  "item": "Choice Scarf",
+  "nature": "Timid",
+  "ability": "Levitate",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Hydro Pump",
+   "Will-O-Wisp",
+   "Thunderbolt",
+   "Volt Switch"
+  ]
+ },
+ {
+  "id": "cd839d46-3789-4e07-ba64-7c409b30532d",
+  "species": "Archaludon",
+  "item": "Leftovers",
+  "nature": "Timid",
+  "ability": "Stamina",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Electro Shot",
+   "Flash Cannon",
+   "Protect",
+   "Dragon Pulse"
+  ]
+ },
+ {
+  "id": "3bdd4291-9e88-4a61-998c-6331a36d0df0",
+  "species": "Pelipper",
+  "item": "Focus Sash",
+  "nature": "Modest",
+  "ability": "Drizzle",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Hurricane",
+   "Tailwind",
+   "Weather Ball",
+   "Wide Guard"
+  ]
+ },
+ {
+  "id": "a3426fa1-2207-4936-9c84-7aee01ec62ff",
+  "species": "Farigiraf",
+  "item": "Sitrus Berry",
+  "nature": "Sassy",
+  "ability": "Armor Tail",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 2,
+   "spd": 32,
+   "spe": 0
+  },
+  "moves": [
+   "Trick Room",
+   "Helping Hand",
+   "Psychic",
+   "Protect"
+  ]
+ },
+ {
+  "id": "3874543e-bd5b-42ac-b942-c5ac7036dc6b",
+  "species": "Sneasler",
+  "item": "White Herb",
+  "nature": "Jolly",
+  "ability": "Unburden",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Close Combat",
+   "Fake Out",
+   "Dire Claw",
+   "Protect"
+  ]
+ },
+ {
+  "id": "opp-1784257807879-ybso3",
+  "species": "Incineroar",
+  "item": "Sitrus Berry",
+  "nature": "Adamant",
+  "ability": "Intimidate",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Fake Out",
+   "Parting Shot",
+   "Flare Blitz",
+   "Throat Chop"
+  ]
+ },
+ {
+  "id": "opp-1784257807879-mmzxf",
+  "species": "Basculegion",
+  "item": "Choice Scarf",
+  "nature": "Jolly",
+  "ability": "Adaptability",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Last Respects",
+   "Aqua Jet",
+   "Wave Crash",
+   "Protect"
+  ]
+ },
+ {
+  "id": "opp-1784257807879-5xfas",
+  "species": "Sinistcha",
+  "item": "Sitrus Berry",
+  "nature": "Bold",
+  "ability": "Hospitality",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 32,
+   "spa": 2,
+   "spd": 0,
+   "spe": 0
+  },
+  "moves": [
+   "Matcha Gotcha",
+   "Rage Powder",
+   "Trick Room",
+   "Life Dew"
+  ]
+ },
+ {
+  "id": "opp-1784257807879-3elif",
+  "species": "Kingambit",
+  "item": "Black Glasses",
+  "nature": "Adamant",
+  "ability": "Defiant",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Sucker Punch",
+   "Kowtow Cleave",
+   "Protect",
+   "Iron Head"
+  ]
+ },
+ {
+  "id": "opp-1784258153368-2gkqr",
+  "species": "Garchomp",
+  "item": "Life Orb",
+  "nature": "Jolly",
+  "ability": "Rough Skin",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Dragon Claw",
+   "Rock Slide",
+   "Earthquake",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-7e0a6b8f99f8",
+  "species": "Tauros-Paldea-Combat",
+  "item": "Sitrus Berry",
+  "nature": "Adamant",
+  "ability": "Intimidate",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Raging Bull",
+   "Rock Slide",
+   "Throat Chop",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-fb35c307af0b",
+  "species": "Tauros-Paldea-Blaze",
+  "item": "White Herb",
+  "nature": "Jolly",
+  "ability": "Intimidate",
+  "evs": {
+   "hp": 1,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Close Combat",
+   "Raging Bull",
+   "Protect",
+   "Rock Slide"
+  ]
+ },
+ {
+  "id": "cs-95737989bd6c",
+  "species": "Tauros-Paldea-Aqua",
+  "item": "White Herb",
+  "nature": "Jolly",
+  "ability": "Intimidate",
+  "evs": {
+   "hp": 1,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Close Combat",
+   "Protect",
+   "Aqua Jet",
+   "Raging Bull"
+  ]
+ },
+ {
+  "id": "cs-673cd03ba444",
+  "species": "Raichu-Alola",
+  "item": "Focus Sash",
+  "nature": "Timid",
+  "ability": "Surge Surfer",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Psychic",
+   "Fake Out",
+   "Thunderbolt",
+   "Volt Switch"
+  ]
+ },
+ {
+  "id": "cs-37b4d315a64b",
+  "species": "Vaporeon",
+  "item": "Leftovers",
+  "nature": "Modest",
+  "ability": "Water Absorb",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Scald",
+   "Protect",
+   "Ice Beam",
+   "Calm Mind"
+  ]
+ },
+ {
+  "id": "cs-8c49e02a37d2",
+  "species": "Pinsir",
+  "item": "Pinsirite",
+  "nature": "Jolly",
+  "ability": "Hyper Cutter",
+  "evs": {
+   "hp": 1,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Feint",
+   "Protect",
+   "Body Slam",
+   "Storm Throw"
+  ]
+ },
+ {
+  "id": "cs-52b3c5d4106d",
+  "species": "Starmie",
+  "item": "Starminite",
+  "nature": "Jolly",
+  "ability": "Illuminate",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Liquidation",
+   "Aqua Jet",
+   "Psycho Cut"
+  ]
+ },
+ {
+  "id": "cs-d3155137f6eb",
+  "species": "Slowbro",
+  "item": "Slowbronite",
+  "nature": "Relaxed",
+  "ability": "Oblivious",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 32,
+   "spa": 2,
+   "spd": 0,
+   "spe": 0
+  },
+  "moves": [
+   "Scald",
+   "Trick Room",
+   "Slack Off",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-274e7b7e3acc",
+  "species": "Victreebel",
+  "item": "Victreebelite",
+  "nature": "Modest",
+  "ability": "Chlorophyll",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Strength Sap",
+   "Protect",
+   "Giga Drain",
+   "Sludge Bomb"
+  ]
+ },
+ {
+  "id": "cs-f7cf1f56bc51",
+  "species": "Alakazam",
+  "item": "Alakazite",
+  "nature": "Timid",
+  "ability": "Synchronize",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Psychic",
+   "Expanding Force",
+   "Dazzling Gleam"
+  ]
+ },
+ {
+  "id": "cs-be9a61cd56f6",
+  "species": "Arcanine",
+  "item": "Sitrus Berry",
+  "nature": "Jolly",
+  "ability": "Intimidate",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Flare Blitz",
+   "Protect",
+   "Extreme Speed",
+   "Will-O-Wisp"
+  ]
+ },
+ {
+  "id": "cs-c8d3414c3a61",
+  "species": "Arbok",
+  "item": "Poison Barb",
+  "nature": "Adamant",
+  "ability": "Intimidate",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Gunk Shot",
+   "Knock Off",
+   "Glare",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-017df24bd7bf",
+  "species": "Pidgeot",
+  "item": "Pidgeotite",
+  "nature": "Timid",
+  "ability": "Keen Eye",
+  "evs": {
+   "hp": 1,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Hurricane",
+   "Heat Wave",
+   "Protect",
+   "Tailwind"
+  ]
+ },
+ {
+  "id": "cs-088382fb78ad",
+  "species": "Beedrill",
+  "item": "Beedrillite",
+  "nature": "Jolly",
+  "ability": "Swarm",
+  "evs": {
+   "hp": 1,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Poison Jab",
+   "Protect",
+   "U-turn",
+   "Drill Run"
+  ]
+ },
+ {
+  "id": "cs-f72711ddd33f",
+  "species": "Jolteon",
+  "item": "Focus Sash",
+  "nature": "Timid",
+  "ability": "Volt Absorb",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Discharge",
+   "Volt Switch",
+   "Alluring Voice"
+  ]
+ },
+ {
+  "id": "cs-cd2af0432084",
+  "species": "Machamp",
+  "item": "Sitrus Berry",
+  "nature": "Adamant",
+  "ability": "No Guard",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Dynamic Punch",
+   "Wide Guard",
+   "Protect",
+   "Stone Edge"
+  ]
+ },
+ {
+  "id": "cs-136ce07fde8d",
+  "species": "Ditto",
+  "item": "Choice Scarf",
+  "nature": "Bold",
+  "ability": "Imposter",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 32,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Transform",
+   "",
+   "",
+   ""
+  ]
+ },
+ {
+  "id": "cs-c330b50b8f62",
+  "species": "Slowking-Galar",
+  "item": "Sitrus Berry",
+  "nature": "Quiet",
+  "ability": "Regenerator",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Trick Room",
+   "Sludge Bomb",
+   "Chilly Reception",
+   "Psychic"
+  ]
+ },
+ {
+  "id": "cs-f2e6a1ecc375",
+  "species": "Houndoom",
+  "item": "Houndoominite",
+  "nature": "Timid",
+  "ability": "Early Bird",
+  "evs": {
+   "hp": 1,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Heat Wave",
+   "Dark Pulse",
+   "Solar Beam"
+  ]
+ },
+ {
+  "id": "cs-090db36222f3",
+  "species": "Skarmory",
+  "item": "Skarmorite",
+  "nature": "Jolly",
+  "ability": "Keen Eye",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Iron Head",
+   "Brave Bird",
+   "Protect",
+   "Swords Dance"
+  ]
+ },
+ {
+  "id": "cs-6654bc219f5f",
+  "species": "Heracross",
+  "item": "Heracronite",
+  "nature": "Adamant",
+  "ability": "Swarm",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Rock Blast",
+   "Close Combat",
+   "Pin Missile",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-c8b705e4e3a8",
+  "species": "Steelix",
+  "item": "Steelixite",
+  "nature": "Brave",
+  "ability": "Rock Head",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Heavy Slam",
+   "Protect",
+   "High Horsepower",
+   "Wide Guard"
+  ]
+ },
+ {
+  "id": "cs-94a99932c69c",
+  "species": "Slowking",
+  "item": "Leftovers",
+  "nature": "Relaxed",
+  "ability": "Regenerator",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 32,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Trick Room",
+   "Scald",
+   "Chilly Reception",
+   "Psychic"
+  ]
+ },
+ {
+  "id": "cs-a8a311cfb730",
+  "species": "Espeon",
+  "item": "Choice Scarf",
+  "nature": "Timid",
+  "ability": "Magic Bounce",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Psychic",
+   "Protect",
+   "Power Gem",
+   "Trick Room"
+  ]
+ },
+ {
+  "id": "cs-7a7fb9552245",
+  "species": "Ariados",
+  "item": "Sitrus Berry",
+  "nature": "Adamant",
+  "ability": "Insomnia",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Rage Powder",
+   "Protect",
+   "Poison Jab",
+   "String Shot"
+  ]
+ },
+ {
+  "id": "cs-bc65dfb3b2d5",
+  "species": "Feraligatr",
+  "item": "Feraligite",
+  "nature": "Adamant",
+  "ability": "Torrent",
+  "evs": {
+   "hp": 1,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Liquidation",
+   "Protect",
+   "Double-Edge",
+   "Dragon Dance"
+  ]
+ },
+ {
+  "id": "cs-cfd9e56c27ed",
+  "species": "Typhlosion",
+  "item": "Choice Scarf",
+  "nature": "Timid",
+  "ability": "Flash Fire",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Eruption",
+   "Heat Wave",
+   "Scorching Sands",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-42eeaa2b76da",
+  "species": "Qwilfish",
+  "item": "Mental Herb",
+  "nature": "Jolly",
+  "ability": "Intimidate",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Poison Jab",
+   "Taunt",
+   "Icy Wind"
+  ]
+ },
+ {
+  "id": "cs-ff19a67c6a62",
+  "species": "Scizor",
+  "item": "Scizorite",
+  "nature": "Adamant",
+  "ability": "Technician",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Bullet Punch",
+   "Protect",
+   "Bug Bite",
+   "Swords Dance"
+  ]
+ },
+ {
+  "id": "cs-073eb5e22df1",
+  "species": "Garganacl",
+  "item": "Shell Bell",
+  "nature": "Relaxed",
+  "ability": "Purifying Salt",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 2,
+   "spa": 0,
+   "spd": 0,
+   "spe": 0
+  },
+  "moves": [
+   "Salt Cure",
+   "Protect",
+   "Recover",
+   "Body Press"
+  ]
+ },
+ {
+  "id": "cs-c2a007c17fc1",
+  "species": "Quaquaval",
+  "item": "Mystic Water",
+  "nature": "Jolly",
+  "ability": "Moxie",
+  "evs": {
+   "hp": 1,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Aqua Step",
+   "Close Combat",
+   "Protect",
+   "Aqua Jet"
+  ]
+ },
+ {
+  "id": "cs-827a929bfb7b",
+  "species": "Orthworm",
+  "item": "Sitrus Berry",
+  "nature": "Impish",
+  "ability": "Earth Eater",
+  "evs": {
+   "hp": 32,
+   "atk": 2,
+   "def": 32,
+   "spa": 0,
+   "spd": 0,
+   "spe": 0
+  },
+  "moves": [
+   "Body Press",
+   "Shed Tail",
+   "Heavy Slam",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-717225b8cf2a",
+  "species": "Hydrapple",
+  "item": "Life Orb",
+  "nature": "Modest",
+  "ability": "Regenerator",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Protect",
+   "Fickle Beam",
+   "Earth Power",
+   "Giga Drain"
+  ]
+ },
+ {
+  "id": "cs-e97b7547b65b",
+  "species": "Skeledirge",
+  "item": "Leftovers",
+  "nature": "Modest",
+  "ability": "Unaware",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Torch Song",
+   "Protect",
+   "Shadow Ball",
+   "Slack Off"
+  ]
+ },
+ {
+  "id": "cs-31101b1e7214",
+  "species": "Palafin",
+  "item": "Mystic Water",
+  "nature": "Jolly",
+  "ability": "Zero To Hero",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Jet Punch",
+   "Wave Crash",
+   "Flip Turn",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-ab3ae6eeec30",
+  "species": "Espathra",
+  "item": "Focus Sash",
+  "nature": "Modest",
+  "ability": "Speed Boost",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Lumina Crash",
+   "Calm Mind",
+   "Baton Pass"
+  ]
+ },
+ {
+  "id": "cs-7a49848f1bdc",
+  "species": "Bellibolt",
+  "item": "Leftovers",
+  "nature": "Bold",
+  "ability": "Electromorphosis",
+  "evs": {
+   "hp": 31,
+   "atk": 0,
+   "def": 32,
+   "spa": 3,
+   "spd": 0,
+   "spe": 0
+  },
+  "moves": [
+   "Parabolic Charge",
+   "Protect",
+   "Soak",
+   "Thunderbolt"
+  ]
+ },
+ {
+  "id": "cs-fcf407d72daa",
+  "species": "Basculegion-F",
+  "item": "Choice Scarf",
+  "nature": "Modest",
+  "ability": "Swift Swim",
+  "evs": {
+   "hp": 0,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Shadow Ball",
+   "Ice Beam",
+   "Hydro Pump",
+   "Flip Turn"
+  ]
+ },
+ {
+  "id": "cs-e81592847c13",
+  "species": "Wyrdeer",
+  "item": "Colbur Berry",
+  "nature": "Sassy",
+  "ability": "Intimidate",
+  "evs": {
+   "hp": 32,
+   "atk": 2,
+   "def": 0,
+   "spa": 0,
+   "spd": 32,
+   "spe": 0
+  },
+  "moves": [
+   "Trick Room",
+   "Skill Swap",
+   "Psyshield Bash",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-32695b8cf13e",
+  "species": "Falinks",
+  "item": "Falinksite",
+  "nature": "Jolly",
+  "ability": "Battle Armor",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "No Retreat",
+   "Close Combat",
+   "Protect",
+   "Rock Slide"
+  ]
+ },
+ {
+  "id": "cs-1c4cfc878878",
+  "species": "Morpeko",
+  "item": "Focus Sash",
+  "nature": "Jolly",
+  "ability": "Hunger Switch",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Aura Wheel",
+   "Fake Out",
+   "Parting Shot",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-c65c998baa62",
+  "species": "Alcremie",
+  "item": "Sitrus Berry",
+  "nature": "Calm",
+  "ability": "Aroma Veil",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 2,
+   "spd": 32,
+   "spe": 0
+  },
+  "moves": [
+   "Decorate",
+   "Protect",
+   "Dazzling Gleam",
+   "Encore"
+  ]
+ },
+ {
+  "id": "cs-dd53f5ab5bf0",
+  "species": "Runerigus",
+  "item": "Leftovers",
+  "nature": "Relaxed",
+  "ability": "Wandering Spirit",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 32,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Trick Room",
+   "Will-O-Wisp",
+   "Poltergeist",
+   "Body Press"
+  ]
+ },
+ {
+  "id": "cs-aba06dba81ce",
+  "species": "Mr. Rime",
+  "item": "Focus Sash",
+  "nature": "Timid",
+  "ability": "Screen Cleaner",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Fake Out",
+   "Freeze-Dry",
+   "Protect",
+   "Sheer Cold"
+  ]
+ },
+ {
+  "id": "cs-dc44cd4879e6",
+  "species": "Polteageist",
+  "item": "White Herb",
+  "nature": "Modest",
+  "ability": "Cursed Body",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Shadow Ball",
+   "Shell Smash",
+   "Baton Pass",
+   "Stored Power"
+  ]
+ },
+ {
+  "id": "cs-677eb3d83b5c",
+  "species": "Sandaconda",
+  "item": "Bright Powder",
+  "nature": "Careful",
+  "ability": "Sand Veil",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 2,
+   "spa": 0,
+   "spd": 32,
+   "spe": 0
+  },
+  "moves": [
+   "Minimize",
+   "Body Press",
+   "Rock Slide",
+   "Iron Defense"
+  ]
+ },
+ {
+  "id": "cs-1778d5896888",
+  "species": "Appletun",
+  "item": "Leftovers",
+  "nature": "Calm",
+  "ability": "Thick Fat",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 2,
+   "spd": 32,
+   "spe": 0
+  },
+  "moves": [
+   "Apple Acid",
+   "Protect",
+   "Leech Seed",
+   "Dragon Pulse"
+  ]
+ },
+ {
+  "id": "cs-41cc5f592e1d",
+  "species": "Lycanroc-Midnight",
+  "item": "Choice Scarf",
+  "nature": "Jolly",
+  "ability": "No Guard",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Rock Slide",
+   "Stone Edge",
+   "Shadow Claw",
+   "Iron Tail"
+  ]
+ },
+ {
+  "id": "cs-f54b618d5de2",
+  "species": "Decidueye-Hisui",
+  "item": "Scope Lens",
+  "nature": "Adamant",
+  "ability": "Scrappy",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Triple Arrows",
+   "Leaf Blade",
+   "Protect",
+   "Sucker Punch"
+  ]
+ },
+ {
+  "id": "cs-a6148e039bd7",
+  "species": "Drampa",
+  "item": "Drampanite",
+  "nature": "Quiet",
+  "ability": "Berserk",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 2,
+   "spa": 32,
+   "spd": 0,
+   "spe": 0
+  },
+  "moves": [
+   "Hyper Voice",
+   "Protect",
+   "Earth Power",
+   "Dragon Pulse"
+  ]
+ },
+ {
+  "id": "cs-c8d9c741c84a",
+  "species": "Passimian",
+  "item": "Choice Scarf",
+  "nature": "Jolly",
+  "ability": "Defiant",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Close Combat",
+   "Knock Off",
+   "Drain Punch"
+  ]
+ },
+ {
+  "id": "cs-c7cc567575d2",
+  "species": "Salazzle",
+  "item": "Focus Sash",
+  "nature": "Timid",
+  "ability": "Corrosion",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Fake Out",
+   "Sludge Bomb",
+   "Protect",
+   "Toxic"
+  ]
+ },
+ {
+  "id": "cs-65412ec70fd5",
+  "species": "Lycanroc",
+  "item": "Focus Sash",
+  "nature": "Adamant",
+  "ability": "Sand Rush",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Rock Slide",
+   "Protect",
+   "Close Combat",
+   "Accelerock"
+  ]
+ },
+ {
+  "id": "cs-1125f4b2c607",
+  "species": "Crabominable",
+  "item": "Crabominite",
+  "nature": "Brave",
+  "ability": "Iron Fist",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Ice Hammer",
+   "Protect",
+   "Drain Punch",
+   "Mach Punch"
+  ]
+ },
+ {
+  "id": "cs-648639b6940d",
+  "species": "Toucannon",
+  "item": "Life Orb",
+  "nature": "Adamant",
+  "ability": "Skill Link",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Bullet Seed",
+   "Rock Blast",
+   "Beak Blast",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-41bf562ccae2",
+  "species": "Decidueye",
+  "item": "Focus Sash",
+  "nature": "Jolly",
+  "ability": "Long Reach",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Leaf Blade",
+   "Spirit Shackle",
+   "Protect",
+   "Shadow Sneak"
+  ]
+ },
+ {
+  "id": "cs-43e2a040a730",
+  "species": "Avalugg-Hisui",
+  "item": "Leftovers",
+  "nature": "Impish",
+  "ability": "Sturdy",
+  "evs": {
+   "hp": 32,
+   "atk": 2,
+   "def": 32,
+   "spa": 0,
+   "spd": 0,
+   "spe": 0
+  },
+  "moves": [
+   "Rock Slide",
+   "Body Press",
+   "Wide Guard",
+   "Mountain Gale"
+  ]
+ },
+ {
+  "id": "cs-2d6cbd668c5f",
+  "species": "Goodra-Hisui",
+  "item": "Leftovers",
+  "nature": "Modest",
+  "ability": "Sap Sipper",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Body Press",
+   "Protect",
+   "Shelter",
+   "Flash Cannon"
+  ]
+ },
+ {
+  "id": "cs-02a5ca586253",
+  "species": "Noivern",
+  "item": "Focus Sash",
+  "nature": "Timid",
+  "ability": "Telepathy",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Tailwind",
+   "Draco Meteor",
+   "Protect",
+   "Air Slash"
+  ]
+ },
+ {
+  "id": "cs-e9c0f9451c0e",
+  "species": "Avalugg",
+  "item": "Leftovers",
+  "nature": "Impish",
+  "ability": "Sturdy",
+  "evs": {
+   "hp": 32,
+   "atk": 2,
+   "def": 32,
+   "spa": 0,
+   "spd": 0,
+   "spe": 0
+  },
+  "moves": [
+   "Body Press",
+   "Protect",
+   "Wide Guard",
+   "Frost Breath"
+  ]
+ },
+ {
+  "id": "cs-c6292579a06f",
+  "species": "Gourgeist",
+  "item": "Sitrus Berry",
+  "nature": "Hardy",
+  "ability": "Frisk",
+  "evs": {
+   "hp": 0,
+   "atk": 0,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 0
+  },
+  "moves": [
+   "Trick Room",
+   "Power Whip",
+   "Phantom Force",
+   "Hypnosis"
+  ]
+ },
+ {
+  "id": "cs-91c3065c2bf1",
+  "species": "Klefki",
+  "item": "Light Clay",
+  "nature": "Bold",
+  "ability": "Prankster",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 32,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Light Screen",
+   "Reflect",
+   "Thunder Wave",
+   "Dazzling Gleam"
+  ]
+ },
+ {
+  "id": "cs-e23fd38adc9d",
+  "species": "Goodra",
+  "item": "Leftovers",
+  "nature": "Modest",
+  "ability": "Sap Sipper",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 2,
+   "spa": 32,
+   "spd": 0,
+   "spe": 0
+  },
+  "moves": [
+   "Protect",
+   "Draco Meteor",
+   "Flamethrower",
+   "Dragon Pulse"
+  ]
+ },
+ {
+  "id": "cs-ac83a68b9826",
+  "species": "Dedenne",
+  "item": "Sitrus Berry",
+  "nature": "Timid",
+  "ability": "Cheek Pouch",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Nuzzle",
+   "Dazzling Gleam",
+   "Entrainment"
+  ]
+ },
+ {
+  "id": "cs-6dc0cc08d084",
+  "species": "Hawlucha",
+  "item": "Hawluchanite",
+  "nature": "Jolly",
+  "ability": "Limber",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Entrainment",
+   "Close Combat",
+   "Brave Bird",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-905e03db8e87",
+  "species": "Aurorus",
+  "item": "Never Melt Ice",
+  "nature": "Modest",
+  "ability": "Snow Warning",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Protect",
+   "Blizzard",
+   "Ancient Power",
+   "Freeze-Dry"
+  ]
+ },
+ {
+  "id": "cs-9ae8f02b11b7",
+  "species": "Tyrantrum",
+  "item": "Choice Scarf",
+  "nature": "Jolly",
+  "ability": "Rock Head",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Head Smash",
+   "Rock Slide",
+   "Protect",
+   "Dragon Claw"
+  ]
+ },
+ {
+  "id": "cs-8796e028f111",
+  "species": "Dragalge",
+  "item": "Dragalgite",
+  "nature": "Quiet",
+  "ability": "Poison Point",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 2,
+   "spa": 32,
+   "spd": 0,
+   "spe": 0
+  },
+  "moves": [
+   "Protect",
+   "Sludge Bomb",
+   "Draco Meteor",
+   "Flip Turn"
+  ]
+ },
+ {
+  "id": "cs-1f38b46d4acb",
+  "species": "Barbaracle",
+  "item": "Barbaracite",
+  "nature": "Adamant",
+  "ability": "Tough Claws",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Rock Slide",
+   "Close Combat",
+   "Protect",
+   "Shell Smash"
+  ]
+ },
+ {
+  "id": "cs-8401656ac987",
+  "species": "Malamar",
+  "item": "Malamarite",
+  "nature": "Jolly",
+  "ability": "Contrary",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Superpower",
+   "Protect",
+   "Knock Off",
+   "Psycho Cut"
+  ]
+ },
+ {
+  "id": "cs-c5b48f448cd1",
+  "species": "Slurpuff",
+  "item": "Babiri Berry",
+  "nature": "Modest",
+  "ability": "Unburden",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Yawn",
+   "Play Rough",
+   "Drain Punch",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-3e0bd3922927",
+  "species": "Aromatisse",
+  "item": "Sitrus Berry",
+  "nature": "Sassy",
+  "ability": "Aroma Veil",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 15,
+   "spa": 0,
+   "spd": 19,
+   "spe": 0
+  },
+  "moves": [
+   "Trick Room",
+   "Moonblast",
+   "Heal Pulse",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-355df34187f1",
+  "species": "Furfrou",
+  "item": "Chople Berry",
+  "nature": "Adamant",
+  "ability": "Fur Coat",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Endeavor",
+   "Cotton Guard",
+   "Baby-Doll Eyes",
+   "Snarl"
+  ]
+ },
+ {
+  "id": "cs-88788d65695d",
+  "species": "Pangoro",
+  "item": "Expert Belt",
+  "nature": "Adamant",
+  "ability": "Scrappy",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Knock Off",
+   "Close Combat",
+   "Protect",
+   "Drain Punch"
+  ]
+ },
+ {
+  "id": "cs-28cc9a8466d0",
+  "species": "Chesnaught",
+  "item": "Chesnaughtite",
+  "nature": "Adamant",
+  "ability": "Bulletproof",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Spiky Shield",
+   "Body Press",
+   "Drain Punch",
+   "Wood Hammer"
+  ]
+ },
+ {
+  "id": "cs-4f2802acc97f",
+  "species": "Trevenant",
+  "item": "Sitrus Berry",
+  "nature": "Careful",
+  "ability": "Harvest",
+  "evs": {
+   "hp": 32,
+   "atk": 10,
+   "def": 15,
+   "spa": 0,
+   "spd": 9,
+   "spe": 0
+  },
+  "moves": [
+   "Protect",
+   "Trick Room",
+   "Horn Leech",
+   "Will-O-Wisp"
+  ]
+ },
+ {
+  "id": "cs-004c0486ffbd",
+  "species": "Meowstic",
+  "item": "Focus Sash",
+  "nature": "Timid",
+  "ability": "Prankster",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Fake Out",
+   "Psychic Terrain",
+   "Expanding Force",
+   "Reflect"
+  ]
+ },
+ {
+  "id": "cs-37983e7a4efc",
+  "species": "Golurk",
+  "item": "Golurkite",
+  "nature": "Brave",
+  "ability": "Iron Fist",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Poltergeist",
+   "Protect",
+   "Headlong Rush",
+   "Ice Punch"
+  ]
+ },
+ {
+  "id": "cs-2b253330315c",
+  "species": "Stunfisk",
+  "item": "Sitrus Berry",
+  "nature": "Modest",
+  "ability": "Static",
+  "evs": {
+   "hp": 31,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 3,
+   "spe": 0
+  },
+  "moves": [
+   "Earth Power",
+   "Protect",
+   "Thunderbolt",
+   "Discharge"
+  ]
+ },
+ {
+  "id": "cs-19d01c0e524a",
+  "species": "Beartic",
+  "item": "Life Orb",
+  "nature": "Adamant",
+  "ability": "Slush Rush",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Icicle Crash",
+   "Protect",
+   "Close Combat",
+   "Rock Slide"
+  ]
+ },
+ {
+  "id": "cs-f8ff17ccb17c",
+  "species": "Emolga",
+  "item": "Focus Sash",
+  "nature": "Modest",
+  "ability": "Motor Drive",
+  "evs": {
+   "hp": 1,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Nuzzle",
+   "Encore",
+   "Air Slash",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-631cc06b2c5f",
+  "species": "Reuniclus",
+  "item": "Life Orb",
+  "nature": "Quiet",
+  "ability": "Magic Guard",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Trick Room",
+   "Psychic",
+   "Protect",
+   "Focus Blast"
+  ]
+ },
+ {
+  "id": "cs-d56e36f71c76",
+  "species": "Zoroark",
+  "item": "Choice Scarf",
+  "nature": "Timid",
+  "ability": "Illusion",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Dark Pulse",
+   "Night Daze",
+   "Protect",
+   "Psychic"
+  ]
+ },
+ {
+  "id": "cs-1c7e5071db4f",
+  "species": "Cofagrigus",
+  "item": "Leftovers",
+  "nature": "Relaxed",
+  "ability": "Mummy",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 32,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Trick Room",
+   "Will-O-Wisp",
+   "Shadow Ball",
+   "Body Press"
+  ]
+ },
+ {
+  "id": "cs-89c4f3f9a055",
+  "species": "Krookodile",
+  "item": "Choice Scarf",
+  "nature": "Jolly",
+  "ability": "Intimidate",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Knock Off",
+   "Earthquake",
+   "Rock Slide",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-48638f8f9ebb",
+  "species": "Scolipede",
+  "item": "Scolipite",
+  "nature": "Adamant",
+  "ability": "Poison Point",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Leech Life",
+   "Swords Dance",
+   "Poison Jab"
+  ]
+ },
+ {
+  "id": "cs-545cfc84a78d",
+  "species": "Conkeldurr",
+  "item": "Life Orb",
+  "nature": "Adamant",
+  "ability": "Iron Fist",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Drain Punch",
+   "Mach Punch",
+   "Ice Punch",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-fa3de8647aef",
+  "species": "Audino",
+  "item": "Audinite",
+  "nature": "Sassy",
+  "ability": "Healer",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 2,
+   "spa": 0,
+   "spd": 32,
+   "spe": 0
+  },
+  "moves": [
+   "Simple Beam",
+   "Trick Room",
+   "Heal Pulse",
+   "Life Dew"
+  ]
+ },
+ {
+  "id": "cs-edc8e6d7364b",
+  "species": "Simipour",
+  "item": "Mystic Water",
+  "nature": "Adamant",
+  "ability": "Torrent",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Fake Out",
+   "Ice Punch",
+   "Liquidation",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-3f189c7218a3",
+  "species": "Simisear",
+  "item": "Shuca Berry",
+  "nature": "Adamant",
+  "ability": "Blaze",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Sunny Day",
+   "Fake Out",
+   "Will-O-Wisp",
+   "Overheat"
+  ]
+ },
+ {
+  "id": "cs-48721d7d73af",
+  "species": "Liepard",
+  "item": "Focus Sash",
+  "nature": "Jolly",
+  "ability": "Prankster",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Fake Out",
+   "Encore",
+   "Knock Off",
+   "Fake Tears"
+  ]
+ },
+ {
+  "id": "cs-1c2f0fb85cca",
+  "species": "Emboar",
+  "item": "Emboarite",
+  "nature": "Adamant",
+  "ability": "Blaze",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Flare Blitz",
+   "Protect",
+   "Drain Punch",
+   "Close Combat"
+  ]
+ },
+ {
+  "id": "cs-5a3b6ab2dd03",
+  "species": "Musharna",
+  "item": "Leftovers",
+  "nature": "Sassy",
+  "ability": "Telepathy",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 2,
+   "spd": 32,
+   "spe": 0
+  },
+  "moves": [
+   "Trick Room",
+   "Psychic",
+   "Helping Hand",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-65c298703b5a",
+  "species": "Chandelure",
+  "item": "Chandelurite",
+  "nature": "Timid",
+  "ability": "Infiltrator",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Shadow Ball",
+   "Heat Wave",
+   "Protect",
+   "Energy Ball"
+  ]
+ },
+ {
+  "id": "cs-1fe39f0678d9",
+  "species": "Serperior",
+  "item": "Miracle Seed",
+  "nature": "Timid",
+  "ability": "Contrary",
+  "evs": {
+   "hp": 1,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Leaf Storm",
+   "Protect",
+   "Dragon Pulse",
+   "Glare"
+  ]
+ },
+ {
+  "id": "cs-e0c3f88a5839",
+  "species": "Rotom-Frost",
+  "item": "Choice Scarf",
+  "nature": "Timid",
+  "ability": "Levitate",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Blizzard",
+   "Volt Switch",
+   "Thunderbolt",
+   "Electroweb"
+  ]
+ },
+ {
+  "id": "cs-4aed54532656",
+  "species": "Rotom-Fan",
+  "item": "Choice Scarf",
+  "nature": "Timid",
+  "ability": "Levitate",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Air Slash",
+   "Thunderbolt",
+   "Will-O-Wisp",
+   "Volt Switch"
+  ]
+ },
+ {
+  "id": "cs-a80a5004ccd7",
+  "species": "Rotom",
+  "item": "Choice Scarf",
+  "nature": "Timid",
+  "ability": "Levitate",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Shadow Ball",
+   "Discharge",
+   "Will-O-Wisp",
+   "Trick"
+  ]
+ },
+ {
+  "id": "cs-d7c078559b86",
+  "species": "Gliscor",
+  "item": "Leftovers",
+  "nature": "Jolly",
+  "ability": "Hyper Cutter",
+  "evs": {
+   "hp": 1,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "High Horsepower",
+   "Dual Wingbeat",
+   "Tailwind"
+  ]
+ },
+ {
+  "id": "cs-a18998eb2f85",
+  "species": "Glaceon",
+  "item": "Never Melt Ice",
+  "nature": "Modest",
+  "ability": "Snow Cloak",
+  "evs": {
+   "hp": 31,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 3,
+   "spe": 0
+  },
+  "moves": [
+   "Freeze-Dry",
+   "Blizzard",
+   "Protect",
+   "Detect"
+  ]
+ },
+ {
+  "id": "cs-01744db95fe8",
+  "species": "Leafeon",
+  "item": "Life Orb",
+  "nature": "Adamant",
+  "ability": "Chlorophyll",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Solar Blade",
+   "Leaf Blade",
+   "Knock Off",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-8e83d85b51e0",
+  "species": "Abomasnow",
+  "item": "Abomasite",
+  "nature": "Quiet",
+  "ability": "Snow Warning",
+  "evs": {
+   "hp": 32,
+   "atk": 2,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 0
+  },
+  "moves": [
+   "Blizzard",
+   "Protect",
+   "Earth Power",
+   "Energy Ball"
+  ]
+ },
+ {
+  "id": "cs-7cd6e6692220",
+  "species": "Toxicroak",
+  "item": "Focus Sash",
+  "nature": "Jolly",
+  "ability": "Dry Skin",
+  "evs": {
+   "hp": 1,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Fake Out",
+   "Poison Jab",
+   "Close Combat",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-65ac4e2f2ee4",
+  "species": "Hippowdon",
+  "item": "Leftovers",
+  "nature": "Impish",
+  "ability": "Sand Stream",
+  "evs": {
+   "hp": 32,
+   "atk": 2,
+   "def": 32,
+   "spa": 0,
+   "spd": 0,
+   "spe": 0
+  },
+  "moves": [
+   "Protect",
+   "Slack Off",
+   "Yawn",
+   "High Horsepower"
+  ]
+ },
+ {
+  "id": "cs-08d7e9bc9e42",
+  "species": "Lucario",
+  "item": "Lucarionite",
+  "nature": "Jolly",
+  "ability": "Steadfast",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Close Combat",
+   "Protect",
+   "Meteor Mash",
+   "Aura Sphere"
+  ]
+ },
+ {
+  "id": "cs-4dcba6228cc3",
+  "species": "Spiritomb",
+  "item": "Leftovers",
+  "nature": "Sassy",
+  "ability": "Infiltrator",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 2,
+   "spa": 0,
+   "spd": 32,
+   "spe": 0
+  },
+  "moves": [
+   "Trick Room",
+   "Will-O-Wisp",
+   "Foul Play",
+   "Snarl"
+  ]
+ },
+ {
+  "id": "cs-680618f7b30b",
+  "species": "Lopunny",
+  "item": "Lopunnite",
+  "nature": "Jolly",
+  "ability": "Cute Charm",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Fake Out",
+   "Close Combat",
+   "Protect",
+   "Triple Axel"
+  ]
+ },
+ {
+  "id": "cs-529d54f351b2",
+  "species": "Bastiodon",
+  "item": "Leftovers",
+  "nature": "Bold",
+  "ability": "Sturdy",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 32,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Body Press",
+   "Wide Guard",
+   "Iron Defense",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-8efb7c131abb",
+  "species": "Rampardos",
+  "item": "Life Orb",
+  "nature": "Brave",
+  "ability": "Sheer Force",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Rock Slide",
+   "Protect",
+   "Iron Head",
+   "Fire Punch"
+  ]
+ },
+ {
+  "id": "cs-6392fc6b2612",
+  "species": "Roserade",
+  "item": "Choice Scarf",
+  "nature": "Timid",
+  "ability": "Poison Point",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Sludge Bomb",
+   "Protect",
+   "Sleep Powder",
+   "Energy Ball"
+  ]
+ },
+ {
+  "id": "cs-41226c8ac16a",
+  "species": "Luxray",
+  "item": "Sitrus Berry",
+  "nature": "Timid",
+  "ability": "Intimidate",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Volt Switch",
+   "Protect",
+   "Wild Charge",
+   "Snarl"
+  ]
+ },
+ {
+  "id": "cs-a1e3a25eb470",
+  "species": "Torterra",
+  "item": "White Herb",
+  "nature": "Adamant",
+  "ability": "Shell Armor",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Wood Hammer",
+   "Protect",
+   "Shell Smash",
+   "Earthquake"
+  ]
+ },
+ {
+  "id": "cs-6d4370e31d60",
+  "species": "Rhyperior",
+  "item": "Lum Berry",
+  "nature": "Brave",
+  "ability": "Solid Rock",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Rock Slide",
+   "High Horsepower",
+   "Earthquake",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-81c6b9fd50e0",
+  "species": "Empoleon",
+  "item": "Leftovers",
+  "nature": "Modest",
+  "ability": "Competitive",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Flash Cannon",
+   "Protect",
+   "Hydro Pump",
+   "Ice Beam"
+  ]
+ },
+ {
+  "id": "cs-001531138ca7",
+  "species": "Infernape",
+  "item": "Focus Sash",
+  "nature": "Jolly",
+  "ability": "Iron Fist",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Fake Out",
+   "Close Combat",
+   "Protect",
+   "Fire Punch"
+  ]
+ },
+ {
+  "id": "cs-880e9af5da00",
+  "species": "Rotom-Mow",
+  "item": "Choice Scarf",
+  "nature": "Timid",
+  "ability": "Levitate",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Leaf Storm",
+   "Volt Switch",
+   "Thunderbolt",
+   "Will-O-Wisp"
+  ]
+ },
+ {
+  "id": "cs-3e3462a77c66",
+  "species": "Absol",
+  "item": "Absolite",
+  "nature": "Jolly",
+  "ability": "Pressure",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Sucker Punch",
+   "Close Combat",
+   "Night Slash"
+  ]
+ },
+ {
+  "id": "cs-dc97ad1ac5be",
+  "species": "Chimecho",
+  "item": "Chimechite",
+  "nature": "Modest",
+  "ability": "Levitate",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Flash Cannon",
+   "Trick Room",
+   "Protect",
+   "Psychic"
+  ]
+ },
+ {
+  "id": "cs-65963f8e70f1",
+  "species": "Banette",
+  "item": "Banettite",
+  "nature": "Adamant",
+  "ability": "Insomnia",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Poltergeist",
+   "Destiny Bond",
+   "Encore",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-27f3887c5cc7",
+  "species": "Altaria",
+  "item": "Altarianite",
+  "nature": "Timid",
+  "ability": "Natural Cure",
+  "evs": {
+   "hp": 1,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Tailwind",
+   "Hyper Voice",
+   "Roost"
+  ]
+ },
+ {
+  "id": "cs-648d99b403fb",
+  "species": "Camerupt",
+  "item": "Cameruptite",
+  "nature": "Quiet",
+  "ability": "Magma Armor",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Earth Power",
+   "Protect",
+   "Heat Wave",
+   "Eruption"
+  ]
+ },
+ {
+  "id": "cs-6719387d3be9",
+  "species": "Sharpedo",
+  "item": "Sharpedonite",
+  "nature": "Adamant",
+  "ability": "Rough Skin",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Crunch",
+   "Psychic Fangs",
+   "Liquidation"
+  ]
+ },
+ {
+  "id": "cs-9f1ec2d3aa07",
+  "species": "Manectric",
+  "item": "Manectite",
+  "nature": "Timid",
+  "ability": "Static",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Volt Switch",
+   "Snarl",
+   "Thunderbolt"
+  ]
+ },
+ {
+  "id": "cs-8ae3c24e63f7",
+  "species": "Medicham",
+  "item": "Medichamite",
+  "nature": "Jolly",
+  "ability": "Pure Power",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Fake Out",
+   "Close Combat",
+   "Skill Swap",
+   "Psycho Cut"
+  ]
+ },
+ {
+  "id": "cs-7091de7ffbd9",
+  "species": "Metagross",
+  "item": "Metagrossite",
+  "nature": "Jolly",
+  "ability": "Clear Body",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Psychic Fangs",
+   "Protect",
+   "Iron Head",
+   "Bullet Punch"
+  ]
+ },
+ {
+  "id": "cs-d886914e5d4a",
+  "species": "Swampert",
+  "item": "Swampertite",
+  "nature": "Adamant",
+  "ability": "Torrent",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Wave Crash",
+   "Ice Punch",
+   "Earthquake"
+  ]
+ },
+ {
+  "id": "cs-e408f5ba9a8e",
+  "species": "Sylveon",
+  "item": "Fairy Feather",
+  "nature": "Modest",
+  "ability": "Pixilate",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Hyper Voice",
+   "Hyper Beam",
+   "Quick Attack",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-569086032500",
+  "species": "Floette-Eternal",
+  "item": "Floettite",
+  "nature": "Timid",
+  "ability": "Flower Veil",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Dazzling Gleam",
+   "Moonblast",
+   "Light of Ruin"
+  ]
+ },
+ {
+  "id": "cs-376eb122689e",
+  "species": "Mawile",
+  "item": "Mawilite",
+  "nature": "Brave",
+  "ability": "Hyper Cutter",
+  "evs": {
+   "hp": 32,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Play Rough",
+   "Protect",
+   "Sucker Punch",
+   "Iron Head"
+  ]
+ },
+ {
+  "id": "cs-8fea6b765bf9",
+  "species": "Sceptile",
+  "item": "Sceptilite",
+  "nature": "Timid",
+  "ability": "Overgrow",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Dragon Pulse",
+   "Earth Power",
+   "Protect",
+   "Energy Ball"
+  ]
+ },
+ {
+  "id": "cs-8a8ead1f7f14",
+  "species": "Eelektross",
+  "item": "Eelektrossite",
+  "nature": "Timid",
+  "ability": "Levitate",
+  "evs": {
+   "hp": 1,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Thunderbolt",
+   "Giga Drain",
+   "Discharge"
+  ]
+ },
+ {
+  "id": "cs-f7fff2d44b4c",
+  "species": "Delphox",
+  "item": "Delphoxite",
+  "nature": "Timid",
+  "ability": "Blaze",
+  "evs": {
+   "hp": 1,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 1,
+   "spe": 32
+  },
+  "moves": [
+   "Heat Wave",
+   "Protect",
+   "Psychic",
+   "Nasty Plot"
+  ]
+ },
+ {
+  "id": "cs-16912202de65",
+  "species": "Gengar",
+  "item": "Gengarite",
+  "nature": "Timid",
+  "ability": "Cursed Body",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Shadow Ball",
+   "Perish Song",
+   "Sludge Bomb"
+  ]
+ },
+ {
+  "id": "cs-4c48a9adbd89",
+  "species": "Pyroar",
+  "item": "Pyroarite",
+  "nature": "Timid",
+  "ability": "Rivalry",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Heat Wave",
+   "Protect",
+   "Overheat",
+   "Solar Beam"
+  ]
+ },
+ {
+  "id": "cs-511c0e5f6539",
+  "species": "Blastoise",
+  "item": "Blastoisinite",
+  "nature": "Modest",
+  "ability": "Torrent",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Water Spout",
+   "Dark Pulse",
+   "Aura Sphere",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-93b2043764de",
+  "species": "Scovillain",
+  "item": "Scovillainite",
+  "nature": "Calm",
+  "ability": "Chlorophyll",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 19,
+   "spa": 0,
+   "spd": 15,
+   "spe": 0
+  },
+  "moves": [
+   "Rage Powder",
+   "Protect",
+   "Overheat",
+   "Leech Seed"
+  ]
+ },
+ {
+  "id": "cs-1c9b69634de9",
+  "species": "Meganium",
+  "item": "Meganiumite",
+  "nature": "Timid",
+  "ability": "Overgrow",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Solar Beam",
+   "Weather Ball",
+   "Dazzling Gleam",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-65eb71e48425",
+  "species": "Zoroark-Hisui",
+  "item": "Focus Sash",
+  "nature": "Timid",
+  "ability": "Illusion",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Hyper Voice",
+   "Bitter Malice",
+   "Icy Wind",
+   "Shadow Ball"
+  ]
+ },
+ {
+  "id": "cs-ff126276f19a",
+  "species": "Heliolisk",
+  "item": "Choice Scarf",
+  "nature": "Timid",
+  "ability": "Dry Skin",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Hyper Voice",
+   "Thunderbolt",
+   "Volt Switch",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-bd0c9c0cde3a",
+  "species": "Greninja",
+  "item": "Greninjite",
+  "nature": "Timid",
+  "ability": "Protean",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Dark Pulse",
+   "Protect",
+   "Ice Beam",
+   "Hydro Pump"
+  ]
+ },
+ {
+  "id": "cs-f47c6b444fac",
+  "species": "Aggron",
+  "item": "Aggronite",
+  "nature": "Careful",
+  "ability": "Sturdy",
+  "evs": {
+   "hp": 32,
+   "atk": 2,
+   "def": 0,
+   "spa": 0,
+   "spd": 32,
+   "spe": 0
+  },
+  "moves": [
+   "Body Press",
+   "Heavy Slam",
+   "Protect",
+   "Iron Defense"
+  ]
+ },
+ {
+  "id": "cs-760353735233",
+  "species": "Ampharos",
+  "item": "Ampharosite",
+  "nature": "Quiet",
+  "ability": "Static",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 2,
+   "spa": 32,
+   "spd": 0,
+   "spe": 0
+  },
+  "moves": [
+   "Dragon Pulse",
+   "Protect",
+   "Thunderbolt",
+   "Cotton Guard"
+  ]
+ },
+ {
+  "id": "cs-ebad12f02c35",
+  "species": "Slowbro-Galar",
+  "item": "Quick Claw",
+  "nature": "Quiet",
+  "ability": "Quick Draw",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 2,
+   "spe": 0
+  },
+  "moves": [
+   "Shell Side Arm",
+   "Trick Room",
+   "Psychic",
+   "Protect"
+  ]
+ },
+ {
+  "id": "cs-bdb63bdb8da4",
+  "species": "Glalie",
+  "item": "Glalitite",
+  "nature": "Jolly",
+  "ability": "Inner Focus",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Explosion",
+   "Ice Shard",
+   "Body Slam"
+  ]
+ },
+ {
+  "id": "cs-7a4a927d9727",
+  "species": "Flapple",
+  "item": "Choice Scarf",
+  "nature": "Jolly",
+  "ability": "Hustle",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Grav Apple",
+   "Dragon Rush",
+   "Protect",
+   "U-turn"
+  ]
+ },
+ {
+  "id": "cs-154277f484bd",
+  "species": "Meowstic-F",
+  "item": "Meowsticite",
+  "nature": "Timid",
+  "ability": "Keen Eye",
+  "evs": {
+   "hp": 2,
+   "atk": 0,
+   "def": 0,
+   "spa": 32,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Protect",
+   "Psychic",
+   "Alluring Voice",
+   "Expanding Force"
+  ]
+ },
+ {
+  "id": "cs-be45f53c1711",
+  "species": "Diggersby",
+  "item": "Choice Scarf",
+  "nature": "Adamant",
+  "ability": "Huge Power",
+  "evs": {
+   "hp": 2,
+   "atk": 32,
+   "def": 0,
+   "spa": 0,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Earthquake",
+   "Ice Punch",
+   "Protect",
+   "High Horsepower"
+  ]
+ },
+ {
+  "id": "cs-75ecda136a38",
+  "species": "Florges",
+  "item": "Leftovers",
+  "nature": "Timid",
+  "ability": "Flower Veil",
+  "evs": {
+   "hp": 22,
+   "atk": 0,
+   "def": 1,
+   "spa": 11,
+   "spd": 0,
+   "spe": 32
+  },
+  "moves": [
+   "Moonblast",
+   "Protect",
+   "Pollen Puff",
+   "Dazzling Gleam"
+  ]
+ },
+ {
+  "id": "cs-6726a71ab24c",
+  "species": "Gourgeist-Super",
+  "item": "Sitrus Berry",
+  "nature": "Careful",
+  "ability": "Frisk",
+  "evs": {
+   "hp": 32,
+   "atk": 0,
+   "def": 2,
+   "spa": 0,
+   "spd": 32,
+   "spe": 0
+  },
+  "moves": [
+   "Trick Room",
+   "Poltergeist",
+   "Protect",
+   "Trick-or-Treat"
+  ]
+ },
+ {
+  "id": "cs-e111b4343095",
+  "species": "Flareon",
+  "item": "White Herb",
+  "nature": "Brave",
+  "ability": "Flash Fire",
+  "evs": {
+   "hp": 32,
+   "atk": 20,
+   "def": 14,
+   "spa": 0,
+   "spd": 0,
+   "spe": 0
+  },
+  "moves": [
+   "Flare Blitz",
+   "Superpower",
+   "Protect",
+   "Detect"
+  ]
+ },
+ {
+  "id": "cs-e871a7984d55",
+  "species": "Samurott",
+  "item": "Expert Belt",
+  "nature": "Quiet",
+  "ability": "Torrent",
+  "evs": {
+   "hp": 10,
+   "atk": 22,
+   "def": 13,
+   "spa": 10,
+   "spd": 11,
+   "spe": 0
+  },
+  "moves": [
+   "Ice Beam",
+   "Aqua Jet",
+   "Sacred Sword",
+   "Waterfall"
+  ]
+ }
+]

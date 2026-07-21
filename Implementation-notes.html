@@ -48,6 +48,416 @@
 
 <div class="wrap">
 
+<h2>Đợt 14 — Ghi đè chỉ số pkm từ paste (nguồn tin cậy hơn)</h2>
+<div class="card chg">
+  <h3>Overwrite toàn bộ, kể cả 50 entry Pikalytics</h3>
+  <p>Người dùng dán 218 set Showdown (hệ SPs cap 32) và yêu cầu <b>"trùng thì ghi đè do đây là nguồn tin cậy hơn"</b>.
+  Khác hẳn <code>merge_sets.py</code> (vốn <i>giữ</i> Pikalytics, "không đè"). Vì paste phủ đúng cả 50 loài Pikalytics nên
+  sau đợt này <b>USAGEDATA 100% là set gợi ý</b> (<code>s=1</code>, không còn nhãn % usage). Đây là đánh đổi người dùng
+  đã chọn có ý thức (hỏi trước khi ghi) — ưu tiên set họ tin cậy hơn số liệu ladder cũ.</p>
+</div>
+<div class="card">
+  <h3>Chuẩn hoá khi parse — điểm cần biết</h3>
+  <table>
+    <tbody>
+      <tr><td style="width:30%">Species <code>-Breed</code></td><td>Paste ghi <code>Tauros-Paldea-Aqua-Breed</code>/<code>-Blaze-Breed</code> (hậu tố nonstandard). Strip <code>-Breed</code> → khớp DEX <code>Tauros-Paldea-Aqua</code>. Nếu không strip thì <code>in_dex</code> trượt và bị bỏ.</td></tr>
+      <tr><td>Tên chiêu</td><td>Paste dùng khoảng trắng (<code>Will O Wisp</code>, <code>U Turn</code>, <code>Freeze Dry</code>, <code>Noretreat</code>, <code>Burnup</code>, <code>Trickortreat</code>). Map bằng khoá alnum-lowercase về đúng chính tả MOVES. 218×4 chiêu khớp 100%, không sót.</td></tr>
+      <tr><td>Item app không biết</td><td>15 item (đá Mega minor, Colbur/Shuca/Roseli Berry, Sharp Beak…) không nằm trong 42 ITEMS ⇒ <b>bỏ khỏi trường <code>it</code></b> của USAGEDATA (đúng hành vi merge cũ). champ-sets.json vẫn giữ nguyên chuỗi item.</td></tr>
+      <tr><td>Đá Mega → <code>mg</code></td><td>Staraptite→Staraptor (Mega), Meowsticite→Meowstic-F (Mega)… map sang dạng Mega thay vì ô item (như merge cũ).</td></tr>
+    </tbody>
+  </table>
+  <p class="muted">Script <code>update_pkm.py</code> (dry-run mặc định, cần <code>--write</code>). Ghi đè champ-sets.json <b>giữ id cũ</b>
+  cho 191 loài trùng, thêm 27 loài mới. USAGEDATA: 226 loài, toàn bộ <code>s=1</code>. Banner comment cũ ("Chỉ 50 loài")
+  giờ đã lỗi thời — chưa sửa vì chỉ là chú thích, không ảnh hưởng runtime.</p>
+</div>
+
+<h2>Đợt 13 — Căn nút +/− chỉ số thẳng cột</h2>
+<div class="card">
+  <h3>Nút −/+ lệch khỏi chỉ số</h3>
+  <p><b>Nguyên nhân:</b> lưới chỉ số (<code>.oc-stats</code>) và hàng nút (<code>.oc-stg</code>) là <b>2 grid riêng</b>.
+  Ô HP trong grid nút để trống, còn các ô khác chứa "− n +" rộng hơn. Với <code>repeat(6,1fr)</code> (min-width mặc định =
+  auto), cột nào có nội dung rộng thì phình ra ⇒ 2 grid chia cột <b>không đều nhau</b> ⇒ nút lệch khỏi chỉ số.</p>
+  <p><b>Sửa:</b> gộp thành <b>1 grid duy nhất</b> — mỗi cột chứa nhãn / giá trị / SP / nút xếp dọc. Nút nằm cùng cột với
+  chỉ số nên thẳng hàng tuyệt đối. Dùng <code>repeat(6,minmax(0,1fr))</code> để 6 cột luôn bằng nhau bất kể nội dung.
+  Đã đo: tâm nút trùng đúng tâm giá trị (Atk 1354=1354, Def 1398=1398), không tràn card.</p>
+</div>
+
+<h2>Đợt 12 — Đội tôi Mega được MỌI loài (không chỉ 8 con có đá)</h2>
+<div class="card good">
+  <h3>Vấn đề: đội tôi chỉ Mega được 8 loài</h3>
+  <p>Pokédex có <b>94 dạng Mega</b> (Champions thêm rất nhiều so với game gốc: Dragalge, Scovillain, Skarmory…).
+  Nhưng đội tôi Mega bằng cách <b>cầm đá</b> — mà bảng <code>MEGA</code> (đá→dạng) chỉ có <b>8 con</b> và <code>ITEMS</code>
+  chỉ 9 đá. Nên 86 loài còn lại (gồm Dragalge, Scovillain người dùng báo) <b>không Mega được</b> ở đội tôi.
+  Đối thủ thì đã Mega được mọi loài (nút ◆ trên card dùng <code>megaFormesOf</code>, không cần đá).</p>
+</div>
+<div class="card">
+  <h3>Cách sửa: thêm nút Mega cho card đội tôi (như đối thủ), không cần đá</h3>
+  <table>
+    <tbody>
+      <tr><td style="width:32%"><code>buildMon</code></td><td>Hiểu <code>cfg.megaForm</code>: nếu set/đối thủ chỉ định dạng Mega thì dùng thẳng dạng đó (ability = ability Mega). Vẫn giữ nhánh cũ (Mega qua đá) cho ai cầm stone.</td></tr>
+      <tr><td>Card đội tôi</td><td>Thêm nút ◆ MEGA (X/Y nếu có) → set <code>s.megaForm</code>. Tên + pill MEGA + chỉ số + damage + speed order cập nhật ngay.</td></tr>
+      <tr><td>Guard <code>megaFormesOf</code></td><td>Chỉ áp <code>megaForm</code> khi nó là dạng Mega ĐÚNG của loài hiện tại — tránh Mega nhầm nếu đổi loài trong set mà megaForm cũ còn sót.</td></tr>
+      <tr><td>Reset</td><td>Xoá luôn <code>megaForm</code> của cả đội tôi (đã có cho đối thủ ở đợt 11).</td></tr>
+    </tbody>
+  </table>
+  <p class="muted">Đã kiểm chứng: Staraptor (Mega) chỉ số 144→164 Atk, Close Combat 60–71 → 102–120; guard chặn
+  "Charizard Y trên Staraptor"; opponent Mega + stone-Mega (Mawile) vẫn chạy. Đối thủ vẫn dùng đường
+  <code>species=megaForm</code> trong <code>resolvePick</code> (stats đúng, cờ <code>mega</code> không cần cho display của họ).</p>
+</div>
+
+<h2>Đợt 11 — Bỏ auto-Mega, sửa Reset, kiểm chứng công thức damage</h2>
+<div class="card good">
+  <h3>Bỏ tự Mega đối thủ (nguồn gây "lệch damage" chính)</h3>
+  <p><code>addOpp</code> trước đây tự bật <code>megaForm</code> theo usage (Swampertite 98.5% → thêm Swampert là ra
+  Swampert-Mega). Nay <code>megaForm:null</code> — thêm vào là <b>dạng gốc</b>, người dùng tự bấm nút ◆ MEGA.</p>
+  <p><b>Đây gần như chắc chắn là lý do damage "khá lệch" so với porygonlabs:</b> so đòn đánh của/lên Swampert
+  <i>dạng gốc</i> (base Atk 110) trên porygon với Swampert-<i>Mega</i> (base Atk 150) auto-bật của tool → số khác hẳn.
+  Bấm Mega thì chỉ số + damage + speed cập nhật ngay (đã có sẵn qua <code>calcRefresh</code>).</p>
+</div>
+<div class="card">
+  <h3>Công thức damage: đã kiểm chứng, ĐÚNG</h3>
+  <p>Nghi ngờ công thức sai nên em so <b>từng roll</b> với 2 bản dựng độc lập:</p>
+  <table>
+    <tbody>
+      <tr><td style="width:34%">vs công thức chuẩn Gen 5+</td><td>7/7 tình huống khớp <b>tuyệt đối</b> (STAB, hệ ×2/×0.5, thời tiết, crit, bỏng, Life Orb)</td></tr>
+      <tr><td>vs <code>modify</code> 4096 thật của Showdown</td><td>Dải min–max <b>giống hệt</b>; chỉ 1 roll giữa lệch ±1 ở ca Muscle Band (làm tròn 4096 vs float — không đáng kể)</td></tr>
+    </tbody>
+  </table>
+  <p><b>Kết luận:</b> công thức không sai. Phần "lệch" còn lại (sau khi bỏ auto-Mega) đến từ <b>spread giả định của đối thủ</b>:
+  tool đoán spread tấn công (VD Garchomp 2/32/0/0/0/32 — 0 Def), nên nếu trên porygon bạn đặt đối thủ spread thủ khác thì
+  Def/HP khác → % khác. Đây là bản chất "dự đoán", không phải lỗi. Muốn khớp tuyệt đối thì đặt cùng spread 2 bên.</p>
+</div>
+<div class="card">
+  <h3>Reset: 2 sửa</h3>
+  <table>
+    <tbody>
+      <tr><td style="width:34%">Không đụng đơn/đôi</td><td>Bỏ <code>FIELD.mode='single'</code> khỏi Reset. Đơn/đôi <b>ăn theo ô Định dạng</b> (Single chọn 3 / Double chọn 4), không phải điều kiện sân.</td></tr>
+      <tr><td>Xoá cả lựa chọn ra trận</td><td>Thêm <code>PICK=[]</code>. Reset cũng xoá <code>megaForm</code> mọi đối thủ (để đồng bộ với bỏ auto-Mega).</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>Đợt 10 — Ghim 4 chiêu hay dùng lên đầu bảng damage</h2>
+<div class="card">
+  <h3>Trước: usage moves không hề dùng trong bảng damage</h3>
+  <p>Bảng dùng <code>resolvePick(av).moves</code> = chỉ chiêu <b>đã lộ</b> (user tự điền). Nếu chưa điền thì đổ
+  <b>cả learnset</b> sắp theo damage — chôn vùi chiêu thực tế dưới những chiêu mạnh-nhưng-không-ai-dùng.
+  Dữ liệu 4 chiêu hay dùng (<code>USAGEDATA.m</code>) có sẵn nhưng <code>resolvePick</code> không đọc (chỉ
+  <code>oppCfgOf</code> đọc, mà bảng lại không dùng <code>oppCfgOf</code>).</p>
+</div>
+<div class="card good">
+  <h3>Nay: đối thủ chưa lộ chiêu → ghim 4 chiêu usage lên đầu</h3>
+  <table>
+    <thead><tr><th style="width:34%">Trường hợp (bên tấn công)</th><th>Bảng hiển thị</th></tr></thead>
+    <tbody>
+      <tr><td>Đối thủ, <b>đã điền</b> chiêu lộ</td><td>Chỉ chiêu đó (như cũ, chắc chắn hơn usage)</td></tr>
+      <tr><td>Đối thủ, <b>chưa điền</b>, có usage</td><td><b>4 chiêu hay dùng ghim đầu</b> (★, nền xanh nhạt), rồi learnset còn lại theo damage</td></tr>
+      <tr><td>Đối thủ, không có usage / đội tôi / loài tra nhanh</td><td>Như cũ (learnset hoặc set thật)</td></tr>
+    </tbody>
+  </table>
+  <p>4 chiêu ghim vẫn <b>sắp theo damage</b> trong nhóm (chiêu mạnh nhất trong 4 lên trên), chỉ khác là cả nhóm
+  đứng trên phần còn lại bất kể damage. Chiêu status trong usage (Protect…) bị loại vì bảng damage không hiện chiêu status.</p>
+  <p class="muted">Kỹ thuật: thêm cờ <code>pinMoves</code> (Set 4 chiêu), sort 2 tầng (ghim trước → damage sau). Match theo
+  <code>r._m</code> (tên gốc) chứ không <code>r.move</code> vì chiêu đa đòn có hậu tố “×N”. Truncation (giữ 18 chiêu)
+  vẫn chạy — 4 ghim (≤4) luôn nằm trong 18 đầu nên không bị ẩn.</p>
+</div>
+
+<h2>Đợt 9 — Speed order gọn còn Base + Dự đoán</h2>
+<div class="card">
+  <h3>Bỏ dải 3 cột, còn 2 con số</h3>
+  <p>Dải Max/Trung tính/Không cộng (đợt 7) đúng khi <i>chưa</i> có dữ liệu — nhưng đợt 8 đã có usage thật, nên
+  không cần dải nữa. Nay mỗi con chỉ 2 speed:</p>
+  <table>
+    <thead><tr><th style="width:24%">Cột</th><th>Nghĩa</th><th>Swampert</th></tr></thead>
+    <tbody>
+      <tr><td><b>Base (0 SP)</b></td><td>speed khi không cộng điểm = <code>base+20</code> (đúng công thức
+        <code>calcStat</code>: <code>floor((2·base+31)/2)+5</code>)</td><td>60+20 = <b>80</b></td></tr>
+      <tr><td><b>Dự đoán</b></td><td>base + spread hay gặp + item, qua <code>buildMon</code></td>
+        <td>+32 Spe, Adamant (trung tính Spe) = <b>112</b></td></tr>
+    </tbody>
+  </table>
+  <p>Khớp đúng ví dụ người dùng đưa (80 → 112). Ô Dự đoán <b>tô vàng</b> khi có số liệu ladder thật, kèm nhãn
+  <code>Adamant·32SP · Life Orb</code>; loài ngoài top-50 ghi <code>(đoán)</code>.</p>
+</div>
+<div class="card warn">
+  <h3>Vì sao thực tế thường thấy 90 → 122, không phải 80 → 112</h3>
+  <p>Ví dụ 80/112 là Swampert <b>dạng gốc</b>. Nhưng Swampertite chiếm 98.5% nên thêm Swampert vào là
+  <b>tự Mega</b> (đợt 8) — dòng chính thành “Swampert (Mega)”: base 70+20 = <b>90</b>, dự đoán <b>122</b>.
+  Dạng gốc 80/112 vẫn hiện, ở dòng mờ “nếu đổi dạng”. Bấm nút MEGA trên card để về gốc nếu muốn.</p>
+</div>
+<div class="card">
+  <h3>Base cố ý là speed 0-SP, không phải base stat thô</h3>
+  <p>Cột cũ hiện base stat thô (Swampert 60) — nhưng 60 không so được với speed thật của đội mình (247…).
+  Nay hiện <b>base+20</b> (80) = speed thật khi 0 điểm, cùng đơn vị với mọi số khác trong bảng, và khớp cách người
+  dùng gọi “base 80”. Đánh đổi: cột này <b>không</b> tính thời tiết (Swift Swim…) hay item — chỉ Dự đoán mới tính đủ,
+  nên con có ability đổi tốc độ sẽ thấy Dự đoán nhảy mạnh so với Base. Đó là chủ ý: Base = mốc sạch, Dự đoán = thực chiến.</p>
+</div>
+
+<h2>Đợt 8.5 — Bổ sung 36 loài từ champ-sets (set gợi ý)</h2>
+<div class="card">
+  <h3>Nguồn thứ 2, khác bản chất với Pikalytics</h3>
+  <p>Người dùng đưa <code>champ-sets.json</code>: 75 set cụ thể (spread + nature + item + ability + moves cho từng con).
+  Khác Pikalytics ở chỗ đây là <b>1 build gợi ý mỗi loài</b> (ý kiến), không phải <b>thống kê usage có %</b>.</p>
+  <table>
+    <thead><tr><th style="width:30%">Quyết định</th><th>Lý do</th></tr></thead>
+    <tbody>
+      <tr><td>Chỉ thêm <b>36 loài MỚI</b>, giữ Pikalytics cho 38 con trùng</td>
+          <td>Với con trùng, thống kê ladder đáng tin hơn 1 set gợi ý. Có xung đột thật:
+              Kangaskhan set ghi <i>Silk Scarf</i> (không Mega) vs Pikalytics <i>Kangaskhanite 52%</i> (Mega).</td></tr>
+      <tr><td>Đánh dấu cờ <code>s:1</code>, <b>không</b> có <code>u</code> (%)</td>
+          <td>Để hiển thị trung thực: nhãn ghi <b>· set</b> thay vì <code>X% ladder</code>. Nếu gán % giả sẽ nói dối.</td></tr>
+      <tr><td>Bỏ Froslass</td><td>Entry rỗng (item "None", 0 SP, ability "None") — placeholder, không dùng.</td></tr>
+    </tbody>
+  </table>
+  <p>Kết quả: USAGEDATA 50 → 86 → 115 → <b>210 loài</b> (nhiều đợt set). Con như Dragapult, Garganacl, Skeledirge,
+  Sharpedo, Lucario, Chandelure… trước đây đoán mù, nay có set thật. Rất nhiều con tự Mega (kể cả những con canon
+  không có Mega như Skarmory, Feraligatr, Sharpedo — Champions cho hết, <code>merge_sets.py</code> tự dò dạng Mega trong Pokédex).</p>
+  <p class="muted">Quy trình lặp lại được: người dùng đưa JSON set → em nối vào <code>champ-sets.json</code> → chạy
+  <code>merge_sets.py</code> (tự bỏ loài đã có / rỗng / không có trong Pokédex, xử lý spread rỗng, map đá Mega).
+  <code>champ-sets.json</code> hiện ~199 set lưu trữ.</p>
+  <p class="muted"><b>2 xử lý thêm ở đợt sau:</b> (1) set có EV toàn 0 + nature Hardy = template rỗng ⇒ bỏ spread/nature,
+  giữ chiêu/ability/item, để <code>guessSpread</code> đoán spread (VD Typhlosion: chiêu + Choice Scarf từ set, spread đoán,
+  nhãn <b>(đoán)</b>). (2) <code>merge_sets.py</code> chặn loài không có trong Pokédex và bỏ set rỗng (item "" hoặc "None").</p>
+</div>
+<div class="card bad">
+  <h3>Ba mức tin cậy, hiển thị phân biệt</h3>
+  <p><code>guessSpread</code> nay trả 3 loại, speed order gắn nhãn khác nhau để người dùng biết tin tới đâu:</p>
+  <table>
+    <tbody>
+      <tr><td style="width:26%">Pikalytics (có <code>u</code>)</td><td>Tô vàng, nhãn <code>Adamant·32SP</code> + tooltip % số trận</td></tr>
+      <tr><td>champ-sets (có <code>s</code>)</td><td>Tô vàng, nhãn <code>Jolly·32SP · Focus Sash · <b>set</b></code></td></tr>
+      <tr><td>Ngoài cả hai</td><td>Không tô, nhãn <code>(đoán)</code></td></tr>
+    </tbody>
+  </table>
+  <p class="muted"><b>Rủi ro:</b> champ-sets là 1 build gợi ý, nguồn không rõ (có UUID kiểu export team-builder, và có
+  entry rỗng như Froslass) — độ tin thấp hơn Pikalytics. Một số item niche app không có (Fairy Feather, Shuca Berry…)
+  bị để trống. Với con đối thủ chơi khác set này, dự đoán sẽ lệch — nhưng vẫn tốt hơn đoán mù từ base stat.</p>
+</div>
+
+<h2>Đợt 8 — Thay dữ liệu giả bằng usage thật của Champions</h2>
+<div class="card bad">
+  <h3>Phát hiện lớn nhất: <code>USAGEDATA</code> cũ là dữ liệu SAI GAME <span class="tag new">sửa</span></h3>
+  <p>509 loài trong file không phải data Pokémon Champions. Bằng chứng — Swampert:</p>
+  <table>
+    <thead><tr><th style="width:22%"></th><th>File cũ</th><th>Champions thật (Pikalytics, Reg M-B S3, 2026-05)</th></tr></thead>
+    <tbody>
+      <tr><td>Chiêu</td><td>Earthquake, Flip Turn, Ice Beam, Knock Off, <b>Roar, Stealth Rock, Yawn</b></td>
+          <td>Protect 94.2%, Wave Crash 88.2%, Earthquake 66.2%, Ice Punch 57%</td></tr>
+      <tr><td>Ability</td><td>Damp</td><td><b>Torrent 53.6%</b> / Damp 46.4%</td></tr>
+      <tr><td>Item</td><td>—</td><td><b>Swampertite 98.5%</b> (tức gần như luôn Mega)</td></tr>
+    </tbody>
+  </table>
+  <p><b>Roar / Stealth Rock / Yawn là set singles Smogon</b> — Champions là VGC đánh đôi, không ai chơi vậy.
+  Cái “Damp” mà đợt 7 vừa sửa card cho khớp… hoá ra cũng sai nốt (thật là Torrent).</p>
+</div>
+<div class="card good">
+  <h3>Người dùng đúng về Swampert</h3>
+  <p>Nghi ngờ “Swampert tỷ lệ cao là +Atk và Speed” là <b>chính xác</b>, và <code>guessSpread()</code> sai:</p>
+  <table>
+    <tbody>
+      <tr><td style="width:22%">Thật</td><td><b>Adamant 89.9%</b> · spread <code>2/32/0/0/0/32</code> (30.6% số trận) = <b>+Atk +Spe</b></td></tr>
+      <tr><td>Heuristic đoán</td><td>Adamant · <code>hp32/atk32/def2/<b>spe0</b></code> — dồn 32 điểm vào HP, Spe = 0 ❌</td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="card">
+  <h3>Nguồn &amp; cách lấy</h3>
+  <p>Porygon Labs (bản mẫu giao diện) <b>không tự có data</b> — changelog của họ ghi lấy từ “Pokémon Champions Showdown ladder”
+  + “Pikalytics Champions Preview”. Nên đi thẳng <b>Pikalytics</b> là về gốc.</p>
+  <table>
+    <tbody>
+      <tr><td style="width:26%">Endpoint</td><td><code>pikalytics.com/pokedex/battledataregmbs3/&lt;name&gt;</code> (HTML server-render, parse được)</td></tr>
+      <tr><td>Được phép?</td><td><code>robots.txt</code> cho phép mọi crawler, <b>mời riêng AI bot</b> vào <code>/ai/</code>. Scraper có nghỉ 0.7s/request + User-Agent ghi rõ danh tính.</td></tr>
+      <tr><td>Vì sao không dùng <code>/ai/</code></td><td>Endpoint AI <b>lỗi render nature</b> (trả về <code>a **** nature</code>) — bắt buộc lấy nature từ trang HTML thường.</td></tr>
+      <tr><td>Phạm vi</td><td><b>50 loài</b> = toàn bộ meta Reg M-B. Data 2026-05. USAGEDATA: 61 KB → 7,4 KB.</td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="card warn">
+  <h3>Hai cái bẫy đã dính khi build data</h3>
+  <p><b>1. Đá Mega không phải “item”.</b> Lần build đầu Swampert ra item <b>Life Orb 0.7%</b> — vì app không có
+  “Swampertite” trong <code>ITEMS</code> nên code tụt xuống item kế tiếp. Chọn item 0.7% còn tệ hơn không chọn gì.
+  App mô hình Mega của đối thủ bằng <code>o.megaForm</code> (nút MEGA trên card), không bằng ô item ⇒ đá Mega nay map
+  sang <code>mg</code> → <code>megaForm</code>. 21/50 loài có Mega, khớp hết Pokédex (kể cả
+  <code>Floette-Eternal → Floette (Mega)</code>, <code>Raichu → Raichu (Mega Y)</code>).</p>
+  <p>Chỉ bật sẵn Mega <b>khi card có nút để tắt</b> (<code>megaFormesOf(name).includes(mg)</code>) — không thì người dùng
+  kẹt ở dạng Mega mà không gỡ được.</p>
+  <p><b>2. Regex đọc <code>ITEMS</code> sai, âm thầm.</b> Dùng <code>^</code> + <code>re.M</code> nên mỗi dòng chỉ bắt được
+  item đầu ⇒ tưởng app có <b>7</b> item, thực tế có <b>40+</b>. Hậu quả: Choice Scarf 44.7% (Basculegion),
+  Leftovers 88.6% (Archaludon) bị vứt oan. Sau khi sửa chỉ còn 4 item app thật sự thiếu
+  (Colbur/Roseli Berry, Fairy Feather, Sharp Beak).</p>
+</div>
+<div class="card">
+  <h3>Speed order: dải vẫn còn, thêm mốc “hay gặp”</h3>
+  <p>Đợt 7 chốt hiện dải vì <i>không có</i> dữ liệu. Nay có rồi nhưng <b>vẫn giữ dải</b> — vì build hay gặp chỉ chiếm
+  ~30% số trận, 70% còn lại chơi khác. Thay vào đó <b>tô vàng</b> mốc trùng build thật, kèm tag
+  <code>Adamant·32SP</code> và % trong tooltip.</p>
+  <p>Hay ở chỗ mốc thật <b>không cố định ở một cột</b>: Garchomp (Jolly = +Spe) rơi vào cột <b>Max</b>,
+  còn Basculegion/Swampert (Adamant) rơi vào cột <b>Trung tính</b>. Nhìn phát biết ngay đối thủ thực tế đứng đâu
+  trong dải, mà vẫn thấy được trường hợp xấu nhất.</p>
+</div>
+<div class="card bad">
+  <h3>Còn tồn / rủi ro</h3>
+  <ul>
+    <li><b>Chỉ 50 loài có data.</b> 459 loài còn lại mất usage → rơi về <code>guessSpread</code> đoán như cũ
+      (đã test: Pikachu/Slowbro/Great Tusk không vỡ, chỉ là không được tô vàng). Nhưng usage cũ của chúng vốn đã sai game.</li>
+    <li><b>Data là ảnh chụp 2026-05</b>, sẽ cũ dần. Pikalytics refresh hàng tháng ⇒ chạy lại scraper. Meta đổi thì
+      danh sách 50 loài cũng đổi.</li>
+    <li><b>Chỉ lấy build #1.</b> Spread top của Swampert chỉ 30.6%; 4 spread kế (4.7%, 3.0%…) bị bỏ. Với con có
+      nhiều build lệch nhau thì “hay gặp” không đại diện cho phần lớn.</li>
+    <li><b>Thêm loài đối thủ nay tự bật Mega</b> (21 loài). Đúng với meta (Swampertite 98.5%) nhưng là thay đổi hành vi
+      rõ rệt so với trước — bấm nút MEGA trên card để tắt.</li>
+  </ul>
+</div>
+
+<h2>Đợt 7 — Bảng damage giãn hết chỗ, bỏ giả định max Spe</h2>
+<div class="card bad">
+  <h3>Bug PAR: Pokémon đội tôi bị tê liệt hiện ¼ speed thay vì ½ <span class="tag new">sửa</span></h3>
+  <p>Lỗi do <b>chính em gây ra ở đợt 2</b>: <code>buildMon()</code> vốn đã tự chia đôi speed khi <code>cfg.par</code>
+  (dòng <code>if(cfg.par)spe=Math.floor(spe/2)</code>). Code speed order cũ chia tay thêm lần nữa —
+  không sao, vì hồi đó nó dựng cfg đối thủ <i>không kèm</i> <code>par</code>.</p>
+  <p>Nhưng đợt 2 em thêm nút PAR vào card đội tôi ⇒ <code>MYTEAM[i].par</code> xuất hiện ⇒
+  <code>buildMon(s)</code> chia đôi, rồi dòng <code>s.par?Math.floor(.../2)</code> chia đôi lần hai ⇒ <b>×0.25</b>.
+  Staraptor tê liệt hiện 61 thay vì 123.</p>
+  <p>Nay bỏ hết chia tay, để <code>buildMon</code> lo. Đo lại: tỉ lệ 0.498 (đội tôi) và 0.497 (đối thủ) — đúng ½.</p>
+  <p class="muted"><b>Bài học:</b> khi thêm một thuộc tính (<code>par</code>) vào một object vốn không có nó, phải rà
+  <i>mọi</i> chỗ đọc object đó — chỗ tính tay trước kia vô hại bỗng thành tính hai lần.</p>
+</div>
+<div class="card warn">
+  <h3>Speed order: thôi đoán spread, hiện cả DẢI</h3>
+  <p><b>Điều tra dữ liệu trước khi sửa</b> (theo yêu cầu “kiểm tra lại dữ liệu”):</p>
+  <table>
+    <thead><tr><th style="width:30%">Nguồn</th><th>Có gì</th></tr></thead>
+    <tbody>
+      <tr><td><code>USAGEDATA</code> trong file (509 loài)</td>
+          <td>Chỉ <code>m</code> (chiêu) + <code>a</code> (1 ability). <b>Không có SP, không có nature, không có % nào.</b></td></tr>
+      <tr><td>pokebase.app</td><td>Chỉ % usage <b>theo loài</b> từ kết quả giải. Không có spread. Không có API công khai.</td></tr>
+      <tr><td>champsdex / stratadex</td><td>“<i>no consensus usage data is published yet</i>” (06/2026). Chỉ template theo archetype.</td></tr>
+    </tbody>
+  </table>
+  <p>⇒ Spread đối thủ <b>không tồn tại dưới dạng dữ liệu</b>. Mọi con số trước giờ đều là <code>guessSpread()</code> đoán từ
+  base stat, với ngưỡng tuỳ tiện <code>fast = Spe ≥ 70</code>. Swampert base Spe 60 ⇒ bị coi là chậm ⇒ <b>Spe 0</b>, 32 điểm dồn vào HP.
+  Không phải cá biệt: <b>102 loài</b> có Atk/SpA ≥ 100 bị cho Spe 0 (Sandslash 65, Vileplume 50, Golem 45…).</p>
+  <p><b>Cách giải:</b> không đoán nữa — hiện cả dải như speed tier chuẩn (pokebase cũng làm vậy: cột <i>Neu / 0 EV / Neg</i>):
+  <b>Max</b> (nature +Spe, 32 SP) · <b>Trung tính</b> (32 SP) · <b>Không cộng</b> (0 SP). Xếp thứ tự theo <b>Max</b> = trường hợp xấu nhất.
+  Buff/Tailwind/PAR/Scarf áp cho cả 3 mốc.</p>
+  <p class="muted">Swampert: 123 / 112 / 80 — khớp công thức <code>(60+20+32)=112</code>, ×1.1 = 123; 0 SP = 80.
+  Con số 80 mà card đang hiện chính là mốc “Không cộng”, nên 2 chỗ không còn đá nhau như trước.</p>
+</div>
+<div class="card bad">
+  <h3>Bug: card nói dối về ability <span class="tag new">sửa</span></h3>
+  <p><code>oppDisplay()</code> lấy <code>ab[0]</code> còn <code>oppCfgOf()</code> lấy ability theo usage ⇒
+  card hiện Swampert <b>“Torrent”</b> trong khi bảng damage tính bằng <b>“Damp”</b>. Cùng một con, hai ability, và cái
+  người dùng <i>nhìn thấy</i> không phải cái được <i>dùng để tính</i>. Nay <code>oppDisplay</code> gọi thẳng
+  <code>oppCfgOf(o)</code>. Đo lại: Damp=Damp, Blaze=Blaze.</p>
+  <p class="muted">Khi gộp, phải <code>{brn:false,par:false}</code> cho cfg dựng mon hiển thị — vì <code>oppDisplay</code>
+  đã tự áp PAR ở dưới, để nguyên là <code>buildMon</code> chia đôi Spe lần nữa ⇒ ¼ (đúng cái bẫy vừa dính ở dòng speed order).
+  Đo lại: tỉ lệ PAR trên card = 0.500.</p>
+</div>
+<div class="card bad">
+  <h3>Còn tồn: card &amp; damage vẫn dùng spread đoán</h3>
+  <p>Chỉ <b>speed order</b> chuyển sang dải. Lưới 6 chỉ số trên card và mọi tính toán damage vẫn lấy
+  <code>guessSpread()</code> — tức Swampert vẫn bị coi là HP 32 / Atk 32 / <b>Spe 0</b>. Nghĩa là con số
+  <i>máu và thủ</i> của đối thủ vẫn là phỏng đoán theo cùng cái ngưỡng đáng ngờ đó, và dòng “ai đánh trước”
+  trong bảng damage vẫn dùng mốc lạc quan nhất (Spe 0).</p>
+  <p>Chưa sửa vì cần quyết định riêng: damage <b>bắt buộc</b> phải có một spread cụ thể (không thể tính damage bằng “dải”),
+  nên lựa chọn là (a) sửa heuristic cho kẻ tấn công luôn cộng Spe, hay (b) cho nhập tay spread từng con. Xem
+  <b>Đợt 7 · phần Speed order</b> để biết vì sao không có nguồn dữ liệu nào chốt được việc này.</p>
+</div>
+<div class="card">
+  <h3>Bảng damage giãn hết chỗ trống, Speed order ghim đáy</h3>
+  <p>Bỏ thanh 2 tab (đợt 6) làm nội dung ngắn đi ⇒ Speed order không còn bị đẩy xuống đáy nữa mà nằm lửng, để
+  <b>thừa một khoảng trống</b> bên dưới. Nay <code>#calcCenter</code> là flex column: <code>#calcTablePanel</code>
+  (hoặc <code>#calcMode2</code> ở tab 2) <code>flex:1</code> giãn chiếm hết chỗ và tự cuộn bên trong;
+  <code>#spdPanel</code> ghim đáy. Đo lại: khoảng thừa <b>0px</b>, bảng damage 387px.</p>
+  <p><b>Đã phòng lại đúng cái bẫy của đợt 4:</b> flex item mặc định co được, panel nào có <code>overflow:hidden</code>
+  thì <code>min-height</code> ra 0 và bị ép biến mất. Nên có <code>#calcCenter > *{flex:0 0 auto}</code> chặn co toàn bộ,
+  rồi mới mở <code>flex:1</code> riêng cho đúng vùng cần giãn. Test nay assert cả chiều cao hàng radio (19px) và
+  <code>#adGrid</code> (114px) để bắt được nếu chúng bị co lần nữa.</p>
+</div>
+
+<h2>Đợt 6 — Radio chiều tính damage, card đối thủ bỏ chiêu</h2>
+<div class="card">
+  <h3>2 tab lớn → radio cùng hàng với Crit / Helping Hand / Single Target</h3>
+  <p>Thanh 2 tab teal cao 41px bị thay bằng 2 radio <code>name="calcdir"</code> nhập vào hàng checkbox sẵn có —
+  đúng như bản mẫu Porygon Labs (<code>⦿ Opponent → My Team ○ My Team → Opponent ☐ Critical Hit …</code>).
+  Lợi thêm: tiết kiệm ~51px chiều cao cho bảng damage, thứ đang khan hiếm vì khoá 1 màn hình.</p>
+  <p>Radio được tô đậm hơn checkbox (<code>.dir</code> + <code>:has(input:checked)</code> → màu accent) vì nó
+  <b>đổi hẳn nội dung bảng</b>, không phải một hệ số cộng thêm như 3 ô còn lại — cùng hàng nhưng khác cấp.</p>
+  <p class="muted">Đổi từ <code>&lt;button&gt;</code> sang <code>&lt;input type="radio"&gt;</code> nên
+  <code>switchCalcMode()</code> phải set <code>.checked</code> thay vì đổi <code>background</code>, và bắt sự kiện
+  <code>change</code> thay cho <code>onclick</code>. Đã test cả đường gọi bằng code (<code>switchCalcMode('me')</code>
+  vẫn phải làm radio sáng đúng) lẫn đường bấm tay — hai đường này dễ lệch nhau nếu chỉ test một.</p>
+</div>
+<div class="card">
+  <h3>Card đối thủ bỏ danh sách chiêu</h3>
+  <p>Card cũ liệt kê tới 9 chip chiêu (lấy từ usage data khi chưa lộ chiêu), làm card cao gần gấp đôi và đẩy con thứ 3
+  ra khỏi tầm nhìn của rail. Bỏ đi: card còn <b>191px</b>, cả 3 đối thủ nằm trọn trong rail.</p>
+  <p><b>Đánh đổi:</b> chiêu đã lộ mà bạn tự điền (nút ✎) nay <b>không hiện trên card nữa</b>. Vẫn còn nguyên trong dữ liệu
+  và vẫn quyết định bảng damage khi con đó tấn công — chỉ là muốn xem lại thì phải mở ✎ hoặc nhìn cột <b>Chiêu</b> ở bảng giữa.</p>
+  <p class="muted">Card <b>đội tôi</b> vẫn giữ chip chiêu, vì đó là set thật do bạn nhập (4 chiêu, không phải 9 chiêu đoán từ
+  usage) nên không gây phình card. Yêu cầu cũng chỉ nói tới card đối thủ.</p>
+</div>
+
+<h2>Đợt 5 — Last Respects tính theo số Pokémon đã ngất</h2>
+<div class="card good">
+  <h3>Trước đây Last Respects bị tính sai hoàn toàn <span class="tag new">sửa bug</span></h3>
+  <p>Trong dữ liệu nó chỉ là <code>{"t":"Ghost","c":"phys","bp":50}</code> — BP <b>cứng 50</b>, không có cơ chế gì.
+  Tức là con Basculegion đối thủ ở cuối trận (5 đồng đội đã ngất) đáng lẽ đánh <b>BP 300</b> thì tool báo 50 —
+  sai gấp 6 lần, và sai theo hướng nguy hiểm nhất: báo an toàn trong khi thực tế là bị OHKO.</p>
+  <p>Nay <code>fixSpecialMoves()</code> gắn cờ <code>lastResp</code>, và <code>calcDamage</code> tính
+  <code>bp = 50 + 50 × số đồng đội đã ngất</code>.</p>
+</div>
+<div class="card warn">
+  <h3>Đếm ngất của bên NÀO — chỗ dễ hiểu nhầm nhất</h3>
+  <p>Yêu cầu ghi là “số pkm <b>của tôi</b> đã mất”, nhưng cơ chế thật của Last Respects đếm đồng đội đã ngất của
+  <b>chính con tung chiêu</b>, không phải của đối phương. Trong ảnh mẫu, chiêu đó thuộc <i>Basculegion của đối thủ</i>
+  ⇒ ô “0 dead” ở đó đang đếm <b>đội đối thủ</b>.</p>
+  <p>Nên state tách 2 bên: <code>FAINT = {me, opp}</code>. <code>readField()</code> lấy
+  <code>FAINT[bên đang tấn công]</code>. Kết quả: đội tôi dùng Last Respects thì đếm số con tôi ngất; đối thủ dùng thì
+  đếm số con họ ngất — đúng cả 2 chiều, không cần người dùng phải nhớ quy ước nào.</p>
+  <p class="muted">Đã kiểm chứng riêng trường hợp lẫn bên: đặt <code>FAINT.me=5</code> rồi cho đối thủ tung Last Respects
+  ⇒ vẫn BP 50 (đúng), không ăn ké số ngất của đội tôi.</p>
+</div>
+<div class="card">
+  <h3>Vì sao dừng ở 5 chứ không phải 6 như bản mẫu</h3>
+  <p>Ảnh mẫu có tuỳ chọn “6 dead”. Nhưng đội tối đa 6 con, mà <i>con đang tung chiêu vẫn còn sống</i> —
+  nên nhiều nhất chỉ 5 đồng đội ngất được. “6 dead” là trạng thái bất khả thi: cả đội ngất thì không còn ai để đánh.
+  BP trần vì thế là <b>50 + 50×5 = 300</b>, khớp đúng luật gốc.</p>
+  <p>Ô chọn đặt <b>ngay cạnh tên chiêu</b> trong bảng damage (giống bản mẫu) và cả trong ma trận Tôi → Đối thủ —
+  nếu chỉ để ở một tab thì sang tab kia sẽ bị kẹt giá trị mà không sửa được. Nút <b>Reset</b> trên thanh sân xoá luôn
+  <code>FAINT</code> về 0.</p>
+</div>
+
+<h2>Đợt 4 — Speed order về đúng cột giữa</h2>
+<div class="card">
+  <h3>Đổi vị trí: full-width dưới cùng → trong cột giữa, sticky ghim đáy</h3>
+  <p>Đợt 1 chốt “Speed order full-width dưới cùng”, nay đổi lại: chỉ nằm trong <b>cột giữa</b>, không chạy ngang dưới 2 rìa.
+  Nhưng vẫn phải giữ ràng buộc “không cuộn dọc” của đợt 2 — nếu để nó trôi theo luồng cột giữa thì
+  learnset dài (Beedrill ~21 chiêu) sẽ đẩy nó khuất tầm mắt.</p>
+  <p>Giải: <code>#spdPanel</code> là <b>con cuối của chính vùng cuộn</b> (<code>#calcCenter</code>) + <code>position:sticky;bottom:0</code>.
+  Bảng damage cuộn phía sau nó, còn nó luôn dính đáy.</p>
+  <p><b>Vì sao phải nằm trong vùng cuộn</b> thay vì là anh em flex bên ngoài: cùng container thì bề ngang
+  <i>khớp tuyệt đối</i> với bảng damage (326–1570). Lúc để ngoài, nó rộng hơn 8px vì bảng damage bị thanh cuộn
+  ăn mất chỗ còn nó thì không — hai mép phải lệch nhau.</p>
+</div>
+<div class="card bad">
+  <h3>Cạm bẫy đã dính: <code>display:flex</code> trên vùng cuộn làm mất thanh 2 tab</h3>
+  <p>Bản đầu em cho <code>#calcCenter</code> thành <code>flex-direction:column</code> để ghim <code>#spdPanel</code> ở đáy.
+  Hậu quả: mọi con trực tiếp thành <b>flex item</b>, mặc định <code>flex-shrink:1</code>. Thanh 2 tab có
+  <code>overflow:hidden</code> ⇒ <code>min-height:auto</code> tính ra <b>0</b> ⇒ khi nội dung tràn, nó <b>bị ép co về 0px</b>
+  và biến mất hoàn toàn khỏi giao diện.</p>
+  <p>Xảo quyệt ở chỗ: đo <code>getBoundingClientRect().top</code> vẫn ra đúng vị trí (109px, bằng mép trên vùng cuộn) nên
+  test “có bị cắt không” <b>báo pass</b>. Chỉ khi chụp màn hình mới thấy thanh tab mất tiêu. Bài học: với lỗi layout,
+  đo toạ độ chưa đủ — phải đo <b>chiều cao</b> (nay đã có assert <code>tabs.height &gt; 20</code>) và nhìn ảnh thật.</p>
+  <p><b>Cách sửa:</b> bỏ hẳn flex trên vùng cuộn, dùng block flow bình thường + sticky. Sticky không cần cha là flex.
+  Cũng đã bỏ <code>margin-bottom:auto</code> (định dùng để đẩy panel xuống đáy khi nội dung ngắn) vì
+  <code>margin:auto</code> trong flex container có cuộn là lỗi kinh điển: đẩy phần nội dung đầu ra ngoài vùng cuộn,
+  không kéo lại được.</p>
+  <p class="muted"><b>Đánh đổi còn lại:</b> nội dung ngắn thì Speed order nằm ngay dưới bảng damage chứ không dính đáy —
+  chấp nhận, vì đó là luồng tài liệu bình thường và tránh được cả 2 lỗi trên.</p>
+</div>
+
 <h2>Đợt 3 — Aura tự tắt, Single Target, Speed order hiện dạng Mega</h2>
 
 <div class="card good">
@@ -328,6 +738,20 @@
     <tr><td>Bật Mega thì đảo vai</td><td>Beedrill (Mega) 216 thành dòng thật, Beedrill 139 thành dòng giả định</td></tr>
     <tr><td>Buff lan sang dòng giả định</td><td>Lopunny +1 Spe → 258 (thật) và 307 (Mega giả định) cùng nhảy</td></tr>
     <tr><td>Scarf không dính vào dòng Mega</td><td>Beedrill cầm Choice Scarf: 208 (thật) vs 216 (Mega) — không phải 324</td></tr>
+    <tr><td>Lỗi JS</td><td><b>none</b></td></tr>
+  </tbody>
+</table>
+<p><b>Đợt 5</b> — Basculegion (Last Respects) → Torkoal:</p>
+<table>
+  <thead><tr><th style="width:34%">Kiểm tra</th><th>Kết quả</th></tr></thead>
+  <tbody>
+    <tr><td>BP theo số ngất 0→5</td><td>50 · 100 · 150 · 200 · 250 · <b>300</b></td></tr>
+    <tr><td>Damage tương ứng</td><td>22.6% → <b>152.5%</b> (3 con ngất là chớm OHKO 102.8%, 4 con là OHKO chắc)</td></tr>
+    <tr><td>Bấm thật vào ô select</td><td>chọn “4 ngất” → <code>FAINT.opp=4</code>, BP 250, select giữ nguyên giá trị sau khi vẽ lại</td></tr>
+    <tr><td>Chiêu khác không ảnh hưởng</td><td>Aqua Jet vẫn BP 40, không mọc ô chọn</td></tr>
+    <tr><td>Tách bên</td><td><code>FAINT.me=5</code> + đối thủ tung Last Respects ⇒ vẫn BP 50 (không ăn ké)</td></tr>
+    <tr><td>Ma trận Tôi → Đối thủ</td><td>ô chọn hoạt động: 7–9% → 41–48% khi đổi 0 → 5 ngất</td></tr>
+    <tr><td>Miễn nhiễm vẫn đúng</td><td>đánh vào Farigiraf (hệ Thường) ⇒ 0 dmg ở mọi mức ngất</td></tr>
     <tr><td>Lỗi JS</td><td><b>none</b></td></tr>
   </tbody>
 </table>
