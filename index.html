@@ -798,15 +798,12 @@ Object.keys(DEX_DEFAULT).forEach(n=>{if(DEX_DEFAULT[n].w)return;
   const alt=n.replace(/ \(([^)]+)\)$/,'-$1');
   DEX_DEFAULT[n].w=(BIGDEX[n]&&BIGDEX[n][3])||(BIGDEX[alt]&&BIGDEX[alt][3])||50;});
 
+// Floette là Mega custom (dạng KHÔNG có trong BIGDEX) nên khai tay + 2 khoá tên gốc.
+// Mọi Mega còn lại nạp tự động từ MEGA_STONE (khai gần ITEMS) — dạng Mega đã có sẵn trong DEX qua BIGDEX,
+// chỉ thiếu đá + liên kết đá↔dạng, nên không phải chép lại stats/hệ/ability.
 const MEGA={
- 'Mawile':[{stone:'Mawilite',to:'Mawile (Mega)'}],
  'Floette (Eternal)':[{stone:'Floettite',to:'Floette (Mega)'}],
- 'Floette-Eternal':[{stone:'Floettite',to:'Floette (Mega)'}],
- 'Staraptor':[{stone:'Staraptite',to:'Staraptor (Mega)'}],
- 'Raichu':[{stone:'Raichunite X',to:'Raichu (Mega X)'},{stone:'Raichunite Y',to:'Raichu (Mega Y)'}],
- 'Delphox':[{stone:'Delphoxite',to:'Delphox (Mega)'}],
- 'Charizard':[{stone:'Charizardite X',to:'Charizard (Mega X)'},{stone:'Charizardite Y',to:'Charizard (Mega Y)'}],
- 'Garchomp':[{stone:'Garchompite',to:'Garchomp (Mega)'}]
+ 'Floette-Eternal':[{stone:'Floettite',to:'Floette (Mega)'}]
 };
 
 // ability effects for damage/speed
@@ -921,7 +918,12 @@ const ITEMS={
  'Muscle Band':{physDmg:1.1},'Wise Glasses':{specDmg:1.1},'Expert Belt':{seDmg:1.2},
  'Sitrus Berry':{},'Chople Berry':{resist:'Fighting'},'Leftovers':{},'Rocky Helmet':{},
  'Air Balloon':{balloon:1},'Light Clay':{},'Damp Rock':{},'Heat Rock':{},'White Herb':{},'Lum Berry':{},'Mental Herb':{},'Safety Goggles':{},'Clear Amulet':{},'Covert Cloak':{},'Booster Energy':{},'Weakness Policy':{},'Eject Button':{},'Zoom Lens':{},'Wide Lens':{},'Light Ball':{},
- 'Mawilite':{mega:1},'Floettite':{mega:1},'Staraptite':{mega:1},'Raichunite X':{mega:1},'Raichunite Y':{mega:1},'Delphoxite':{mega:1},'Charizardite X':{mega:1},'Charizardite Y':{mega:1},'Garchompite':{mega:1}
+ // Đồ cầm phổ biến khác — CHỌN/GHI được cho đối thủ. Hiệu ứng (Quick Claw đi trước, Scope Lens crit, Seed +stat...)
+ // không đổi công thức damage nên để {} như Leftovers/Rocky Helmet; thêm vào đây để danh sách không sót.
+ 'Quick Claw':{},'Scope Lens':{},'Shell Bell':{},'Bright Powder':{},'Metronome':{},'Loaded Dice':{},'Eviolite':{},
+ 'Mirror Herb':{},'Throat Spray':{},'Room Service':{},'Eject Pack':{},'Blunder Policy':{},'Red Card':{},'Adrenaline Orb':{},'Protective Pads':{},
+ 'Flame Orb':{},'Toxic Orb':{},'Grassy Seed':{},'Electric Seed':{},'Psychic Seed':{},'Misty Seed':{},'Terrain Extender':{},
+ 'Floettite':{mega:1}
 };
 // Đồ tăng hệ ×1.2
 const TYPE_ITEMS={'Black Glasses':'Dark','Miracle Seed':'Grass','Never-Melt Ice':'Ice','Black Belt':'Fighting','Poison Barb':'Poison','Soft Sand':'Ground','Sharp Beak':'Flying','Twisted Spoon':'Psychic','Silver Powder':'Bug','Hard Stone':'Rock','Spell Tag':'Ghost','Dragon Fang':'Dragon','Metal Coat':'Steel','Fairy Feather':'Fairy','Silk Scarf':'Normal'};
@@ -929,6 +931,42 @@ Object.keys(TYPE_ITEMS).forEach(n=>ITEMS[n]={boostType:TYPE_ITEMS[n],boost:1.2})
 // Berry giảm ½ đòn siêu hiệu quả của hệ tương ứng
 const RESIST_BERRY={'Occa Berry':'Fire','Passho Berry':'Water','Wacan Berry':'Electric','Rindo Berry':'Grass','Yache Berry':'Ice','Kebia Berry':'Poison','Shuca Berry':'Ground','Coba Berry':'Flying','Payapa Berry':'Psychic','Tanga Berry':'Bug','Charti Berry':'Rock','Kasib Berry':'Ghost','Haban Berry':'Dragon','Colbur Berry':'Dark','Babiri Berry':'Steel','Roseli Berry':'Fairy'};
 Object.keys(RESIST_BERRY).forEach(n=>ITEMS[n]={resist:RESIST_BERRY[n]});
+
+// ===== Đá Mega (nguồn: champ-sets + biến thể X/Y & Garchomp) =====
+// stone -> [loài gốc, dạng Mega]. Toàn bộ dạng Mega đã tồn tại trong DEX (qua BIGDEX),
+// nên ở đây chỉ (1) cho đá vào ITEMS để chọn/ghi được, (2) nối đá↔dạng cho nút "cầm đá → Mega".
+const MEGA_STONE={
+ 'Abomasite':['Abomasnow','Abomasnow (Mega)'],'Absolite':['Absol','Absol (Mega)'],'Aggronite':['Aggron','Aggron (Mega)'],
+ 'Alakazite':['Alakazam','Alakazam (Mega)'],'Altarianite':['Altaria','Altaria (Mega)'],'Ampharosite':['Ampharos','Ampharos (Mega)'],
+ 'Audinite':['Audino','Audino (Mega)'],'Banettite':['Banette','Banette (Mega)'],'Barbaracite':['Barbaracle','Barbaracle (Mega)'],
+ 'Beedrillite':['Beedrill','Beedrill (Mega)'],'Blastoisinite':['Blastoise','Blastoise (Mega)'],'Blazikenite':['Blaziken','Blaziken (Mega)'],
+ 'Cameruptite':['Camerupt','Camerupt (Mega)'],'Chandelurite':['Chandelure','Chandelure (Mega)'],'Charizardite X':['Charizard','Charizard (Mega X)'],
+ 'Charizardite Y':['Charizard','Charizard (Mega Y)'],'Chesnaughtite':['Chesnaught','Chesnaught (Mega)'],'Chimechite':['Chimecho','Chimecho (Mega)'],
+ 'Crabominite':['Crabominable','Crabominable (Mega)'],'Delphoxite':['Delphox','Delphox (Mega)'],'Dragalgite':['Dragalge','Dragalge (Mega)'],
+ 'Dragoninite':['Dragonite','Dragonite (Mega)'],'Drampanite':['Drampa','Drampa (Mega)'],'Eelektrossite':['Eelektross','Eelektross (Mega)'],
+ 'Emboarite':['Emboar','Emboar (Mega)'],'Falinksite':['Falinks','Falinks (Mega)'],'Feraligite':['Feraligatr','Feraligatr (Mega)'],
+ 'Froslassite':['Froslass','Froslass (Mega)'],'Garchompite':['Garchomp','Garchomp (Mega)'],'Gardevoirite':['Gardevoir','Gardevoir (Mega)'],
+ 'Gengarite':['Gengar','Gengar (Mega)'],'Glalitite':['Glalie','Glalie (Mega)'],'Golurkite':['Golurk','Golurk (Mega)'],
+ 'Greninjite':['Greninja','Greninja (Mega)'],'Gyaradosite':['Gyarados','Gyarados (Mega)'],'Hawluchanite':['Hawlucha','Hawlucha (Mega)'],
+ 'Heracronite':['Heracross','Heracross (Mega)'],'Houndoominite':['Houndoom','Houndoom (Mega)'],'Lopunnite':['Lopunny','Lopunny (Mega)'],
+ 'Lucarionite':['Lucario','Lucario (Mega)'],'Malamarite':['Malamar','Malamar (Mega)'],'Manectite':['Manectric','Manectric (Mega)'],
+ 'Mawilite':['Mawile','Mawile (Mega)'],'Medichamite':['Medicham','Medicham (Mega)'],'Meganiumite':['Meganium','Meganium (Mega)'],
+ 'Meowsticite':['Meowstic-F','Meowstic-F (Mega)'],'Metagrossite':['Metagross','Metagross (Mega)'],'Pidgeotite':['Pidgeot','Pidgeot (Mega)'],
+ 'Pinsirite':['Pinsir','Pinsir (Mega)'],'Pyroarite':['Pyroar','Pyroar (Mega)'],'Raichunite X':['Raichu','Raichu (Mega X)'],
+ 'Raichunite Y':['Raichu','Raichu (Mega Y)'],'Sceptilite':['Sceptile','Sceptile (Mega)'],'Scizorite':['Scizor','Scizor (Mega)'],
+ 'Scolipite':['Scolipede','Scolipede (Mega)'],'Scovillainite':['Scovillain','Scovillain (Mega)'],'Scraftinite':['Scrafty','Scrafty (Mega)'],
+ 'Sharpedonite':['Sharpedo','Sharpedo (Mega)'],'Skarmorite':['Skarmory','Skarmory (Mega)'],'Slowbronite':['Slowbro','Slowbro (Mega)'],
+ 'Staraptite':['Staraptor','Staraptor (Mega)'],'Starminite':['Starmie','Starmie (Mega)'],'Steelixite':['Steelix','Steelix (Mega)'],
+ 'Swampertite':['Swampert','Swampert (Mega)'],'Tyranitarite':['Tyranitar','Tyranitar (Mega)'],'Venusaurite':['Venusaur','Venusaur (Mega)'],
+ 'Victreebelite':['Victreebel','Victreebel (Mega)']
+};
+Object.keys(MEGA_STONE).forEach(st=>{
+  const [base,to]=MEGA_STONE[st];
+  if(!DEX_DEFAULT[to])return;                 // dạng Mega phải có trong DEX mới nối
+  ITEMS[st]={mega:1};
+  const list=MEGA[base]||(MEGA[base]=[]);
+  if(!list.some(x=>x.stone===st))list.push({stone:st,to});
+});
 
 /* =========================================================================
    ĐỘI MẶC ĐỊNH (đọc từ ảnh của bạn)
@@ -1736,12 +1774,30 @@ function renderSpeedTier(){
   });
 }
 // ---- learnset ----
+// Tên DEX lệch khoá LEARNDATA (dạng dùng CHUNG learnset với con được trỏ tới).
+const LEARN_ALIAS={
+  'Landorus-T':'Landorus',                 // Therian kế thừa learnset Incarnate
+  'Urshifu-Rapid':'Urshifu-Rapid-Strike',  // riêng nước, KHÁC bản Single Strike → không gộp
+};
+// Dạng dùng chung movepool với loài gốc, nhưng LEARNDATA chỉ liệt kê phần RIÊNG
+// (Showdown kế thừa từ baseSpecies; dữ liệu này thì không) → hợp nhất cả hai khoá.
+// Vì thế Floette (Eternal) mới có Draining Kiss/Charm/… lẫn Light of Ruin.
+const LEARN_MERGE={
+  'Floette (Eternal)':['Floette','Floette-Eternal'],
+  'Floette-Eternal':['Floette','Floette-Eternal'],
+  'Floette (Mega)':['Floette','Floette-Eternal'],
+};
 function learnsetOf(species){
+  const merge=LEARN_MERGE[species];
+  if(merge){
+    const idx=new Set();
+    for(const k of merge){const s=LEARNDATA.sets[k];if(s)s.split(',').forEach(i=>idx.add(+i));}
+    if(idx.size)return [...idx].map(i=>LEARNDATA.keys[i]);
+  }
   const cands=[species,
+    LEARN_ALIAS[species],
     species.replace(/ \(Mega[^)]*\)$/,''),
-    species.replace(/ \(([^)]+)\)$/,'-$1')];
-  // Mega Floette học theo Floette (Eternal)
-  if(species==='Floette (Mega)')cands.unshift('Floette-Eternal','Floette (Eternal)');
+    species.replace(/ \(([^)]+)\)$/,'-$1')].filter(Boolean);
   for(const c of cands){
     if(LEARNDATA.sets[c])return LEARNDATA.sets[c].split(',').map(i=>LEARNDATA.keys[+i]);
   }

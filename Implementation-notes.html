@@ -822,6 +822,83 @@
   trận nữa nhưng <code>bestCounter()</code> vẫn gọi để dựng dòng “💡 Gợi ý chọn …” dưới ô chọn bên phòng thủ.</p>
 </div>
 
+<h2>Learnset dạng biến thể: hợp nhất với loài gốc <span class="tag new">sửa</span></h2>
+<div class="card bad">
+  <h3>Triệu chứng: Floette (Eternal) thiếu Draining Kiss (và 19 chiêu khác)</h3>
+  <p><code>LEARNDATA.sets</code> sinh từ Showdown, nhưng Showdown cho một <b>dạng</b> (forme) kế thừa learnset
+  từ <code>baseSpecies</code> rồi chỉ liệt kê phần <i>riêng</i>. Dữ liệu nhúng ở đây <b>không</b> áp kế thừa đó,
+  nên <code>Floette-Eternal</code> chỉ có 54 chiêu — thiếu 20 chiêu của <code>Floette</code> gốc
+  (Draining Kiss, Charm, Alluring Voice, Disarming Voice, Baton Pass, Trick…). Ô gợi ý chiêu (<code>datalist</code>)
+  và <code>dmgMovesFor()</code> vì thế đề xuất thiếu.</p>
+</div>
+<table>
+  <thead><tr><th style="width:26%">Cơ chế trong <code>learnsetOf()</code></th><th>Ghi chú</th></tr></thead>
+  <tbody>
+    <tr><td><code>LEARN_MERGE</code> <span class="tag new">mới</span></td>
+        <td>Dạng dùng CHUNG movepool với loài gốc → <b>union</b> nhiều khoá. Floette (Eternal)/(Mega) = <code>Floette</code> ∪ <code>Floette-Eternal</code>
+            ⇒ 74 chiêu, có cả Draining Kiss <i>lẫn</i> Light of Ruin. Thay cho hack cũ chỉ <code>unshift</code> khoá cho riêng Mega.</td></tr>
+    <tr><td><code>LEARN_ALIAS</code> <span class="tag new">mới</span></td>
+        <td>Vá tên DEX lệch khoá LEARNDATA: <code>Landorus-T→Landorus</code> (Therian kế thừa Incarnate),
+            <code>Urshifu-Rapid→Urshifu-Rapid-Strike</code>. Trước đây cả hai trả <code>null</code> — không có gợi ý chiêu nào.</td></tr>
+    <tr><td><b>Không</b> gộp bừa <span class="tag chg">có chủ đích</span></td>
+        <td>Urshifu Single↔Rapid Strike learnset KHÁC nhau thật (Wicked Blow/hệ Hắc ám vs Surging Strikes/hệ Nước) → chỉ alias, không union.
+            Dạng vùng miền (Galar/Alola/Hisui) cũng KHÔNG kế thừa loài gốc; may là roster hiện chưa có con nào như vậy.</td></tr>
+  </tbody>
+</table>
+<p class="muted">Phạm vi: quét cả 43 loài roster, chỉ 4 con dính lỗi này (2 Floette + Landorus-T + Urshifu-Rapid). Đã vá đủ.</p>
+
+<h2>Rà soát items: bổ sung đồ cầm phổ biến <span class="tag new">thêm</span></h2>
+<div class="card">
+  <p>Danh sách <code>ITEMS</code> vốn cắt gọn quanh những đồ có <b>hiệu ứng calc</b> (Choice, Life Orb, đá tăng hệ, berry kháng…),
+  bỏ sót nhiều đồ cầm thông dụng chỉ để <b>chọn/ghi</b> — như <b>Quick Claw</b>. Thêm 22 món dạng <code>{}</code>
+  (giống Leftovers/Rocky Helmet đã có sẵn): Quick Claw, Scope Lens, Shell Bell, Bright Powder, Loaded Dice, Eviolite,
+  4 loại Seed địa hình, Flame/Toxic Orb, Room Service, Throat Spray, Eject Pack, Blunder Policy, Red Card…</p>
+</div>
+<table>
+  <thead><tr><th style="width:30%">Đối chiếu nguồn</th><th>Kết quả</th></tr></thead>
+  <tbody>
+    <tr><td><code>USAGEDATA</code> (đối thủ hay gặp)</td>
+        <td><b>15/15 item đã có</b> — mọi đồ mà dữ liệu ladder dự đoán đều chọn được. Không sót ở đây.</td></tr>
+    <tr><td><code>champ-sets.json</code></td>
+        <td>Tham chiếu <b>65 tên item chưa biết</b>, nhưng ~60 là <b>Mega Stone</b> (Gardevoirite, Blazikenite…) của
+            loài <b>ngoài roster 43 con</b> — set đó không nạp vào app được nên không phải lỗi item. Vài đồ cầm thật
+            (Quick Claw, Shell Bell, Scope Lens, Bright Powder) nay đã thêm.</td></tr>
+    <tr><td>Hiệu ứng vào damage?</td>
+        <td><b>Không</b>. Engine chỉ có hook: <code>speMult/atkMult/spaMult/spdMult, dmg, boost, physDmg, specDmg, seDmg,
+            balloon, resist, sash, mega</code>. Quick Claw (đi trước), Scope Lens (crit ratio), Seed (+stat) đều nằm ngoài
+            → để <code>{}</code>, đúng như các đồ phi-calc sẵn có.</td></tr>
+  </tbody>
+</table>
+<h2>Đá Mega: nối tự động từ 1 bảng nguồn <span class="tag new">xử lý</span></h2>
+<div class="card good">
+  <h3>Phát hiện: mọi dạng Mega ĐÃ có sẵn trong DEX</h3>
+  <p>Tưởng phải chép stats/hệ/ability cho ~60 dạng Mega, nhưng <code>BIGDEX</code> (1336 loài, merge vào <code>DEX_DEFAULT</code>
+  ở <code>index.html:795</code>) <b>đã chứa đủ 64 dạng Mega</b> — kể cả các Mega fan-made của format này
+  (Scrafty, Feraligatr, Scovillain, Meowstic-F…). Nút toggle <code>◆ MEGA</code> vốn tự nhận qua <code>megaFormesOf()</code>
+  đọc thẳng tên DEX, nên đã chạy sẵn. Thứ <b>duy nhất thiếu</b>: viên đá + liên kết đá↔dạng cho đường "cầm đá → Mega".</p>
+</div>
+<table>
+  <thead><tr><th style="width:30%">Cơ chế</th><th>Ghi chú</th></tr></thead>
+  <tbody>
+    <tr><td><code>MEGA_STONE</code> = nguồn DUY NHẤT <span class="tag new">mới</span></td>
+        <td>67 dòng <code>đá → [loài gốc, dạng Mega]</code> (64 từ champ-sets + 3 biến thể X/Garchomp mà champ-sets thiếu).
+            Vòng lặp init tự đổ vào <code>ITEMS[đá]={mega:1}</code> và <code>MEGA[gốc].push(...)</code> — không còn liệt kê tay
+            song song ở 2 nơi dễ lệch.</td></tr>
+    <tr><td>Guard tồn tại</td>
+        <td><code>if(!DEX_DEFAULT[to])return</code> — chỉ nối khi dạng Mega thật sự có trong DEX. Chạy SAU merge BIGDEX nên đủ dữ liệu.</td></tr>
+    <tr><td>Ghép X/Y đúng</td>
+        <td>Đá có hậu tố <code> X</code>/<code> Y</code> → khớp <code>(Mega X)</code>/<code>(Mega Y)</code>; kiểm chứng Charizard/Raichu ra đúng cặp.</td></tr>
+    <tr><td>Floette giữ khai tay</td>
+        <td><code>Floette (Mega)</code> là Mega custom KHÔNG có trong BIGDEX → vẫn để trong <code>const MEGA</code> với 2 khoá tên gốc
+            (<code>Floette (Eternal)</code> + <code>Floette-Eternal</code>).</td></tr>
+  </tbody>
+</table>
+<p><b>Kiểm chứng runtime (Chrome headless, gọi <code>buildMon</code> thật):</b>
+Gardevoir+Gardevoirite→<code>Gardevoir (Mega)</code>, Charizardite X/Y ra đúng dạng X/Y, Scolipede &amp; Feraligatr (fan-mega)→OK,
+Floette không đổi. <code>ITEMS</code> có 68 đá Mega, Quick Claw có mặt. Không lỗi JS khi tải.</p>
+<p class="muted"><b>Đánh đổi:</b> ô chọn item giờ liệt kê cả 68 đá cho MỌI loài (trước 9). Chấp nhận vì app vốn chưa lọc đá theo loài;
+lọc theo <code>megaFormesOf(species)</code> là việc riêng nếu cần.</p>
+
 <h2>Đã kiểm chứng</h2>
 <p>Chạy Chrome headless trên <code>index.html</code> thật, kịch bản thao tác DOM (không phải test giả định):</p>
 <table>
