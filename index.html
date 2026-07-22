@@ -2121,9 +2121,9 @@ function runCalc(){
 
   $('#calcBody').innerHTML=results.map(r=>{const k=koLabel(r);const w=Math.min(100,r.pctMax);
     const bc=r.pctMin>=100?'#ff6b6b':r.pctMax>=100?'#ffb454':r.pctMax>=50?'#f6c945':'#4dd0c8';
-    const pin=pinMoves&&pinMoves.has(r._m)?' <span class="est" style="background:#12312e;color:#57d977;border-color:#2a5a44" title="1 trong 4 chiêu hay dùng nhất theo dữ liệu">★ hay dùng</span>':'';
-    const pr=MOVES[r.move]&&MOVES[r.move].pri>0?` <span class="est" style="background:#2a2410;color:var(--acc2);border-color:#5a4a2a" title="Chiêu ưu tiên: ra đòn trước bất kể tốc độ (Trick Room không đảo được ưu tiên)">⚡ ưu tiên +${MOVES[r.move].pri}</span>`:'';
-    return `<tr${pin?' style="background:rgba(87,217,119,.05)"':''}><td><b>${r.move}</b>${pr}${pin}${r.eff!==1?` <span class="stat-mini">×${r.eff}</span>`:''}${field.spread&&MOVES[r.move]&&MOVES[r.move].spread?(field.single?' <span class="stat-mini" style="color:var(--good)">lan · 1 mục tiêu</span>':' <span class="stat-mini" style="color:var(--acc2)">lan ×0.75</span>'):''}${MOVES[r.move]&&MOVES[r.move].lastResp?faintSel(atkSide):''}</td><td>${chip(r.type,1)}</td>
+    const pin=pinMoves&&pinMoves.has(r._m)?' <span class="est" style="background:#12312e;color:#57d977;border-color:#2a5a44" title="1 trong 4 chiêu hay dùng nhất theo dữ liệu">★</span>':'';
+    const pr=MOVES[r.move]&&MOVES[r.move].pri>0?` <span class="est" style="background:#2a2410;color:var(--acc2);border-color:#5a4a2a" title="Chiêu ưu tiên: ra đòn trước bất kể tốc độ (Trick Room không đảo được ưu tiên)">⚡ +${MOVES[r.move].pri}</span>`:'';
+    return `<tr${pin?' style="background:rgba(87,217,119,.05)"':''}><td><b>${r.move}</b>${pr}${pin}${field.spread&&MOVES[r.move]&&MOVES[r.move].spread?(field.single?' <span class="stat-mini" style="color:var(--good)">lan · 1 mục tiêu</span>':' <span class="stat-mini" style="color:var(--acc2)">lan ×0.75</span>'):''}${MOVES[r.move]&&MOVES[r.move].lastResp?faintSel(atkSide):''}</td><td>${chip(r.type,1)}</td>
       <td><span class="cat ${r.cat}">${r.cat==='phys'?'VL':'ĐB'}</span></td><td class="num">${r.bp}</td>
       <td class="num">${r.min}–${r.max}</td><td class="num">${r.pctMin.toFixed(1)}–${r.pctMax.toFixed(1)}%</td>
       <td><div class="bar"><span style="width:${w}%;background:${bc}"></span><em>${r.pctMax.toFixed(0)}%</em></div></td>
