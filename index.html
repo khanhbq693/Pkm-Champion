@@ -412,10 +412,11 @@
   body.force-mobile .wrapwide{max-width:480px;margin:0 auto}
 
   /* ============ Card Pokémon trên 2 rìa ============ */
+  .opp-card{border-left:3px solid transparent}
   .opp-card.mine{border-left:3px solid #2f3b4d}
-  .opp-card.mine.sel{border-left-color:var(--acc);background:#14262b}
+  .opp-card.mine.sel,.opp-card.sel{border-left-color:var(--acc);background:#14262b}
   .opp-card .oc-head b{cursor:pointer}
-  .opp-card.mine .oc-head b:hover{color:var(--acc)}
+  .opp-card .oc-head b:hover{color:var(--acc)}
   .pill.mg{background:#2a2410;color:var(--acc2)}
   .pill.on-field{background:#12312e;color:#57d977}
   .pill.mv{background:var(--panel);border:1px solid var(--line);color:var(--ink-dim);font-weight:600}
@@ -1315,6 +1316,7 @@ window.delSet=(i)=>{const n=MYTEAM[i]?MYTEAM[i].species:'';MYTEAM.splice(i,1);sa
    VIEW: SELECT
    ========================================================================= */
 let PICK=[]; // index vào MYTEAM
+let OPICK=[]; // index vào OPP — đối thủ "ra trận" (dùng để lọc tab Phân tích)
 function pickLimit(){return $('#fmt').value==='singles'?3:4;}
 /* Cấp buff/nerf chỉ số nay là thuộc tính của TỪNG con (như đối thủ), không còn là
    ô select dùng chung ở giữa. Đây là nguồn duy nhất cho cả damage lẫn speed order. */
@@ -1447,8 +1449,9 @@ function renderOpp(){
       return `<button class="oc-tgl mega${on?' on':''}" data-act="mega" data-to="${m.to}" data-i="${i}">◆ MEGA${lbl?' '+lbl[1].toUpperCase():''}</button>`;}).join('');
     // Không liệt kê chiêu trên card: bảng damage ở giữa đã hiện đủ, mà 9 chip chiêu
     // (lấy từ usage data) làm card cao gấp đôi, đẩy con thứ 3 khỏi tầm nhìn của rail.
-    return `<div class="opp-card" data-i="${i}">
-      <div class="oc-head">${spriteImg(d.eff)}<b>${d.eff}</b>${o.item&&o.item!=='Không'?`<span class="stat-mini">@ ${o.item}</span>`:''}<span class="oc-x" data-act="del" data-i="${i}" title="Xoá">✕</span></div>
+    const osel=OPICK.includes(i);
+    return `<div class="opp-card${osel?' sel':''}" data-i="${i}">
+      <div class="oc-head">${spriteImg(d.eff)}<b data-act="pick" data-i="${i}" title="Bấm chọn/bỏ ra trận (lọc tab Phân tích)">${d.eff}</b>${osel?'<span class="pill on-field">RA TRẬN</span>':''}${o.item&&o.item!=='Không'?`<span class="stat-mini">@ ${o.item}</span>`:''}<span class="oc-x" data-act="del" data-i="${i}" title="Xoá">✕</span></div>
       <div class="oc-tgls">${megaBtns}<button class="oc-tgl brn${o.brn?' on':''}" data-act="brn" data-i="${i}">🔥 BRN</button><button class="oc-tgl par${o.par?' on':''}" data-act="par" data-i="${i}">⚡ PAR</button>${DEF_ABIL_FX[d.ability]?`<button class="oc-tgl shield${o.defOff?'':' on'}" data-act="defoff" data-i="${i}" title="${d.ability}: ${DEF_ABIL_FX[d.ability].full?'chỉ khi full HP. ':''}Bấm để tắt nếu đối thủ không dùng ability này hoặc không còn đủ điều kiện.">🛡 ${d.ability}${o.defOff?' (tắt)':''}</button>`:''}<button class="oc-tgl" data-act="edit" data-i="${i}">✎ Sửa chiêu/đồ</button></div>
       <div>${typeChips(DEX[d.eff].t,1)} <span class="stat-mini" style="margin-left:6px">● ${d.ability}</span></div>
       ${statGrid(d.disp,d.g.sp,nat,o.stages,i,'opp')}
@@ -1456,7 +1459,8 @@ function renderOpp(){
   }).join('');
   box.querySelectorAll('[data-act]').forEach(el=>el.onclick=e=>{
     e.stopPropagation();const i=+el.dataset.i,o=OPP[i];if(!o)return;const act=el.dataset.act;
-    if(act==='del'){OPP.splice(i,1);saveOpp();renderOpp();syncPicks();renderSpeedTier();return;}
+    if(act==='pick'){OPICK=OPICK.includes(i)?OPICK.filter(x=>x!==i):[...OPICK,i];renderOpp();calcRefresh();return;}
+    if(act==='del'){OPP.splice(i,1);OPICK=OPICK.filter(x=>x!==i).map(x=>x>i?x-1:x);saveOpp();renderOpp();syncPicks();calcRefresh();renderSpeedTier();return;}
     if(act==='edit'){editOpp(i);return;}
     if(act==='stg'){bumpStage(o,el.dataset.k,+el.dataset.d,saveOpp);return;}
     if(act==='mega'){o.megaForm=(o.megaForm===el.dataset.to)?null:el.dataset.to;}
@@ -1544,7 +1548,7 @@ function dexPickPaint(){
   $('#dpGrid').querySelectorAll('.dp-card[data-n]').forEach(el=>el.onclick=()=>addOpp(el.dataset.n));
 }
 dexPickInit();
-$('#clearOppBtn').onclick=()=>{if(!OPP.length){toast('Chưa có đối thủ nào.');return;}arm($('#clearOppBtn'),'Xoá hết?',()=>{OPP=[];saveOpp();renderOpp();syncPicks();renderSpeedTier();toast('Đã xoá team đối thủ.');});};
+$('#clearOppBtn').onclick=()=>{if(!OPP.length){toast('Chưa có đối thủ nào.');return;}arm($('#clearOppBtn'),'Xoá hết?',()=>{OPP=[];OPICK=[];saveOpp();renderOpp();syncPicks();calcRefresh();renderSpeedTier();toast('Đã xoá team đối thủ.');});};
 (function(){
   const b=document.body,btn=$('#layoutBtn');if(!btn)return;
   let mode=localStorage.getItem('champ_layout')||'auto';
@@ -1829,7 +1833,7 @@ function renderFieldBar(){
     FIELD.weather='none';FIELD.terrain='none';FIELD.tr=0;
     ['me','opp'].forEach(s=>Object.keys(FIELD[s]).forEach(k=>FIELD[s][k]=0));
     FAINT.me=0;FAINT.opp=0;
-    PICK=[]; // xoá luôn pkm đã chọn ra trận
+    PICK=[];OPICK=[]; // xoá luôn pkm đã chọn ra trận (cả 2 bên)
     // xoá buff/BRN/PAR/Mega trên card 2 rìa — nếu không, "Reset" chỉ xoá được nửa sân
     [...MYTEAM,...OPP].forEach(m=>{m.stages={};m.brn=false;m.par=false;});
     OPP.forEach(o=>o.megaForm=null);MYTEAM.forEach(s=>s.megaForm=null);
@@ -1954,68 +1958,140 @@ function renderMyToOpp(){
   box.querySelectorAll('.faint-sel').forEach(s=>s.onchange=()=>{
     FAINT[s.dataset.side]=+s.value;calcRefresh();});
 }
-/* PHÂN TÍCH — "Mối đe doạ lượt này": với các con MÌNH đã tích ra sân, dò xem đối thủ nào
-   OHKO / gần OHKO được con nào của mình, bằng chiêu gì. Nhìn 1 cái biết nên Protect / rút ai. */
+// 4 chiêu tấn công DỰ KIẾN của 1 đối thủ: chiêu đã lộ (user điền) > usage hay dùng > learnset/STAB.
+function oppExpectedMoves(o){
+  const atk=arr=>(arr||[]).filter(m=>MOVES[m]&&MOVES[m].c!=='stat');
+  const revealed=atk(o.moves);if(revealed.length)return revealed.slice(0,4);
+  const u=usageOf(o.species);const top=atk(u&&u.m);if(top.length)return top.slice(0,4);
+  return dmgMovesFor(oppCfgOf(o)).slice(0,4);
+}
+/* PHÂN TÍCH — 2 phần:
+   1) "Mối đe doạ lượt này": con MÌNH ra sân bị đối thủ nào OHKO/gần OHKO (đòn mạnh nhất).
+   2) "Bảng thủ": cả 6 con của mình nhận bao nhiêu dmg từ 4 chiêu dự kiến của TỪNG đối thủ.
+   Chọn đối thủ "ra trận" (bấm tên trên card đối thủ) → cả 2 phần chỉ xét những con đó. */
 function renderAnalyze(){
   const box=$('#calcAnalyze');if(!box)return;
   if(!OPP.length){box.innerHTML='<div class="mu-place">Chưa có đối thủ. Thêm ở panel <b>Đối thủ</b> bên phải.</div>';return;}
-  const pool=PICK.slice();
-  if(!pool.length){box.innerHTML='<div class="mu-place">Chưa chọn con nào <b>ra trận</b>. Bấm vào Pokémon trong panel <b>Đội của tôi</b> (bên trái) để chọn.</div>';return;}
   const weather=FIELD.weather;
-  const opps=OPP.map((o,j)=>{const cfg=oppCfgOf(o);return {o,j,cfg,mon:buildMon(cfg,weather)};});
-  // 3 mức: 3=OHKO chắc, 2=OHKO có thể (roll cao), 1=gần OHKO (≥80%)
+  const compact=document.body.classList.contains('force-mobile')||(window.matchMedia&&window.matchMedia('(max-width:800px)').matches&&!document.body.classList.contains('force-desktop'));
+  const shortKo=t=>t.replace(' chắc','').replace('≥4 đòn','4+').replace('≥','').replace(' đòn','đ');
+  const KOCOL={ohko:'#ff6b6b',likely:'#ffb454',slow:'#e8d24a',safe:'#8fd9a0','':'#b9c2d0'};
+  const KOBG={ohko:'#2a1414',likely:'#2a1e10',slow:'#232010',safe:'#122a1c','':'transparent'};
+  // Đối thủ đang xét: đã chọn "ra trận" thì chỉ những con đó, chưa chọn thì tất cả.
+  const oppIdx=(OPICK.length?OPICK.slice():OPP.map((_,j)=>j)).filter(j=>OPP[j]);
+  const opps=oppIdx.map(j=>{const o=OPP[j];const cfg=oppCfgOf(o);return {o,j,cfg,mon:buildMon(cfg,weather)};}).filter(op=>op.mon);
+  const filterInfo=OPICK.length?`<span class="pill on-field">Lọc: ${OPICK.length} đối thủ ra trận</span>`:`<span class="stat-mini">Tất cả ${OPP.length} đối thủ (bấm tên con đối thủ để lọc "ra trận")</span>`;
+
+  // ===== PHẦN 1: Mối đe doạ lượt này (con MÌNH ra sân) =====
   const LV={3:{c:'#ff6b6b',bg:'#2a1414',tag:'🔴'},2:{c:'#ff8a5b',bg:'#2a1a14',tag:'🟠'},1:{c:'#ffc245',bg:'#2a2410',tag:'🟡'}};
-  let danger=0;
-  const cards=pool.map(i=>{
-    const set=MYTEAM[i];if(!set||!DEX[set.species])return '';
-    const myMon=buildMon(set,weather);if(!myMon)return '';
-    const nm=myMon.mega?myMon.species:set.species;
-    const threats=[];
-    opps.forEach(op=>{
-      if(!op.mon)return;
-      const field=readField('me','opp:'+op.j,'set:'+i); // đối thủ đánh → mình thủ (màn chắn bên mình)
-      let best=null;
-      for(const mv of dmgMovesFor(op.cfg)){
-        const r=calcDamage(op.mon,myMon,mv,field);
-        if(r&&r.eff!==0&&(!best||r.pctMax>best.pctMax))best=r;
+  let threatHtml;
+  if(!PICK.length){
+    threatHtml='<div class="mu-place" style="padding:16px 12px">Chưa chọn con <b>ra trận</b> — bấm Pokémon ở panel Đội của tôi (trái) để xem mối đe doạ.</div>';
+  }else{
+    let danger=0;
+    const cards=PICK.map(i=>{
+      const set=MYTEAM[i];if(!set||!DEX[set.species])return '';
+      const myMon=buildMon(set,weather);if(!myMon)return '';
+      const nm=myMon.mega?myMon.species:set.species;
+      const threats=[];
+      opps.forEach(op=>{
+        const field=readField('me','opp:'+op.j,'set:'+i);
+        let best=null;
+        for(const mv of dmgMovesFor(op.cfg)){
+          const r=calcDamage(op.mon,myMon,mv,field);
+          if(r&&r.eff!==0&&(!best||r.pctMax>best.pctMax))best=r;
+        }
+        if(!best)return;
+        const lvl=best.pctMin>=100?3:best.pctMax>=100?2:best.pctMax>=80?1:0;
+        if(lvl>0)threats.push({op,best,k:koLabel(best),lvl});
+      });
+      threats.sort((a,b)=>b.lvl-a.lvl||b.best.pctMax-a.best.pctMax);
+      const worst=threats.length?threats[0].lvl:0;
+      if(worst>=2)danger++;
+      const head=worst>=2?`<span class="pill" style="background:#3a1414;color:#ff9d9d">${LV[worst].tag} Có thể bị hạ → Protect / rút</span>`
+               :worst===1?`<span class="pill" style="background:#2a2410;color:var(--acc2)">🟡 Sát nút — cân nhắc Protect</span>`
+               :`<span class="pill" style="background:#12312e;color:#57d977">🟢 An toàn lượt này</span>`;
+      const rows=threats.length?threats.map(t=>{
+        const l=LV[t.lvl];const od=t.op.mon.mega?t.op.mon.species:(t.op.o.megaForm||t.op.o.species);
+        return `<tr style="background:${l.bg}">
+          <td style="padding:5px 8px">${spriteImg(od)}<b style="color:${l.c}">${od}</b></td>
+          <td style="padding:5px 8px">${t.best.move} ${effBadge(t.best.eff)}</td>
+          <td class="num" style="padding:5px 8px;color:${l.c};font-weight:700">${t.best.pctMin.toFixed(0)}–${t.best.pctMax.toFixed(0)}%</td>
+          <td style="padding:5px 8px;color:${l.c};font-weight:700">${t.k.t}</td></tr>`;
+      }).join('')
+        :`<tr><td colspan="4" class="stat-mini" style="padding:8px;text-align:center;color:#57d977">Không con nào của đối thủ hạ được lượt này.</td></tr>`;
+      return `<div class="panel" style="margin-bottom:10px;padding:0;overflow:hidden;border-left:3px solid ${worst?LV[worst].c:'#2a5a44'}">
+        <div style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--panel2);border-bottom:1px solid var(--line);flex-wrap:wrap">
+          ${spriteImg(nm)}<b>${nm}</b>${myMon.mega?'<span class="pill" style="background:#2a2410;color:var(--acc2)">MEGA</span>':''}
+          <span class="stat-mini">HP ${myMon.S.hp}</span>
+          ${(DEF_ABIL_FX[myMon.ability]&&!myMon.defOff)?`<span class="pill" style="background:#12314a;color:#7db8ff" title="Đã trừ giảm sát thương ${DEF_ABIL_FX[myMon.ability].full?'(giả định full HP)':''}">🛡 ${myMon.ability}</span>`:''}
+          <span style="margin-left:auto">${head}</span>
+        </div>
+        <div class="scroll"><table style="width:100%;border-collapse:collapse;font-size:12.5px">
+          <thead><tr style="color:var(--muted);font-size:11px">
+            <th style="text-align:left;padding:5px 8px">Đối thủ đe doạ</th><th style="text-align:left;padding:5px 8px">Chiêu</th>
+            <th class="num" style="padding:5px 8px">% máu</th><th style="text-align:left;padding:5px 8px">Kết quả</th></tr></thead>
+          <tbody>${rows}</tbody></table></div>
+      </div>`;
+    }).join('');
+    const banner=danger
+      ? `<div class="warn-box" style="margin-bottom:10px">⚠ <b>${danger}</b> con đang ra sân có thể bị OHKO lượt này — cân nhắc Protect hoặc rút con nguy hiểm nhất.</div>`
+      : `<div class="warn-box" style="margin-bottom:10px;border-color:#2a5a44;background:#0f2018;color:#8fd9a0">✓ Không con nào ra sân bị OHKO lượt này.</div>`;
+    threatHtml=banner+cards;
+  }
+
+  // ===== PHẦN 2: Bảng thủ — 6 Pokémon của tôi nhận sát thương từ 4 chiêu dự kiến mỗi đối thủ =====
+  const myDefs=MYTEAM.map((s,i)=>DEX[s.species]?{s,i,mon:buildMon(s,weather)}:null).filter(x=>x&&x.mon);
+  let defHtml;
+  if(!myDefs.length){
+    defHtml='<div class="mu-place" style="padding:16px 12px">Chưa có Pokémon trong đội.</div>';
+  }else{
+    defHtml=opps.map(op=>{
+      const moves=oppExpectedMoves(op.o);
+      const oname=op.mon.mega?op.mon.species:(op.o.megaForm||op.o.species);
+      let h=`<div class="panel" style="margin-bottom:12px;padding:0;overflow:hidden">
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--panel2);border-bottom:1px solid var(--line);flex-wrap:wrap">
+          ${spriteImg(oname)}<b>${oname}</b>${op.mon.mega?'<span class="pill" style="background:#2a2410;color:var(--acc2)">MEGA</span>':''}
+          <span class="stat-mini">Spe ${effSpeed(op.mon.S.speEff,'opp:'+op.j)}</span>
+          ${op.o.item&&op.o.item!=='Không'?`<span class="stat-mini">@ ${op.o.item}</span>`:''}
+          <span class="stat-mini" style="margin-left:auto">Sát thương gây lên đội mình →</span>
+        </div>
+        <div class="scroll"><table class="mtx-table${compact?' mtx-compact':''}" style="width:100%;border-collapse:collapse">
+          <thead><tr><th style="text-align:left;padding:7px 10px;font-size:12px;color:var(--muted)">Chiêu \\ Con mình</th>`;
+      myDefs.forEach(def=>{
+        const dnm=def.mon.mega?def.mon.species:def.s.species;
+        const nm=compact?dnm.slice(0,7):dnm;
+        const sh=(DEF_ABIL_FX[def.mon.ability]&&!def.mon.defOff)?' <span style="color:#7db8ff" title="'+def.mon.ability+'">🛡</span>':'';
+        h+=`<th class="mtx-h" style="text-align:center">${spriteImg(dnm)}<br>${nm}${sh}</th>`;
+      });
+      h+='</tr></thead><tbody>';
+      if(!moves.length){
+        h+=`<tr><td colspan="${myDefs.length+1}" class="stat-mini" style="padding:10px;text-align:center">Chưa rõ chiêu tấn công của con này.</td></tr>`;
       }
-      if(!best)return;
-      const lvl=best.pctMin>=100?3:best.pctMax>=100?2:best.pctMax>=80?1:0;
-      if(lvl>0)threats.push({op,best,k:koLabel(best),lvl});
-    });
-    threats.sort((a,b)=>b.lvl-a.lvl||b.best.pctMax-a.best.pctMax);
-    const worst=threats.length?threats[0].lvl:0;
-    if(worst>=2)danger++;
-    const head=worst>=2?`<span class="pill" style="background:#3a1414;color:#ff9d9d">${LV[worst].tag} Có thể bị hạ → Protect / rút</span>`
-             :worst===1?`<span class="pill" style="background:#2a2410;color:var(--acc2)">🟡 Sát nút — cân nhắc Protect</span>`
-             :`<span class="pill" style="background:#12312e;color:#57d977">🟢 An toàn lượt này</span>`;
-    const rows=threats.length?threats.map(t=>{
-      const l=LV[t.lvl];const od=t.op.mon.mega?t.op.mon.species:(t.op.o.megaForm||t.op.o.species);
-      return `<tr style="background:${l.bg}">
-        <td style="padding:5px 8px">${spriteImg(od)}<b style="color:${l.c}">${od}</b></td>
-        <td style="padding:5px 8px">${t.best.move} ${effBadge(t.best.eff)}</td>
-        <td class="num" style="padding:5px 8px;color:${l.c};font-weight:700">${t.best.pctMin.toFixed(0)}–${t.best.pctMax.toFixed(0)}%</td>
-        <td style="padding:5px 8px;color:${l.c};font-weight:700">${t.k.t}</td></tr>`;
-    }).join('')
-      :`<tr><td colspan="4" class="stat-mini" style="padding:8px;text-align:center;color:#57d977">Không con nào của đối thủ hạ được lượt này.</td></tr>`;
-    return `<div class="panel" style="margin-bottom:10px;padding:0;overflow:hidden;border-left:3px solid ${worst?LV[worst].c:'#2a5a44'}">
-      <div style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--panel2);border-bottom:1px solid var(--line);flex-wrap:wrap">
-        ${spriteImg(nm)}<b>${nm}</b>${myMon.mega?'<span class="pill" style="background:#2a2410;color:var(--acc2)">MEGA</span>':''}
-        <span class="stat-mini">HP ${myMon.S.hp}</span>
-        ${(DEF_ABIL_FX[myMon.ability]&&!myMon.defOff)?`<span class="pill" style="background:#12314a;color:#7db8ff" title="Đã trừ giảm sát thương ${DEF_ABIL_FX[myMon.ability].full?'(giả định full HP)':''}">🛡 ${myMon.ability}</span>`:''}
-        <span style="margin-left:auto">${head}</span>
-      </div>
-      <div class="scroll"><table style="width:100%;border-collapse:collapse;font-size:12.5px">
-        <thead><tr style="color:var(--muted);font-size:11px">
-          <th style="text-align:left;padding:5px 8px">Đối thủ đe doạ</th><th style="text-align:left;padding:5px 8px">Chiêu</th>
-          <th class="num" style="padding:5px 8px">% máu</th><th style="text-align:left;padding:5px 8px">Kết quả</th></tr></thead>
-        <tbody>${rows}</tbody></table></div>
-    </div>`;
-  }).join('');
-  const banner=danger
-    ? `<div class="warn-box" style="margin-bottom:10px">⚠ <b>${danger}</b> con đang ra sân có thể bị OHKO lượt này — cân nhắc Protect hoặc rút con nguy hiểm nhất.</div>`
-    : `<div class="warn-box" style="margin-bottom:10px;border-color:#2a5a44;background:#0f2018;color:#8fd9a0">✓ Không con nào ra sân bị OHKO lượt này.</div>`;
-  box.innerHTML=`<div class="hint" style="margin-bottom:8px">Dựa trên con <b>đã tích ra trận</b> (bên trái) &amp; spread hay gặp của đối thủ. Đã tính thời tiết, màn chắn bên mình, buff/nerf trên card. Bật/tắt Crit ở thanh trên để xem tình huống xấu nhất.</div>${banner}${cards}`;
+      moves.forEach(mv=>{
+        const pr=(MOVES[mv]&&MOVES[mv].pri>0)?`<span title="Chiêu ưu tiên +${MOVES[mv].pri}" style="color:var(--acc2);margin-right:3px">⚡</span>`:'';
+        h+=`<tr><td class="mtx-mv" style="font-weight:600;border-top:1px solid var(--line)">${pr}${mv}</td>`;
+        myDefs.forEach(def=>{
+          const field=readField('me','opp:'+op.j,'set:'+def.i);
+          const r=calcDamage(op.mon,def.mon,mv,field);
+          if(!r||r.eff===0){h+=`<td class="mtx-c" style="text-align:center;border-top:1px solid var(--line)"><span class="stat-mini">Miễn<br>nhiễm</span></td>`;return;}
+          const k=koLabel(r);const col=KOCOL[k.cls]||'#b9c2d0';const bg=KOBG[k.cls]||'transparent';
+          const pct=compact?`${Math.round(r.pctMin)}–${Math.round(r.pctMax)}%`:`${r.pctMin.toFixed(1)}–${r.pctMax.toFixed(1)}%`;
+          h+=`<td class="mtx-c" title="${mv} → ${def.s.species}: ${r.pctMin.toFixed(1)}–${r.pctMax.toFixed(1)}% (${k.t})" style="text-align:center;border-top:1px solid var(--line);background:${bg};line-height:1.25">
+            <div class="mtx-pct" style="color:${col};font-weight:700">${pct} ${effBadge(r.eff)}</div>
+            <div class="mtx-ko" style="color:${col};opacity:.85">${compact?shortKo(k.t):k.t}</div></td>`;
+        });
+        h+='</tr>';
+      });
+      h+='</tbody></table></div></div>';
+      return h;
+    }).join('');
+  }
+
+  const H=(txt)=>`<div style="font-size:12.5px;font-weight:800;color:var(--acc);margin:16px 0 8px;text-transform:uppercase;letter-spacing:.05em">${txt}</div>`;
+  box.innerHTML=`<div class="hint" style="margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">Phe THỦ · spread hay gặp của đối thủ · đã tính thời tiết, màn chắn bên mình, buff/nerf. ${filterInfo}</div>`
+    +H('🛡 Mối đe doạ lượt này (con ra sân)')+threatHtml
+    +H('📊 Bảng thủ — 6 Pokémon của tôi nhận sát thương')+defHtml;
 }
 $('#ctabOpp').addEventListener('change',()=>switchCalcMode('opp'));
 $('#ctabMe').addEventListener('change',()=>switchCalcMode('me'));

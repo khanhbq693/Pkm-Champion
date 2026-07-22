@@ -48,6 +48,27 @@
 
 <div class="wrap">
 
+<h2>Đợt 19 — Tab Phân tích: thêm "Bảng thủ" + chọn đối thủ ra trận</h2>
+<div class="card good">
+  <h3>Phần 2 "Bảng thủ": ma trận 6 con mình (thủ) × 4 chiêu dự kiến mỗi đối thủ</h3>
+  <p>Tab Phân tích giờ có 2 phần: (1) "Mối đe doạ lượt này" (cũ — con MÌNH ra sân, đòn mạnh nhất của đối thủ),
+  (2) "Bảng thủ" (mới — <b>cả 6</b> con mình làm cột, 4 chiêu dự kiến của từng đối thủ làm hàng, ô = % máu nhận).
+  Cấu trúc chính là <b>transpose</b> của ma trận "Tôi→Đối thủ" (<code>renderMyToOpp</code>) nên tái dùng luôn class
+  <code>.mtx-table</code>/<code>.mtx-compact</code>. Hướng damage: <code>calcDamage(op.mon, def.mon, mv, readField('me',...))</code>
+  — màn chắn/def-buff lấy bên MÌNH.</p>
+  <p><code>oppExpectedMoves()</code> chọn 4 chiêu: <b>đã lộ</b> (user điền) → <b>usage hay dùng</b> → learnset/STAB. Cắt 4.</p>
+</div>
+<div class="card">
+  <h3>Chọn đối thủ "ra trận" — thêm state <code>OPICK</code> đối xứng với <code>PICK</code></h3>
+  <p>Trước chỉ đội mình có <code>PICK</code> (ra trận). Nay thêm <code>OPICK</code> (index vào OPP): bấm <b>tên</b> con đối thủ
+  trên card để bật/tắt. Khi có chọn → cả 2 phần của tab Phân tích chỉ xét những con đó; chưa chọn → xét tất cả.
+  <b>Không</b> giới hạn số con (khác PICK có <code>pickLimit</code>) vì "phe đối thủ ra trận" chỉ để lọc góc nhìn, không phải luật trận.</p>
+  <p>Điểm phải nhớ khi xoá đối thủ: <code>OPP.splice(i,1)</code> làm lệch index → phải remap
+  <code>OPICK=OPICK.filter(x=>x!==i).map(x=>x>i?x-1:x)</code>. <code>OPICK</code> ở bộ nhớ (không lưu store) giống <code>PICK</code>,
+  và bị xoá theo nút Reset sân + "Xoá hết đối thủ". <code>oppIdx</code> luôn <code>.filter(j=>OPP[j])</code> để không vỡ vì index cũ.</p>
+  <p><b>Đổi hành vi cũ:</b> tên con đối thủ trước có <code>cursor:pointer</code> nhưng bấm không làm gì; giờ bấm = chọn ra trận.</p>
+</div>
+
 <h2>Đợt 18 — Ability giảm sát thương bên thủ (Multiscale…)</h2>
 <div class="card good">
   <h3>Bảng <code>DEF_ABIL_FX</code> + <code>defAbilCut()</code> — tự trừ, không bắt người dùng chỉnh tay</h3>
