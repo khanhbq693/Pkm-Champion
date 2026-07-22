@@ -340,7 +340,7 @@
   body.calc-lock #calcTablePanel>h2,body.calc-lock #calcTablePanel>#spdCompare,
   body.calc-lock #calcTablePanel>#calcNote{flex:0 0 auto}
   body.calc-lock #calcTablePanel>.scroll{flex:1 1 auto;min-height:0;overflow-y:auto}
-  body.calc-lock #calcMode2{flex:1 1 auto;min-height:0;overflow-y:auto;padding-right:3px}
+  body.calc-lock #calcMode2,body.calc-lock #calcAnalyze{flex:1 1 auto;min-height:0;overflow-y:auto;padding-right:3px}
   body.calc-lock #spdPanel{max-height:31vh;display:flex;flex-direction:column;overflow:hidden}
   body.calc-lock #spdPanel #spdWrap{flex:1;min-height:0;overflow-y:auto}
   body.calc-lock #spdPanel>h2,body.calc-lock #spdPanel>.hint{flex:0 0 auto}
@@ -356,7 +356,7 @@
     body.calc-lock .rail{height:auto;max-height:none}
     body.calc-lock #calcCenter{height:auto;display:block;overflow:visible;padding-right:0}
     body.calc-lock #calcTablePanel,body.calc-lock #calcTablePanel>.scroll,
-    body.calc-lock #calcMode2{display:block;overflow:visible;min-height:0}
+    body.calc-lock #calcMode2,body.calc-lock #calcAnalyze{display:block;overflow:visible;min-height:0}
     body.calc-lock #spdPanel{max-height:none;display:block;overflow:visible}
   }
   .rail::-webkit-scrollbar{width:6px}
@@ -522,6 +522,7 @@
         <div class="fgrp" style="margin:0">
           <label class="flex tiny dir"><input type="radio" name="calcdir" id="ctabOpp" checked> Đối thủ → Tôi</label>
           <label class="flex tiny dir"><input type="radio" name="calcdir" id="ctabMe"> Tôi → Đối thủ</label>
+          <label class="flex tiny dir"><input type="radio" name="calcdir" id="ctabAna"> 🔬 Phân tích</label>
           <span class="fb-sep" style="height:16px"></span>
           <label class="flex tiny"><input type="checkbox" id="crit"> Crit ×1.5</label>
           <label class="flex tiny"><input type="checkbox" id="hh"> Helping Hand ×1.5</label>
@@ -533,6 +534,7 @@
         </div>
       </div>
       <div id="calcMode2" style="display:none"></div>
+      <div id="calcAnalyze" style="display:none"></div>
       <div class="grid" id="adGrid" style="grid-template-columns:1fr 1fr;gap:10px">
         <div class="panel pk" id="atkPanel">
           <h2 style="color:#ff9d6b">⚔ Bên tấn công</h2>
@@ -1831,17 +1833,20 @@ function readField(defSide,atkVal,defVal){
 let CALC_MODE='opp';
 function switchCalcMode(mode){
   CALC_MODE=mode;
-  $('#ctabOpp').checked=(mode==='opp');$('#ctabMe').checked=(mode==='me');
+  $('#ctabOpp').checked=(mode==='opp');$('#ctabMe').checked=(mode==='me');$('#ctabAna').checked=(mode==='analyze');
   const show1=mode==='opp';
   ['adGrid','calcTablePanel'].forEach(id=>{const el=$('#'+id);if(el)el.style.display=show1?'':'none';});
-  $('#swapBtn').style.display=show1?'':'none'; // ma trận Tôi→Đối thủ không có "bên" để đổi
-  $('#calcMode2').style.display=show1?'none':'';
+  $('#swapBtn').style.display=show1?'':'none'; // chỉ chế độ Đối thủ→Tôi mới có "bên" để đổi
+  $('#calcMode2').style.display=(mode==='me')?'':'none';
+  $('#calcAnalyze').style.display=(mode==='analyze')?'':'none';
   if(show1){
     const av=$('#atkPick').value, dv=$('#defPick').value;
     if(OPP.length && !av.startsWith('opp:'))setPick('atk','opp:0');       // tấn công = 1 trong đối thủ
     if(!dv.startsWith('set:')){const fp=PICK.length?PICK[0]:0;if(MYTEAM[fp])setPick('def','set:'+fp);} // thủ = 1 trong pkm đã chọn
-  }else{
+  }else if(mode==='me'){
     renderMyToOpp();
+  }else{
+    renderAnalyze();
   }
 }
 function effBadge(e){
@@ -1916,8 +1921,71 @@ function renderMyToOpp(){
   box.querySelectorAll('.faint-sel').forEach(s=>s.onchange=()=>{
     FAINT[s.dataset.side]=+s.value;calcRefresh();});
 }
+/* PHÂN TÍCH — "Mối đe doạ lượt này": với các con MÌNH đã tích ra sân, dò xem đối thủ nào
+   OHKO / gần OHKO được con nào của mình, bằng chiêu gì. Nhìn 1 cái biết nên Protect / rút ai. */
+function renderAnalyze(){
+  const box=$('#calcAnalyze');if(!box)return;
+  if(!OPP.length){box.innerHTML='<div class="mu-place">Chưa có đối thủ. Thêm ở panel <b>Đối thủ</b> bên phải.</div>';return;}
+  const pool=PICK.slice();
+  if(!pool.length){box.innerHTML='<div class="mu-place">Chưa chọn con nào <b>ra trận</b>. Bấm vào Pokémon trong panel <b>Đội của tôi</b> (bên trái) để chọn.</div>';return;}
+  const weather=FIELD.weather;
+  const opps=OPP.map((o,j)=>{const cfg=oppCfgOf(o);return {o,j,cfg,mon:buildMon(cfg,weather)};});
+  // 3 mức: 3=OHKO chắc, 2=OHKO có thể (roll cao), 1=gần OHKO (≥80%)
+  const LV={3:{c:'#ff6b6b',bg:'#2a1414',tag:'🔴'},2:{c:'#ff8a5b',bg:'#2a1a14',tag:'🟠'},1:{c:'#ffc245',bg:'#2a2410',tag:'🟡'}};
+  let danger=0;
+  const cards=pool.map(i=>{
+    const set=MYTEAM[i];if(!set||!DEX[set.species])return '';
+    const myMon=buildMon(set,weather);if(!myMon)return '';
+    const nm=myMon.mega?myMon.species:set.species;
+    const threats=[];
+    opps.forEach(op=>{
+      if(!op.mon)return;
+      const field=readField('me','opp:'+op.j,'set:'+i); // đối thủ đánh → mình thủ (màn chắn bên mình)
+      let best=null;
+      for(const mv of dmgMovesFor(op.cfg)){
+        const r=calcDamage(op.mon,myMon,mv,field);
+        if(r&&r.eff!==0&&(!best||r.pctMax>best.pctMax))best=r;
+      }
+      if(!best)return;
+      const lvl=best.pctMin>=100?3:best.pctMax>=100?2:best.pctMax>=80?1:0;
+      if(lvl>0)threats.push({op,best,k:koLabel(best),lvl});
+    });
+    threats.sort((a,b)=>b.lvl-a.lvl||b.best.pctMax-a.best.pctMax);
+    const worst=threats.length?threats[0].lvl:0;
+    if(worst>=2)danger++;
+    const head=worst>=2?`<span class="pill" style="background:#3a1414;color:#ff9d9d">${LV[worst].tag} Có thể bị hạ → Protect / rút</span>`
+             :worst===1?`<span class="pill" style="background:#2a2410;color:var(--acc2)">🟡 Sát nút — cân nhắc Protect</span>`
+             :`<span class="pill" style="background:#12312e;color:#57d977">🟢 An toàn lượt này</span>`;
+    const rows=threats.length?threats.map(t=>{
+      const l=LV[t.lvl];const od=t.op.mon.mega?t.op.mon.species:(t.op.o.megaForm||t.op.o.species);
+      return `<tr style="background:${l.bg}">
+        <td style="padding:5px 8px">${spriteImg(od)}<b style="color:${l.c}">${od}</b></td>
+        <td style="padding:5px 8px">${t.best.move} ${effBadge(t.best.eff)}</td>
+        <td class="num" style="padding:5px 8px;color:${l.c};font-weight:700">${t.best.pctMin.toFixed(0)}–${t.best.pctMax.toFixed(0)}%</td>
+        <td style="padding:5px 8px;color:${l.c};font-weight:700">${t.k.t}</td></tr>`;
+    }).join('')
+      :`<tr><td colspan="4" class="stat-mini" style="padding:8px;text-align:center;color:#57d977">Không con nào của đối thủ hạ được lượt này.</td></tr>`;
+    return `<div class="panel" style="margin-bottom:10px;padding:0;overflow:hidden;border-left:3px solid ${worst?LV[worst].c:'#2a5a44'}">
+      <div style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--panel2);border-bottom:1px solid var(--line);flex-wrap:wrap">
+        ${spriteImg(nm)}<b>${nm}</b>${myMon.mega?'<span class="pill" style="background:#2a2410;color:var(--acc2)">MEGA</span>':''}
+        <span class="stat-mini">HP ${myMon.S.hp}</span>
+        <span style="margin-left:auto">${head}</span>
+      </div>
+      <div class="scroll"><table style="width:100%;border-collapse:collapse;font-size:12.5px">
+        <thead><tr style="color:var(--muted);font-size:11px">
+          <th style="text-align:left;padding:5px 8px">Đối thủ đe doạ</th><th style="text-align:left;padding:5px 8px">Chiêu</th>
+          <th class="num" style="padding:5px 8px">% máu</th><th style="text-align:left;padding:5px 8px">Kết quả</th></tr></thead>
+        <tbody>${rows}</tbody></table></div>
+    </div>`;
+  }).join('');
+  const banner=danger
+    ? `<div class="warn-box" style="margin-bottom:10px">⚠ <b>${danger}</b> con đang ra sân có thể bị OHKO lượt này — cân nhắc Protect hoặc rút con nguy hiểm nhất.</div>`
+    : `<div class="warn-box" style="margin-bottom:10px;border-color:#2a5a44;background:#0f2018;color:#8fd9a0">✓ Không con nào ra sân bị OHKO lượt này.</div>`;
+  box.innerHTML=`<div class="hint" style="margin-bottom:8px">Dựa trên con <b>đã tích ra trận</b> (bên trái) &amp; spread hay gặp của đối thủ. Đã tính thời tiết, màn chắn bên mình, buff/nerf trên card. Bật/tắt Crit ở thanh trên để xem tình huống xấu nhất.</div>${banner}${cards}`;
+}
 $('#ctabOpp').addEventListener('change',()=>switchCalcMode('opp'));
 $('#ctabMe').addEventListener('change',()=>switchCalcMode('me'));
+$('#ctabAna').addEventListener('change',()=>switchCalcMode('analyze'));
 function wireCalcSearch(side){
   const inp=$('#'+side+'Search'),box=$('#'+side+'Sug');
   function show(typing){
@@ -2137,7 +2205,7 @@ function runCalc(){
   $('#calcNote').innerHTML=`${spdCmp} &nbsp; ${best?`Mạnh nhất: <b>${best.move}</b> → ${koLabel(best).t} (${best.pctMin.toFixed(0)}–${best.pctMax.toFixed(0)}%).`:''}${truncNote} ${(statusMoves.length&&!fromLearnset)?`<span class="muted">· Chiêu status trong set: ${statusMoves.join(', ')}</span>`:''}<br><span class="tiny muted">Đã áp: STAB${A.fx.adapt?' (Adaptability ×2)':''}, hệ, thời tiết, crit, bỏng, item, ${A.fx.atkX2?'Huge Power, ':''}${field.aura?'Fairy Aura, ':''}${field.hh?'Helping Hand, ':''}stage${scNote}${field.spread?(field.single?', đấu đôi (Single Target — chiêu lan KHÔNG giảm)':', đấu đôi (chiêu lan ×0.75)'):''}.</span>`;
 }
 $('#swapBtn').onclick=()=>{const a=$('#atkPick').value,d=$('#defPick').value;setPick('atk',d);setPick('def',a);};
-function calcRefresh(){runCalc();if(CALC_MODE==='me')renderMyToOpp();}
+function calcRefresh(){runCalc();if(CALC_MODE==='me')renderMyToOpp();if(CALC_MODE==='analyze')renderAnalyze();}
 // điều kiện sân còn lại (thanh trên cùng lo thời tiết/địa hình/màn chắn/TR; buff & BRN nằm trên card 2 rìa)
 ['crit','hh','single','aura','auraDark','auraBreak','rSword','rBeads','rVessel','rTablets'].forEach(id=>$('#'+id).addEventListener('change',calcRefresh));
 wireCalcSearch('atk');wireCalcSearch('def');
