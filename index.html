@@ -1207,7 +1207,7 @@ function editSet(idx){
    </div>
    <div class="row" style="margin-top:10px">
      <div><label class="f">Ability</label><select id="sAbil">${abils.map(a=>opt(a,a,a===set.ability)).join('')}</select></div>
-     <div><label class="f">Item</label><select id="sItem"></select></div>
+     <div style="position:relative"><label class="f">Item — gõ tên để tìm</label><input type="text" id="sItem" value="${set.item||'Không'}" autocomplete="off"><div id="iSug" class="sug" style="position:absolute;left:0;right:0;z-index:5"></div></div>
    </div>
    <div class="between" style="margin-top:14px"><label class="f" style="margin:0">SP (Champions: tổng ≤66, mỗi ô ≤32)</label><span class="sp-counter" id="spCount"></span></div>
    <div class="statline" style="grid-template-columns:repeat(6,1fr);margin-top:6px">
@@ -1222,7 +1222,7 @@ function editSet(idx){
      ${isNew?'<span></span>':`<button class="btn danger sm" onclick="delSet(${idx})">Xoá khỏi đội</button>`}
      <button class="btn" id="saveSetBtn">Lưu</button>
    </div>`);
-  fillNatures($('#sNat'),set.nature); fillItems($('#sItem'),set.item);
+  fillNatures($('#sNat'),set.nature);
   function refreshFinals(){
     const sp={};SPKEYS.forEach(k=>sp[k]=+$('#sp_'+k).value||0);
     const nat=$('#sNat').value, spc=$('#sSpecies').value;
@@ -1249,14 +1249,34 @@ function editSet(idx){
     box.querySelectorAll('.it[data-n]').forEach(el=>el.onclick=()=>{$('#sSpecies').value=el.dataset.n;box.classList.remove('on');onSpeciesPicked();});
   });
   $('#sSpecies').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const hl=$('#sSug .it[data-n]');if(hl){$('#sSpecies').value=hl.dataset.n;$('#sSug').classList.remove('on');onSpeciesPicked();}}});
+  // gõ-tìm item giống ô loài
+  const itemNames=Object.keys(ITEMS);
+  function pickItem(v){$('#sItem').value=v;$('#iSug').classList.remove('on');refreshFinals();}
+  $('#sItem').addEventListener('input',()=>{
+    const q=$('#sItem').value.trim().toLowerCase();const box=$('#iSug');
+    refreshFinals();
+    if(!q){box.classList.remove('on');box.innerHTML='';return;}
+    const starts=itemNames.filter(n=>n.toLowerCase().startsWith(q));
+    const incl=itemNames.filter(n=>!starts.includes(n)&&n.toLowerCase().includes(q));
+    const list=[...starts,...incl].slice(0,10);
+    if(!list.length){box.classList.remove('on');return;}
+    box.innerHTML=list.map((n,i)=>`<div class="it${i===0?' hl':''}" data-n="${n}">${n}</div>`).join('');
+    box.classList.add('on');
+    box.querySelectorAll('.it[data-n]').forEach(el=>el.onmousedown=e=>{e.preventDefault();pickItem(el.dataset.n);});
+  });
+  $('#sItem').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const hl=$('#iSug .it[data-n]');if(hl)pickItem(hl.dataset.n);}});
+  $('#sItem').addEventListener('focus',()=>{if(!$('#sItem').value.trim())$('#sItem').dispatchEvent(new Event('input'));});
+  $('#sItem').addEventListener('blur',()=>setTimeout(()=>$('#iSug').classList.remove('on'),120));
   SPKEYS.forEach(k=>$('#sp_'+k).oninput=refreshFinals);
-  ['sNat','sAbil','sItem'].forEach(id=>$('#'+id).onchange=refreshFinals);
+  ['sNat','sAbil'].forEach(id=>$('#'+id).onchange=refreshFinals);
   refreshFinals();
   $('#saveSetBtn').onclick=()=>{
     const spc=$('#sSpecies').value.trim();
     if(!DEX[spc]){toast('⚠ Không tìm thấy Pokémon "'+spc+'" — chọn từ danh sách gợi ý.');return;}
     const sp={};SPKEYS.forEach(k=>sp[k]=Math.max(0,Math.min(32,+$('#sp_'+k).value||0)));
-    const ns={species:spc,nature:$('#sNat').value,ability:$('#sAbil').value,item:$('#sItem').value,sp,moves:[0,1,2,3].map(i=>$('#mv_'+i).value.trim()).filter(Boolean)};
+    let item=$('#sItem').value.trim()||'Không';
+    const itMatch=Object.keys(ITEMS).find(n=>n.toLowerCase()===item.toLowerCase());if(itMatch)item=itMatch;
+    const ns={species:spc,nature:$('#sNat').value,ability:$('#sAbil').value,item,sp,moves:[0,1,2,3].map(i=>$('#mv_'+i).value.trim()).filter(Boolean)};
     if(isNew){if(MYTEAM.length>=6){toast('⚠ Đội đã đủ 6.');return;}MYTEAM.push(ns);}else MYTEAM[idx]=ns;
     saveTeam();modalClose();refreshAll();
   };
