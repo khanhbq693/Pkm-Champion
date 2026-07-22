@@ -48,6 +48,108 @@
 
 <div class="wrap">
 
+<h2>Đợt 18 — Ability giảm sát thương bên thủ (Multiscale…)</h2>
+<div class="card good">
+  <h3>Bảng <code>DEF_ABIL_FX</code> + <code>defAbilCut()</code> — tự trừ, không bắt người dùng chỉnh tay</h3>
+  <p>Trước đây <code>calcDamage</code> chỉ xử lý ability bên thủ cho Levitate/Tai Ương. Nay thêm nhóm ability
+  <b>giảm sát thương NHẬN vào</b>, áp tự động dựa trên <code>def.ability</code> (không phải nút gạt chung ×0.5 —
+  làm vậy sẽ sai vì mỗi ability chỉ giảm một loại đòn):</p>
+  <table>
+    <tr><th>Ability</th><th>Điều kiện</th><th>Hệ số</th></tr>
+    <tr><td>Multiscale, Shadow Shield</td><td>full HP</td><td>×0.5</td></tr>
+    <tr><td>Fur Coat / Ice Scales</td><td>đòn vật lý / đặc biệt</td><td>×0.5</td></tr>
+    <tr><td>Thick Fat / Heatproof</td><td>hệ Fire(+Ice)</td><td>×0.5</td></tr>
+    <tr><td>Filter / Solid Rock / Prism Armor</td><td>đòn hiệu quả gấp bội</td><td>×0.75</td></tr>
+  </table>
+</div>
+<div class="card warn">
+  <h3>Đánh đổi đã chấp nhận — Multiscale + đòn nhiều lần</h3>
+  <p>Bảng calc mặc định coi thủ <b>full HP</b>, nên Multiscale ×0.5 áp cho đòn ĐẦU là đúng. Nhưng <code>koLabel</code>
+  ước lượng 2HKO/3HKO bằng cách nhân đôi/ba <i>cùng một</i> con số đã bị Multiscale — trong khi thực tế đòn thứ 2 trở đi
+  không còn full HP nên KHÔNG bị giảm. ⇒ Ước lượng số đòn để hạ sẽ <b>hơi bi quan</b> (báo cần nhiều đòn hơn thực tế).
+  Chấp nhận vì bản thân công thức nHKO của app vốn đã đơn giản hoá; nhãn 🛡 có ghi "(full HP)" để nhắc.</p>
+</div>
+<div class="card">
+  <h3>Ability đối thủ: ưu tiên ability phòng thủ khi thiếu usage</h3>
+  <p>Vấn đề: Dragonite <code>ab=["Inner Focus","Multiscale"]</code> → mặc định lấy <code>ab[0]</code>=Inner Focus,
+  Multiscale không bao giờ kích hoạt cho đối thủ (editOpp không có ô chọn ability). Sửa <code>oppCfgOf</code>:
+  khi usage không chỉ định, <b>ưu tiên ability nằm trong <code>DEF_ABIL_FX</code></b> rồi mới tới <code>ab[0]</code>.
+  An toàn vì các ability này (Multiscale, Ice Scales, Filter…) gần như luôn là lựa chọn thi đấu khi Pokémon sở hữu.
+  Đội mình thì không cần mẹo này — ability chọn tay trong modal Sửa. Marker 🛡 hiện ở cả bảng damage, ma trận và tab Phân tích.</p>
+</div>
+<div class="card">
+  <h3>Nút tắt 🛡 — khi biết KHÔNG phải ability đó / thủ không còn full HP</h3>
+  <p>Thêm cờ <code>defOff</code> trên từng con (cả đội mình lẫn đối thủ), truyền qua <code>buildMon</code> → <code>mon.defOff</code>,
+  gate trong <code>calcDamage</code>: <code>const dcut=(e>0 &amp;&amp; !def.defOff)?…</code>. Nút 🛡 chỉ hiện khi ability con đó
+  nằm trong <code>DEF_ABIL_FX</code>; bấm để tắt (VD Dragonite đã ăn 1 đòn, không còn full HP → Multiscale mất tác dụng).</p>
+  <p><b>Tiện thể hợp nhất:</b> <code>resolvePick</code> nhánh <code>opp:</code> trước đây tự lấy <code>ab[0]</code> + không có moves usage,
+  lệch với ma trận/phân tích (vốn dùng <code>oppCfgOf</code>). Đổi sang <code>Object.assign(oppCfgOf(o,sp),{guessed:1})</code>
+  → ability/moves/defOff của đối thủ giờ NHẤT QUÁN giữa bảng damage giữa và các bảng khác.</p>
+</div>
+
+<h2>Đợt 17 — Tab "🔬 Phân tích": Mối đe doạ lượt này</h2>
+<div class="card good">
+  <h3>Radio thứ 3 cạnh "Tôi → Đối thủ"</h3>
+  <p>Thêm mode <code>'analyze'</code> vào <code>switchCalcMode</code> (trước chỉ có <code>'opp'</code>/<code>'me'</code>).
+  Mỗi mode giờ chỉ hiện đúng 1 container: <code>adGrid+calcTablePanel</code> / <code>calcMode2</code> / <code>calcAnalyze</code> —
+  đã đổi từ cờ boolean <code>show1</code> 2 nhánh sang so <code>mode===</code> từng cái để không sót.</p>
+  <p><b>Nguồn dữ liệu:</b> lặp qua <code>PICK</code> (con đã tích ra trận) × <code>OPP</code>. Với mỗi cặp gọi
+  <code>readField('me','opp:'+j,'set:'+i)</code> — <b>defSide='me'</b> để lấy màn chắn BÊN MÌNH (đối thủ đánh vào mình),
+  attacker=opp (buff Atk của họ), defender=mình (buff Def của mình). Rồi quét <code>dmgMovesFor(opp.cfg)</code> lấy đòn mạnh nhất.</p>
+</div>
+<div class="card">
+  <h3>3 mức đe doạ — vì sao chọn ngưỡng này</h3>
+  <table>
+    <tr><th>Mức</th><th>Điều kiện</th><th>Ý nghĩa</th></tr>
+    <tr><td>🔴 3</td><td><code>pctMin≥100</code></td><td>OHKO chắc (kể cả roll thấp) → phải Protect/rút</td></tr>
+    <tr><td>🟠 2</td><td><code>pctMax≥100</code></td><td>OHKO nếu roll cao → vẫn tính là "có thể bị hạ"</td></tr>
+    <tr><td>🟡 1</td><td><code>pctMax≥80</code></td><td>gần OHKO — sát nút, cân nhắc</td></tr>
+  </table>
+  <p style="margin-top:8px">Chỉ mức ≥2 mới cộng vào biến <code>danger</code> ở banner tổng, vì mức 1 chưa chết ngay lượt này.
+  Ngưỡng 80% cho mức 1 là ước lệ (đủ để một đòn chip + đòn thứ 2 là chết) — không phải luật game, chỉ để lọc bớt nhiễu.</p>
+  <p><b>Đã biết, không xử lý:</b> Crit/Helping Hand/Single Target đọc theo checkbox chung ở thanh trên (không ép cứng) —
+  người dùng muốn xem "xấu nhất" thì tự bật Crit. Không tự cộng crit vào vì sẽ báo động giả hàng loạt.</p>
+</div>
+
+<h2>Đợt 16 — Đồng bộ mũi tên tốc độ với Tailwind/Trick Room + đánh dấu chiêu ưu tiên</h2>
+<div class="card good">
+  <h3>Một nguồn duy nhất cho tốc độ: <code>effSpeed()</code> + <code>movesFirst()</code></h3>
+  <p>Trước đây mũi tên ▲/▼ (ma trận Tôi→Đối thủ) và ô so tốc độ ở bảng damage so <code>mon.S.speEff</code> <b>thô</b> —
+  không tính cấp buff Spe, Tailwind, và <b>không đảo theo Trick Room</b>. Hậu quả: bật TR thì bảng thứ tự tốc độ đảo đúng
+  nhưng mũi tên vẫn chỉ ngược (con chậm vẫn hiện ▼ dù thực tế đi trước).</p>
+  <p>Tách 2 hàm dùng chung ngay cạnh <code>stageMul</code>:</p>
+  <table>
+    <tr><th>Hàm</th><th>Trách nhiệm</th></tr>
+    <tr><td><code>effSpeed(speEffRaw,key)</code></td><td>Nhân speEff thô với cấp buff Spe (<code>stagesOf(key)</code>) và Tailwind của bên tương ứng. <b>KHÔNG</b> áp TR ở đây.</td></tr>
+    <tr><td><code>movesFirst(spA,spB)</code></td><td>Nơi DUY NHẤT áp Trick Room: <code>tr ? spA&lt;spB : spA&gt;spB</code>. Bằng nhau → false (50/50).</td></tr>
+  </table>
+  <p style="margin-top:8px"><b>Vì sao tách TR ra khỏi effSpeed:</b> TR không đổi <i>giá trị</i> tốc độ, chỉ đảo <i>thứ tự</i>.
+  Nếu nhét TR vào effSpeed thì bảng speed (sort tăng/giảm dần) sẽ phải đảo 2 lần. Giữ effSpeed = con số thật,
+  movesFirst = luật thứ tự → không chỗ nào tính TR hai lần.</p>
+  <p><b>Suy ra bên từ key</b> (<code>set:</code>=tôi, <code>opp:</code>=đối thủ, <code>dex:</code>=tra nhanh, không thuộc bên nào → bỏ Tailwind).
+  Nhờ vậy cùng một key đang dùng cho <code>stagesOf</code> cũng lo luôn Tailwind, không cần truyền thêm tham số side.</p>
+</div>
+<div class="card">
+  <h3>Điểm cần biết khi đọc bảng damage lúc bật TR</h3>
+  <p>Dấu <code>&gt;/&lt;/=</code> giữa 2 tên VẪN theo con số thật (200 &gt; 100), nhưng <b>màu tên</b> và câu "đánh trước/sau"
+  theo <code>movesFirst</code>. Nên khi TR bật, con Spe cao hơn hiện <code>&gt;</code> mà lại tô <span style="color:var(--bad)">đỏ</span> (đi sau) —
+  cố ý: số liệu không nói dối, TR chỉ đảo lượt. Có thêm nhãn 🔄 TR + đuôi "(Trick Room)" để khỏi hiểu nhầm.</p>
+  <p>Mũi tên ưu tiên (⚡) đánh dấu chiêu <code>pri&gt;0</code> ở cả bảng damage lẫn ma trận. Tooltip nhắc rõ:
+  <b>Trick Room KHÔNG đảo được ưu tiên</b> — ưu tiên là nấc trên tốc độ, TR chỉ sắp trong cùng một nấc.</p>
+</div>
+
+<h2>Đợt 15 — Ô Item gõ-tìm (giống ô tên Pokémon)</h2>
+<div class="card chg">
+  <h3>Đổi <code>&lt;select&gt;</code> → input gõ-tìm trong modal Sửa/Thêm</h3>
+  <p>Ô Item trong <code>editSet()</code> trước là dropdown; nay là input tự-hoàn-thành dùng chung mẫu với ô Loài
+  (lọc <code>startsWith</code> ưu tiên trước, rồi <code>includes</code>, cắt 10 kết quả). <code>fillItems</code> vẫn giữ
+  vì ô Item đối thủ (<code>#oItem</code>) còn dùng dropdown — không đụng.</p>
+  <p>Hai điểm cần biết: (1) Chọn bằng <code>onmousedown</code> + <code>preventDefault</code> chứ không <code>onclick</code>,
+  nếu không sự kiện <code>blur</code> đóng sug trước khi click kịp chạy. (2) Khác ô Loài (bắt buộc có trong DEX mới cho lưu),
+  ô Item <b>cho gõ tự do</b>: khi lưu chỉ chuẩn hoá hoa/thường về đúng key trong <code>ITEMS</code> nếu khớp, rỗng thì mặc định
+  <code>'Không'</code>. Item lạ vẫn lưu được (buildMon coi như không hiệu ứng) — chấp nhận để không chặn người dùng.</p>
+</div>
+
 <h2>Đợt 14 — Ghi đè chỉ số pkm từ paste (nguồn tin cậy hơn)</h2>
 <div class="card chg">
   <h3>Overwrite toàn bộ, kể cả 50 entry Pikalytics</h3>

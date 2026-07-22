@@ -153,6 +153,7 @@
   .oc-tgl.mega.on{background:#241a33;border-color:#9d7bff;color:#c4a6ff}
   .oc-tgl.brn.on{background:#331a12;border-color:#ff8a4c;color:#ff9d6b}
   .oc-tgl.par.on{background:#2e2a10;border-color:#e8d24a;color:#f0dd5a}
+  .oc-tgl.shield.on{background:#12314a;border-color:#4a90d9;color:#7db8ff}
   /* 1 grid 6 cột bằng nhau — nhãn/giá trị/SP/nút cùng 1 cột nên nút thẳng ngay dưới chỉ số */
   .oc-stats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;margin-top:8px;text-align:center}
   .oc-stats .scol{min-width:0}
@@ -340,7 +341,7 @@
   body.calc-lock #calcTablePanel>h2,body.calc-lock #calcTablePanel>#spdCompare,
   body.calc-lock #calcTablePanel>#calcNote{flex:0 0 auto}
   body.calc-lock #calcTablePanel>.scroll{flex:1 1 auto;min-height:0;overflow-y:auto}
-  body.calc-lock #calcMode2{flex:1 1 auto;min-height:0;overflow-y:auto;padding-right:3px}
+  body.calc-lock #calcMode2,body.calc-lock #calcAnalyze{flex:1 1 auto;min-height:0;overflow-y:auto;padding-right:3px}
   body.calc-lock #spdPanel{max-height:31vh;display:flex;flex-direction:column;overflow:hidden}
   body.calc-lock #spdPanel #spdWrap{flex:1;min-height:0;overflow-y:auto}
   body.calc-lock #spdPanel>h2,body.calc-lock #spdPanel>.hint{flex:0 0 auto}
@@ -356,7 +357,7 @@
     body.calc-lock .rail{height:auto;max-height:none}
     body.calc-lock #calcCenter{height:auto;display:block;overflow:visible;padding-right:0}
     body.calc-lock #calcTablePanel,body.calc-lock #calcTablePanel>.scroll,
-    body.calc-lock #calcMode2{display:block;overflow:visible;min-height:0}
+    body.calc-lock #calcMode2,body.calc-lock #calcAnalyze{display:block;overflow:visible;min-height:0}
     body.calc-lock #spdPanel{max-height:none;display:block;overflow:visible}
   }
   .rail::-webkit-scrollbar{width:6px}
@@ -522,6 +523,7 @@
         <div class="fgrp" style="margin:0">
           <label class="flex tiny dir"><input type="radio" name="calcdir" id="ctabOpp" checked> Đối thủ → Tôi</label>
           <label class="flex tiny dir"><input type="radio" name="calcdir" id="ctabMe"> Tôi → Đối thủ</label>
+          <label class="flex tiny dir"><input type="radio" name="calcdir" id="ctabAna"> 🔬 Phân tích</label>
           <span class="fb-sep" style="height:16px"></span>
           <label class="flex tiny"><input type="checkbox" id="crit"> Crit ×1.5</label>
           <label class="flex tiny"><input type="checkbox" id="hh"> Helping Hand ×1.5</label>
@@ -533,6 +535,7 @@
         </div>
       </div>
       <div id="calcMode2" style="display:none"></div>
+      <div id="calcAnalyze" style="display:none"></div>
       <div class="grid" id="adGrid" style="grid-template-columns:1fr 1fr;gap:10px">
         <div class="panel pk" id="atkPanel">
           <h2 style="color:#ff9d6b">⚔ Bên tấn công</h2>
@@ -813,6 +816,27 @@ const ABIL_FX={
  'Chlorophyll':{spdWx2:'sun'},'Swift Swim':{spdWx2:'rain'},'Sand Rush':{spdWx2:'sand'},'Slush Rush':{spdWx2:'snow'},
  'Pixilate':{ateType:'Fairy'},'Intimidate':{intimidate:1}
 };
+/* Ability BÊN THỦ giảm sát thương NHẬN vào. mult=hệ số nhân dmg.
+   full=chỉ khi thủ full HP (bảng calc mặc định coi thủ full HP → áp luôn cho đòn ĐẦU;
+   khi tính 2HKO/3HKO sẽ hơi bi quan vì đòn sau đáng lẽ mất Multiscale — chấp nhận, có ghi chú).
+   phys/spec=chỉ đòn vật lý/đặc biệt · types=chỉ các hệ này · se=chỉ đòn hiệu quả gấp bội. */
+const DEF_ABIL_FX={
+ 'Multiscale':{mult:0.5,full:1},'Shadow Shield':{mult:0.5,full:1},
+ 'Fur Coat':{mult:0.5,phys:1},'Ice Scales':{mult:0.5,spec:1},
+ 'Thick Fat':{mult:0.5,types:['Fire','Ice']},'Heatproof':{mult:0.5,types:['Fire']},
+ 'Filter':{mult:0.75,se:1},'Solid Rock':{mult:0.75,se:1},'Prism Armor':{mult:0.75,se:1}
+};
+// đòn này có bị ability thủ giảm không? trả về {mult,label} hoặc null
+function defAbilCut(ability,isPhys,mtype,e){
+  const f=DEF_ABIL_FX[ability];if(!f)return null;
+  let hit;
+  if(f.phys)hit=isPhys; else if(f.spec)hit=!isPhys;
+  else if(f.types)hit=f.types.includes(mtype);
+  else if(f.se)hit=e>1;
+  else hit=true; // full-HP (Multiscale) áp cho mọi đòn
+  if(!hit)return null;
+  return {mult:f.mult,label:ability+(f.full?' (full HP)':'')};
+}
 
 const MOVES_DEFAULT={
  // team 1
@@ -1019,7 +1043,7 @@ function buildMon(cfg,weather){
   if(fx.spdWx2 && fx.spdWx2===weather)spe=spe*2;
   if(cfg.par)spe=Math.floor(spe/2); // tê liệt: tốc độ ½
   S.speEff=spe;
-  const mon={species,baseSpecies:cfg.species,types:d.t,base:d.s,w:d.w||50,ability,item:cfg.item||'Không',nature:cfg.nature,S,est:d.est,mega,fx,brn:!!cfg.brn,par:!!cfg.par};
+  const mon={species,baseSpecies:cfg.species,types:d.t,base:d.s,w:d.w||50,ability,item:cfg.item||'Không',nature:cfg.nature,S,est:d.est,mega,fx,brn:!!cfg.brn,par:!!cfg.par,defOff:!!cfg.defOff};
   // Stance Change: khi tấn công dùng chỉ số công của dạng Blade
   if(ability==='Stance Change' && !/-Blade$/.test(species)){
     const bn=species+'-Blade';
@@ -1099,6 +1123,10 @@ function calcDamage(atk,def,moveName,field){
   if(field.screens&&!field.crit&&!m.crit){const s=field.screens;
     if(s.aurora||(isPhys?s.reflect:s.lscreen))other*=(field.spread?0.667:0.5);}
   if(di.resist===mtype&&e>1)other*=0.5; // Chople giảm ½ đòn giác đấu hiệu quả
+  // Ability bên thủ giảm dmg nhận (Multiscale full-HP, Ice Scales, Filter...) — mặc định coi thủ full HP.
+  // def.defOff = người dùng tắt tay (biết không phải ability đó, hoặc thủ không còn full HP để kích hoạt).
+  const dcut=(e>0&&!def.defOff)?defAbilCut(def.ability,isPhys,mtype,e):null;
+  if(dcut)other*=dcut.mult;
 
   const base=Math.floor(Math.floor((Math.floor(2*50/5+2)*bp*A/D))/50)+2;
   const hits=m.hits||1;
@@ -1113,7 +1141,7 @@ function calcDamage(atk,def,moveName,field){
     rolls.push(dmg*hits);
   }
   const hp=def.S.hp,min=rolls[0],max=rolls[rolls.length-1];
-  return {rolls,min,max,pctMin:min/hp*100,pctMax:max/hp*100,koN:rolls.filter(x=>x>=hp).length,eff:e,hp,isPhys,move:moveName+(hits>1?` ×${hits}`:''),type:mtype,cat:m.c,bp};
+  return {rolls,min,max,pctMin:min/hp*100,pctMax:max/hp*100,koN:rolls.filter(x=>x>=hp).length,eff:e,hp,isPhys,move:moveName+(hits>1?` ×${hits}`:''),type:mtype,cat:m.c,bp,defAbil:dcut?dcut.label:''};
 }
 function koLabel(res){const{min,max,hp,koN}=res;
   if(res.eff===0)return{t:'Miễn nhiễm',cls:'safe'};
@@ -1207,7 +1235,7 @@ function editSet(idx){
    </div>
    <div class="row" style="margin-top:10px">
      <div><label class="f">Ability</label><select id="sAbil">${abils.map(a=>opt(a,a,a===set.ability)).join('')}</select></div>
-     <div><label class="f">Item</label><select id="sItem"></select></div>
+     <div style="position:relative"><label class="f">Item — gõ tên để tìm</label><input type="text" id="sItem" value="${set.item||'Không'}" autocomplete="off"><div id="iSug" class="sug" style="position:absolute;left:0;right:0;z-index:5"></div></div>
    </div>
    <div class="between" style="margin-top:14px"><label class="f" style="margin:0">SP (Champions: tổng ≤66, mỗi ô ≤32)</label><span class="sp-counter" id="spCount"></span></div>
    <div class="statline" style="grid-template-columns:repeat(6,1fr);margin-top:6px">
@@ -1222,7 +1250,7 @@ function editSet(idx){
      ${isNew?'<span></span>':`<button class="btn danger sm" onclick="delSet(${idx})">Xoá khỏi đội</button>`}
      <button class="btn" id="saveSetBtn">Lưu</button>
    </div>`);
-  fillNatures($('#sNat'),set.nature); fillItems($('#sItem'),set.item);
+  fillNatures($('#sNat'),set.nature);
   function refreshFinals(){
     const sp={};SPKEYS.forEach(k=>sp[k]=+$('#sp_'+k).value||0);
     const nat=$('#sNat').value, spc=$('#sSpecies').value;
@@ -1249,14 +1277,34 @@ function editSet(idx){
     box.querySelectorAll('.it[data-n]').forEach(el=>el.onclick=()=>{$('#sSpecies').value=el.dataset.n;box.classList.remove('on');onSpeciesPicked();});
   });
   $('#sSpecies').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const hl=$('#sSug .it[data-n]');if(hl){$('#sSpecies').value=hl.dataset.n;$('#sSug').classList.remove('on');onSpeciesPicked();}}});
+  // gõ-tìm item giống ô loài
+  const itemNames=Object.keys(ITEMS);
+  function pickItem(v){$('#sItem').value=v;$('#iSug').classList.remove('on');refreshFinals();}
+  $('#sItem').addEventListener('input',()=>{
+    const q=$('#sItem').value.trim().toLowerCase();const box=$('#iSug');
+    refreshFinals();
+    if(!q){box.classList.remove('on');box.innerHTML='';return;}
+    const starts=itemNames.filter(n=>n.toLowerCase().startsWith(q));
+    const incl=itemNames.filter(n=>!starts.includes(n)&&n.toLowerCase().includes(q));
+    const list=[...starts,...incl].slice(0,10);
+    if(!list.length){box.classList.remove('on');return;}
+    box.innerHTML=list.map((n,i)=>`<div class="it${i===0?' hl':''}" data-n="${n}">${n}</div>`).join('');
+    box.classList.add('on');
+    box.querySelectorAll('.it[data-n]').forEach(el=>el.onmousedown=e=>{e.preventDefault();pickItem(el.dataset.n);});
+  });
+  $('#sItem').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const hl=$('#iSug .it[data-n]');if(hl)pickItem(hl.dataset.n);}});
+  $('#sItem').addEventListener('focus',()=>{if(!$('#sItem').value.trim())$('#sItem').dispatchEvent(new Event('input'));});
+  $('#sItem').addEventListener('blur',()=>setTimeout(()=>$('#iSug').classList.remove('on'),120));
   SPKEYS.forEach(k=>$('#sp_'+k).oninput=refreshFinals);
-  ['sNat','sAbil','sItem'].forEach(id=>$('#'+id).onchange=refreshFinals);
+  ['sNat','sAbil'].forEach(id=>$('#'+id).onchange=refreshFinals);
   refreshFinals();
   $('#saveSetBtn').onclick=()=>{
     const spc=$('#sSpecies').value.trim();
     if(!DEX[spc]){toast('⚠ Không tìm thấy Pokémon "'+spc+'" — chọn từ danh sách gợi ý.');return;}
     const sp={};SPKEYS.forEach(k=>sp[k]=Math.max(0,Math.min(32,+$('#sp_'+k).value||0)));
-    const ns={species:spc,nature:$('#sNat').value,ability:$('#sAbil').value,item:$('#sItem').value,sp,moves:[0,1,2,3].map(i=>$('#mv_'+i).value.trim()).filter(Boolean)};
+    let item=$('#sItem').value.trim()||'Không';
+    const itMatch=Object.keys(ITEMS).find(n=>n.toLowerCase()===item.toLowerCase());if(itMatch)item=itMatch;
+    const ns={species:spc,nature:$('#sNat').value,ability:$('#sAbil').value,item,sp,moves:[0,1,2,3].map(i=>$('#mv_'+i).value.trim()).filter(Boolean)};
     if(isNew){if(MYTEAM.length>=6){toast('⚠ Đội đã đủ 6.');return;}MYTEAM.push(ns);}else MYTEAM[idx]=ns;
     saveTeam();modalClose();refreshAll();
   };
@@ -1326,6 +1374,7 @@ function renderMyPick(){
         ${megaBtns}
         <button class="oc-tgl brn${s.brn?' on':''}" data-act="brn" data-kind="me" data-i="${i}">🔥 BRN</button>
         <button class="oc-tgl par${s.par?' on':''}" data-act="par" data-kind="me" data-i="${i}">⚡ PAR</button>
+        ${DEF_ABIL_FX[mon.ability]?`<button class="oc-tgl shield${s.defOff?'':' on'}" data-act="defoff" data-kind="me" data-i="${i}" title="${mon.ability}: ${DEF_ABIL_FX[mon.ability].full?'chỉ khi full HP. ':''}Bấm để tắt khi con này không còn đủ điều kiện kích hoạt.">🛡 ${mon.ability}${s.defOff?' (tắt)':''}</button>`:''}
         <button class="oc-tgl" data-act="edit" data-kind="me" data-i="${i}">✎ Sửa set</button>
       </div>
       <div>${typeChips(DEX[mon.species]?DEX[mon.species].t:DEX[s.species].t,1)} <span class="stat-mini" style="margin-left:6px">● ${s.ability||''}</span></div>
@@ -1347,6 +1396,7 @@ function renderMyPick(){
     if(act==='mega'){s.megaForm=(s.megaForm===el.dataset.to)?null:el.dataset.to;}
     if(act==='brn'){s.brn=!s.brn;}
     if(act==='par'){s.par=!s.par;}
+    if(act==='defoff'){s.defOff=!s.defOff;}
     if(act==='stg'){bumpStage(s,el.dataset.k,+el.dataset.d,saveTeam);return;}
     saveTeam();renderMyPick();calcRefresh();renderSpeedTier();
   });
@@ -1354,6 +1404,18 @@ function renderMyPick(){
   $('#myLimit').textContent=pickLimit();
 }
 function stageMul(n){return n>=0?(2+n)/2:2/(2-n);}
+/* Tốc độ hiệu dụng DÙNG CHUNG cho bảng speed, mũi tên ma trận Tôi→Đối thủ và bảng damage.
+   speEffRaw (mon.S.speEff) đã gồm nature/SP/item(Scarf)/thời tiết/PAR/Mega.
+   Ở đây nhân thêm cấp buff Spe của chính con đó (stagesOf theo key) và Tailwind của bên tương ứng.
+   KHÔNG áp Trick Room ở đây — TR chỉ ĐẢO THỨ TỰ, xử lý riêng khi so sánh (movesFirst). */
+function effSpeed(speEffRaw,key){
+  const stage=stagesOf(key).spe||0;
+  const side=key&&key.startsWith('opp:')?'opp':key&&key.startsWith('set:')?'me':null; // dex: → không thuộc bên nào, bỏ Tailwind
+  const tw=side&&FIELD[side].tailwind?2:1;
+  return Math.floor(speEffRaw*stageMul(stage)*tw);
+}
+// A ra đòn TRƯỚC B? Trick Room bật → con CHẬM đi trước. Bằng nhau = false (50/50).
+function movesFirst(spA,spB){return FIELD.tr?spA<spB:spA>spB;}
 function oppDisplay(o){
   // Dùng CHUNG oppCfgOf với bảng damage — trước đây card tự lấy ab[0] nên hiện "Torrent"
   // trong khi damage tính bằng "Damp" (ability theo usage): card nói dối về ability.
@@ -1387,7 +1449,7 @@ function renderOpp(){
     // (lấy từ usage data) làm card cao gấp đôi, đẩy con thứ 3 khỏi tầm nhìn của rail.
     return `<div class="opp-card" data-i="${i}">
       <div class="oc-head">${spriteImg(d.eff)}<b>${d.eff}</b>${o.item&&o.item!=='Không'?`<span class="stat-mini">@ ${o.item}</span>`:''}<span class="oc-x" data-act="del" data-i="${i}" title="Xoá">✕</span></div>
-      <div class="oc-tgls">${megaBtns}<button class="oc-tgl brn${o.brn?' on':''}" data-act="brn" data-i="${i}">🔥 BRN</button><button class="oc-tgl par${o.par?' on':''}" data-act="par" data-i="${i}">⚡ PAR</button><button class="oc-tgl" data-act="edit" data-i="${i}">✎ Sửa chiêu/đồ</button></div>
+      <div class="oc-tgls">${megaBtns}<button class="oc-tgl brn${o.brn?' on':''}" data-act="brn" data-i="${i}">🔥 BRN</button><button class="oc-tgl par${o.par?' on':''}" data-act="par" data-i="${i}">⚡ PAR</button>${DEF_ABIL_FX[d.ability]?`<button class="oc-tgl shield${o.defOff?'':' on'}" data-act="defoff" data-i="${i}" title="${d.ability}: ${DEF_ABIL_FX[d.ability].full?'chỉ khi full HP. ':''}Bấm để tắt nếu đối thủ không dùng ability này hoặc không còn đủ điều kiện.">🛡 ${d.ability}${o.defOff?' (tắt)':''}</button>`:''}<button class="oc-tgl" data-act="edit" data-i="${i}">✎ Sửa chiêu/đồ</button></div>
       <div>${typeChips(DEX[d.eff].t,1)} <span class="stat-mini" style="margin-left:6px">● ${d.ability}</span></div>
       ${statGrid(d.disp,d.g.sp,nat,o.stages,i,'opp')}
     </div>`;
@@ -1400,6 +1462,7 @@ function renderOpp(){
     if(act==='mega'){o.megaForm=(o.megaForm===el.dataset.to)?null:el.dataset.to;}
     if(act==='brn'){o.brn=!o.brn;}
     if(act==='par'){o.par=!o.par;}
+    if(act==='defoff'){o.defOff=!o.defOff;}
     saveOpp();renderOpp();calcRefresh();renderSpeedTier();
   });
 }
@@ -1569,15 +1632,19 @@ function oppCfgOf(o,forme){
   const u=usageOf(o.species);
   const revealed=(o.moves||[]).length;
   const moves=revealed?o.moves:(u?u.m.filter(m=>MOVES[m]):[]);
-  const ability=(u&&u.a&&(DEX[species]||DEX[o.species]).ab.includes(u.a))?u.a:(DEX[species]||DEX[o.species]).ab[0];
-  return {species,nature:g.nature,ability,item:o.item||'Không',sp:g.sp,moves,usage:!revealed&&!!u,brn:!!o.brn,par:!!o.par};
+  const abList=(DEX[species]||DEX[o.species]).ab;
+  // ability: ưu tiên usage; nếu usage không nói → ưu tiên ability giảm sát thương (Multiscale...) vì
+  // với Pokémon có nó thì gần như luôn là lựa chọn thi đấu, và quan trọng cho việc đọc "mối đe doạ".
+  const ability=(u&&u.a&&abList.includes(u.a))?u.a:(abList.find(a=>DEF_ABIL_FX[a])||abList[0]);
+  return {species,nature:g.nature,ability,item:o.item||'Không',sp:g.sp,moves,usage:!revealed&&!!u,brn:!!o.brn,par:!!o.par,defOff:!!o.defOff};
 }
 function matchup(mySet,oppSet,weather){
   const oppCfg=oppCfgOf(oppSet);
   const myMon=buildMon(mySet,weather),opMon=buildMon(oppCfg,weather);
   const dealt=bestHit(mySet,oppCfg,weather);      // dmg mình gây
   const recv=bestHit(oppCfg,mySet,weather);       // dmg nhận vào
-  const faster=myMon.S.speEff>opMon.S.speEff;
+  // "đi trước" tính cả Trick Room (không có key → chưa gồm buff/Tailwind, chỉ dùng để gợi ý)
+  const faster=movesFirst(myMon.S.speEff,opMon.S.speEff);
   let score=Math.min(dealt.pct,180)/100 - Math.min(recv.pct,180)/100;
   score+=faster?0.35:-0.15;
   if(faster&&dealt.pct>=100)score+=0.6;           // nhanh hơn + OHKO được = áp đảo
@@ -1623,7 +1690,7 @@ function renderSpeedTier(){
              ...oppRows]
     .map(x=>{x.stage=stagesOf(x.k).spe||0;x.mult=stageMul(x.stage);
              x.tw=FIELD[x.me?'me':'opp'].tailwind?2:1;
-             x.spe=Math.floor(x.raw*x.mult*x.tw);   // dự đoán, đã áp buff + tailwind
+             x.spe=effSpeed(x.raw,x.k);             // DÙNG CHUNG với mũi tên: buff + tailwind
              x.base0=x.base+20;                     // speed khi 0 điểm = base+20 (công thức game)
              return x;})
     // Trick Room: chậm nhất đi trước — xếp theo speed DỰ ĐOÁN
@@ -1798,17 +1865,20 @@ function readField(defSide,atkVal,defVal){
 let CALC_MODE='opp';
 function switchCalcMode(mode){
   CALC_MODE=mode;
-  $('#ctabOpp').checked=(mode==='opp');$('#ctabMe').checked=(mode==='me');
+  $('#ctabOpp').checked=(mode==='opp');$('#ctabMe').checked=(mode==='me');$('#ctabAna').checked=(mode==='analyze');
   const show1=mode==='opp';
   ['adGrid','calcTablePanel'].forEach(id=>{const el=$('#'+id);if(el)el.style.display=show1?'':'none';});
-  $('#swapBtn').style.display=show1?'':'none'; // ma trận Tôi→Đối thủ không có "bên" để đổi
-  $('#calcMode2').style.display=show1?'none':'';
+  $('#swapBtn').style.display=show1?'':'none'; // chỉ chế độ Đối thủ→Tôi mới có "bên" để đổi
+  $('#calcMode2').style.display=(mode==='me')?'':'none';
+  $('#calcAnalyze').style.display=(mode==='analyze')?'':'none';
   if(show1){
     const av=$('#atkPick').value, dv=$('#defPick').value;
     if(OPP.length && !av.startsWith('opp:'))setPick('atk','opp:0');       // tấn công = 1 trong đối thủ
     if(!dv.startsWith('set:')){const fp=PICK.length?PICK[0]:0;if(MYTEAM[fp])setPick('def','set:'+fp);} // thủ = 1 trong pkm đã chọn
-  }else{
+  }else if(mode==='me'){
     renderMyToOpp();
+  }else{
+    renderAnalyze();
   }
 }
 function effBadge(e){
@@ -1828,7 +1898,7 @@ function renderMyToOpp(){
   const compact=document.body.classList.contains('force-mobile')||(window.matchMedia&&window.matchMedia('(max-width:800px)').matches&&!document.body.classList.contains('force-desktop'));
   const shortKo=t=>t.replace(' chắc','').replace('≥4 đòn','4+').replace('≥','').replace(' đòn','đ');
   const opps=OPP.map(o=>({o,cfg:oppCfgOf(o),mon:buildMon(oppCfgOf(o),field.weather)}));
-  let html='<div class="hint" style="margin-bottom:10px">Chỉ số mình: từ set đã lưu · đối thủ: spread hay gặp. ▲ = mình ra đòn trước. Buff Atk/SpA đặt trên card <b>rìa trái</b>, buff thủ của đối thủ trên card <b>rìa phải</b>.</div>';
+  let html='<div class="hint" style="margin-bottom:10px">Chỉ số mình: từ set đã lưu · đối thủ: spread hay gặp. ▲ = mình ra đòn trước (đã tính buff Spe, Tailwind &amp; Trick Room). Buff Atk/SpA đặt trên card <b>rìa trái</b>, buff thủ của đối thủ trên card <b>rìa phải</b>.</div>';
   pool.forEach(i=>{
     const set=MYTEAM[i];if(!set||!DEX[set.species])return;
     const my=buildMon(set,field.weather);if(!my)return;
@@ -1838,17 +1908,21 @@ function renderMyToOpp(){
     html+=`<div class="panel" style="margin-bottom:12px;padding:0;overflow:hidden">
       <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--panel2);border-bottom:1px solid var(--line);flex-wrap:wrap">
         ${spriteImg(set.species)}<b>${set.species}</b> ${isMegaSet(set)?'<span class="pill" style="background:#2a2410;color:var(--acc2)">MEGA</span>':''}
-        <span class="stat-mini">Spe ${my.S.speEff}</span>
+        <span class="stat-mini">Spe ${effSpeed(my.S.speEff,'set:'+i)}</span>
         ${set.brn?'<span class="pill" style="background:#331a12;color:#ff9d6b">🔥 BRN</span>':''}
         ${stLbl?`<span class="pill" style="background:#12312e;color:#57d977;margin-left:auto">Buff ${stLbl}</span>`:''}
       </div>
       <div class="scroll"><table class="mtx-table${compact?' mtx-compact':''}" style="width:100%;border-collapse:collapse">
         <thead><tr><th style="text-align:left;padding:7px 10px;font-size:12px;color:var(--muted)">Chiêu</th>`;
     opps.forEach(op=>{
-      const faster=my.S.speEff>op.mon.S.speEff, tie=my.S.speEff===op.mon.S.speEff;
-      const arrow=tie?'':(faster?' <b style="color:var(--good)">▲</b>':' <b style="color:var(--bad)">▼</b>');
+      // Tốc độ hiệu dụng (buff + Tailwind), thứ tự đảo khi Trick Room — dùng chung effSpeed/movesFirst
+      const mySpe=effSpeed(my.S.speEff,'set:'+i), opSpe=effSpeed(op.mon.S.speEff,'opp:'+OPP.indexOf(op.o));
+      const tie=mySpe===opSpe;
+      const first=movesFirst(mySpe,opSpe);
+      const arrow=tie?'':(first?' <b style="color:var(--good)">▲</b>':' <b style="color:var(--bad)">▼</b>');
       const nm=compact?op.o.species.slice(0,7):op.o.species;
-      html+=`<th class="mtx-h" style="text-align:center">${spriteImg(op.o.species)}<br>${nm}${arrow}</th>`;
+      const shield=(DEF_ABIL_FX[op.mon.ability]&&!op.mon.defOff)?` <span title="${op.mon.ability}: giảm sát thương nhận vào — đã trừ trong ô bên dưới" style="color:#7db8ff">🛡</span>`:'';
+      html+=`<th class="mtx-h" style="text-align:center">${spriteImg(op.o.species)}<br>${nm}${arrow}${shield}</th>`;
     });
     html+='</tr></thead><tbody>';
     if(!moves.length){
@@ -1857,7 +1931,8 @@ function renderMyToOpp(){
     moves.forEach(mv=>{
       // Last Respects: cho chỉnh số con đã ngất ngay tại đây, khỏi phải quay về tab kia
       const fs=(MOVES[mv]&&MOVES[mv].lastResp)?faintSel('me'):'';
-      html+=`<tr><td class="mtx-mv" style="font-weight:600;border-top:1px solid var(--line)">${mv}${fs}</td>`;
+      const pr=(MOVES[mv]&&MOVES[mv].pri>0)?`<span title="Chiêu ưu tiên +${MOVES[mv].pri}: ra đòn trước bất kể tốc độ" style="color:var(--acc2);margin-right:3px">⚡</span>`:'';
+      html+=`<tr><td class="mtx-mv" style="font-weight:600;border-top:1px solid var(--line)">${pr}${mv}${fs}</td>`;
       opps.forEach(op=>{
         // mỗi cặp có buff riêng: công của con mình (rìa trái) vs thủ của con đối thủ (rìa phải)
         const f2=readField('opp','set:'+i,'opp:'+OPP.indexOf(op.o));
@@ -1879,8 +1954,72 @@ function renderMyToOpp(){
   box.querySelectorAll('.faint-sel').forEach(s=>s.onchange=()=>{
     FAINT[s.dataset.side]=+s.value;calcRefresh();});
 }
+/* PHÂN TÍCH — "Mối đe doạ lượt này": với các con MÌNH đã tích ra sân, dò xem đối thủ nào
+   OHKO / gần OHKO được con nào của mình, bằng chiêu gì. Nhìn 1 cái biết nên Protect / rút ai. */
+function renderAnalyze(){
+  const box=$('#calcAnalyze');if(!box)return;
+  if(!OPP.length){box.innerHTML='<div class="mu-place">Chưa có đối thủ. Thêm ở panel <b>Đối thủ</b> bên phải.</div>';return;}
+  const pool=PICK.slice();
+  if(!pool.length){box.innerHTML='<div class="mu-place">Chưa chọn con nào <b>ra trận</b>. Bấm vào Pokémon trong panel <b>Đội của tôi</b> (bên trái) để chọn.</div>';return;}
+  const weather=FIELD.weather;
+  const opps=OPP.map((o,j)=>{const cfg=oppCfgOf(o);return {o,j,cfg,mon:buildMon(cfg,weather)};});
+  // 3 mức: 3=OHKO chắc, 2=OHKO có thể (roll cao), 1=gần OHKO (≥80%)
+  const LV={3:{c:'#ff6b6b',bg:'#2a1414',tag:'🔴'},2:{c:'#ff8a5b',bg:'#2a1a14',tag:'🟠'},1:{c:'#ffc245',bg:'#2a2410',tag:'🟡'}};
+  let danger=0;
+  const cards=pool.map(i=>{
+    const set=MYTEAM[i];if(!set||!DEX[set.species])return '';
+    const myMon=buildMon(set,weather);if(!myMon)return '';
+    const nm=myMon.mega?myMon.species:set.species;
+    const threats=[];
+    opps.forEach(op=>{
+      if(!op.mon)return;
+      const field=readField('me','opp:'+op.j,'set:'+i); // đối thủ đánh → mình thủ (màn chắn bên mình)
+      let best=null;
+      for(const mv of dmgMovesFor(op.cfg)){
+        const r=calcDamage(op.mon,myMon,mv,field);
+        if(r&&r.eff!==0&&(!best||r.pctMax>best.pctMax))best=r;
+      }
+      if(!best)return;
+      const lvl=best.pctMin>=100?3:best.pctMax>=100?2:best.pctMax>=80?1:0;
+      if(lvl>0)threats.push({op,best,k:koLabel(best),lvl});
+    });
+    threats.sort((a,b)=>b.lvl-a.lvl||b.best.pctMax-a.best.pctMax);
+    const worst=threats.length?threats[0].lvl:0;
+    if(worst>=2)danger++;
+    const head=worst>=2?`<span class="pill" style="background:#3a1414;color:#ff9d9d">${LV[worst].tag} Có thể bị hạ → Protect / rút</span>`
+             :worst===1?`<span class="pill" style="background:#2a2410;color:var(--acc2)">🟡 Sát nút — cân nhắc Protect</span>`
+             :`<span class="pill" style="background:#12312e;color:#57d977">🟢 An toàn lượt này</span>`;
+    const rows=threats.length?threats.map(t=>{
+      const l=LV[t.lvl];const od=t.op.mon.mega?t.op.mon.species:(t.op.o.megaForm||t.op.o.species);
+      return `<tr style="background:${l.bg}">
+        <td style="padding:5px 8px">${spriteImg(od)}<b style="color:${l.c}">${od}</b></td>
+        <td style="padding:5px 8px">${t.best.move} ${effBadge(t.best.eff)}</td>
+        <td class="num" style="padding:5px 8px;color:${l.c};font-weight:700">${t.best.pctMin.toFixed(0)}–${t.best.pctMax.toFixed(0)}%</td>
+        <td style="padding:5px 8px;color:${l.c};font-weight:700">${t.k.t}</td></tr>`;
+    }).join('')
+      :`<tr><td colspan="4" class="stat-mini" style="padding:8px;text-align:center;color:#57d977">Không con nào của đối thủ hạ được lượt này.</td></tr>`;
+    return `<div class="panel" style="margin-bottom:10px;padding:0;overflow:hidden;border-left:3px solid ${worst?LV[worst].c:'#2a5a44'}">
+      <div style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--panel2);border-bottom:1px solid var(--line);flex-wrap:wrap">
+        ${spriteImg(nm)}<b>${nm}</b>${myMon.mega?'<span class="pill" style="background:#2a2410;color:var(--acc2)">MEGA</span>':''}
+        <span class="stat-mini">HP ${myMon.S.hp}</span>
+        ${(DEF_ABIL_FX[myMon.ability]&&!myMon.defOff)?`<span class="pill" style="background:#12314a;color:#7db8ff" title="Đã trừ giảm sát thương ${DEF_ABIL_FX[myMon.ability].full?'(giả định full HP)':''}">🛡 ${myMon.ability}</span>`:''}
+        <span style="margin-left:auto">${head}</span>
+      </div>
+      <div class="scroll"><table style="width:100%;border-collapse:collapse;font-size:12.5px">
+        <thead><tr style="color:var(--muted);font-size:11px">
+          <th style="text-align:left;padding:5px 8px">Đối thủ đe doạ</th><th style="text-align:left;padding:5px 8px">Chiêu</th>
+          <th class="num" style="padding:5px 8px">% máu</th><th style="text-align:left;padding:5px 8px">Kết quả</th></tr></thead>
+        <tbody>${rows}</tbody></table></div>
+    </div>`;
+  }).join('');
+  const banner=danger
+    ? `<div class="warn-box" style="margin-bottom:10px">⚠ <b>${danger}</b> con đang ra sân có thể bị OHKO lượt này — cân nhắc Protect hoặc rút con nguy hiểm nhất.</div>`
+    : `<div class="warn-box" style="margin-bottom:10px;border-color:#2a5a44;background:#0f2018;color:#8fd9a0">✓ Không con nào ra sân bị OHKO lượt này.</div>`;
+  box.innerHTML=`<div class="hint" style="margin-bottom:8px">Dựa trên con <b>đã tích ra trận</b> (bên trái) &amp; spread hay gặp của đối thủ. Đã tính thời tiết, màn chắn bên mình, buff/nerf trên card. Bật/tắt Crit ở thanh trên để xem tình huống xấu nhất.</div>${banner}${cards}`;
+}
 $('#ctabOpp').addEventListener('change',()=>switchCalcMode('opp'));
 $('#ctabMe').addEventListener('change',()=>switchCalcMode('me'));
+$('#ctabAna').addEventListener('change',()=>switchCalcMode('analyze'));
 function wireCalcSearch(side){
   const inp=$('#'+side+'Search'),box=$('#'+side+'Sug');
   function show(typing){
@@ -1923,8 +2062,9 @@ function guessSpread(species){
 function resolvePick(val){ // -> cfg {species,nature,ability,item,sp,moves?}
   if(!val)val='dex:Great Tusk';
   if(val.startsWith('set:')&&MYTEAM[+val.slice(4)])return clone(MYTEAM[+val.slice(4)]);
-  if(val.startsWith('opp:')&&OPP[+val.slice(4)]){const o=OPP[+val.slice(4)];const g=guessSpread(o.species);const sp=o.megaForm||o.species;
-    return {species:sp,nature:g.nature,ability:(DEX[sp]||DEX[o.species]).ab[0],item:o.item||'Không',sp:g.sp,moves:o.moves||[],guessed:1,brn:!!o.brn,par:!!o.par};}
+  if(val.startsWith('opp:')&&OPP[+val.slice(4)]){const o=OPP[+val.slice(4)];const sp=o.megaForm||o.species;
+    // dùng chung oppCfgOf với ma trận/phân tích: ability (ưu tiên phòng thủ), moves, defOff nhất quán
+    return Object.assign(oppCfgOf(o,sp),{guessed:1});}
   let n=val.slice(4);if(!DEX[n])n='Great Tusk';
   const g=guessSpread(n);
   return {species:n,nature:g.nature,ability:DEX[n].ab[0],item:'Không',sp:g.sp,guessed:1};
@@ -1948,7 +2088,7 @@ function counterHint(cfg){
   if(!b)return '';
   const dd=b.dealt>=180?'180+':Math.round(b.dealt),rv=b.recv>=180?'180+':Math.round(b.recv);
   const scope=b.fromPick?'nhóm đã chọn ra trận':'cả đội';
-  return `<div class="stat-mini" style="margin-top:6px;padding:6px 9px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--ink)">💡 Gợi ý chọn <b style="color:var(--good)">${b.name}</b> (${scope}) — khắc chế ${cfg.species} tốt nhất <span style="color:var(--muted)">(⚔${dd}% / 🛡${rv}%${b.faster?' · ▲ nhanh hơn':''})</span></div>`;
+  return `<div class="stat-mini" style="margin-top:6px;padding:6px 9px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;color:var(--ink)">💡 Gợi ý chọn <b style="color:var(--good)">${b.name}</b> (${scope}) — khắc chế ${cfg.species} tốt nhất <span style="color:var(--muted)">(⚔${dd}% / 🛡${rv}%${b.faster?(FIELD.tr?' · ▲ đi trước (TR)':' · ▲ nhanh hơn'):''})</span></div>`;
 }
 
 const FORME_PAIRS=[
@@ -2021,21 +2161,23 @@ function runCalc(){
   const field=readField();
   const A=buildMon(acfg,field.weather),D=buildMon(dcfg,field.weather);if(!A||!D)return;
   (function(){
-    const as=A.S.speEff, ds=D.S.speEff;
-    const faster=as>ds, eqv=as===ds;
+    // Tốc độ hiệu dụng (buff + Tailwind); ai đi trước còn phụ thuộc Trick Room — dùng chung effSpeed/movesFirst
+    const as=effSpeed(A.S.speEff,av), ds=effSpeed(D.S.speEff,dv);
+    const eqv=as===ds, faster=!eqv&&movesFirst(as,ds);
     const nmA=A.mega?A.species:A.baseSpecies, nmD=D.species;
     const cA=faster?'var(--good)':eqv?'var(--ink)':'var(--bad)';
     const cD=(!faster&&!eqv)?'var(--good)':eqv?'var(--ink)':'var(--bad)';
-    const sign=eqv?'=':faster?'>':'<';
+    const sign=eqv?'=':as>ds?'>':'<';
     const diff=eqv?'':` <span class="stat-mini">(chênh ${Math.abs(as-ds)})</span>`;
     const scarfA=A.item==='Choice Scarf'?' <span class="stat-mini">⚡Scarf</span>':'';
     const scarfD=D.item==='Choice Scarf'?' <span class="stat-mini">⚡Scarf</span>':'';
-    const verdict=eqv?'bằng tốc độ (50/50 ai đánh trước)':faster?'bên tấn công đánh trước':'bên phòng thủ đánh trước';
+    const trTag=FIELD.tr?' <span class="stat-mini" style="color:var(--acc2)">🔄 TR</span>':'';
+    const verdict=(eqv?'bằng tốc độ (50/50 ai đánh trước)':faster?'bên tấn công đánh trước':'bên phòng thủ đánh trước')+(FIELD.tr?' (Trick Room)':'');
     $('#spdCompare').innerHTML=`<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px 12px;font-size:13px">
       <span style="font-weight:700;color:${cA}">${nmA} · Spe ${as}${scarfA}</span>
       <span style="font-family:var(--mono);font-weight:800;font-size:15px;color:var(--acc)">${sign}</span>
       <span style="font-weight:700;color:${cD}">${nmD} · Spe ${ds}${scarfD}</span>
-      ${diff}
+      ${diff}${trTag}
       <span class="stat-mini" style="margin-left:auto">→ ${verdict}</span>
     </div>`;
   })();
@@ -2077,12 +2219,15 @@ function runCalc(){
   }
   if(pinMoves)truncNote=` · <span class="stat-mini" style="color:#57d977">★ ${pinMoves.size} chiêu hay dùng nhất ghim đầu bảng.</span>`+truncNote;
 
-  const spdCmp=A.S.speEff>D.S.speEff?`<span class="pill" style="background:#12312e;color:#57d977">Tôi nhanh hơn (+${A.S.speEff-D.S.speEff})</span>`:A.S.speEff<D.S.speEff?`<span class="pill" style="background:#3a1a1a;color:#ff9d9d">Chậm hơn (−${D.S.speEff-A.S.speEff})</span>`:`<span class="pill" style="background:#242a35;color:#b9c2d0">Bằng speed</span>`;
+  const asE=effSpeed(A.S.speEff,av), dsE=effSpeed(D.S.speEff,dv);
+  const spdCmp=asE===dsE?`<span class="pill" style="background:#242a35;color:#b9c2d0">Bằng speed</span>`:movesFirst(asE,dsE)?`<span class="pill" style="background:#12312e;color:#57d977">Đánh trước${FIELD.tr?' (TR)':''} (chênh ${Math.abs(asE-dsE)})</span>`:`<span class="pill" style="background:#3a1a1a;color:#ff9d9d">Đánh sau${FIELD.tr?' (TR)':''} (chênh ${Math.abs(asE-dsE)})</span>`;
 
   $('#calcBody').innerHTML=results.map(r=>{const k=koLabel(r);const w=Math.min(100,r.pctMax);
     const bc=r.pctMin>=100?'#ff6b6b':r.pctMax>=100?'#ffb454':r.pctMax>=50?'#f6c945':'#4dd0c8';
-    const pin=pinMoves&&pinMoves.has(r._m)?' <span class="est" style="background:#12312e;color:#57d977;border-color:#2a5a44" title="1 trong 4 chiêu hay dùng nhất theo dữ liệu">★ hay dùng</span>':'';
-    return `<tr${pin?' style="background:rgba(87,217,119,.05)"':''}><td><b>${r.move}</b>${pin}${r.eff!==1?` <span class="stat-mini">×${r.eff}</span>`:''}${field.spread&&MOVES[r.move]&&MOVES[r.move].spread?(field.single?' <span class="stat-mini" style="color:var(--good)">lan · 1 mục tiêu</span>':' <span class="stat-mini" style="color:var(--acc2)">lan ×0.75</span>'):''}${MOVES[r.move]&&MOVES[r.move].lastResp?faintSel(atkSide):''}</td><td>${chip(r.type,1)}</td>
+    const pin=pinMoves&&pinMoves.has(r._m)?' <span class="est" style="background:#12312e;color:#57d977;border-color:#2a5a44" title="1 trong 4 chiêu hay dùng nhất theo dữ liệu">★</span>':'';
+    const pr=MOVES[r.move]&&MOVES[r.move].pri>0?` <span class="est" style="background:#2a2410;color:var(--acc2);border-color:#5a4a2a" title="Chiêu ưu tiên: ra đòn trước bất kể tốc độ (Trick Room không đảo được ưu tiên)">⚡ +${MOVES[r.move].pri}</span>`:'';
+    const da=r.defAbil?` <span class="est" style="background:#12314a;color:#7db8ff;border-color:#204a6a" title="Ability bên thủ giảm sát thương — đã trừ vào % bên dưới">🛡 ${r.defAbil}</span>`:'';
+    return `<tr${pin?' style="background:rgba(87,217,119,.05)"':''}><td><b>${r.move}</b>${pr}${pin}${da}${field.spread&&MOVES[r.move]&&MOVES[r.move].spread?(field.single?' <span class="stat-mini" style="color:var(--good)">lan · 1 mục tiêu</span>':' <span class="stat-mini" style="color:var(--acc2)">lan ×0.75</span>'):''}${MOVES[r.move]&&MOVES[r.move].lastResp?faintSel(atkSide):''}</td><td>${chip(r.type,1)}</td>
       <td><span class="cat ${r.cat}">${r.cat==='phys'?'VL':'ĐB'}</span></td><td class="num">${r.bp}</td>
       <td class="num">${r.min}–${r.max}</td><td class="num">${r.pctMin.toFixed(1)}–${r.pctMax.toFixed(1)}%</td>
       <td><div class="bar"><span style="width:${w}%;background:${bc}"></span><em>${r.pctMax.toFixed(0)}%</em></div></td>
@@ -2096,7 +2241,7 @@ function runCalc(){
   $('#calcNote').innerHTML=`${spdCmp} &nbsp; ${best?`Mạnh nhất: <b>${best.move}</b> → ${koLabel(best).t} (${best.pctMin.toFixed(0)}–${best.pctMax.toFixed(0)}%).`:''}${truncNote} ${(statusMoves.length&&!fromLearnset)?`<span class="muted">· Chiêu status trong set: ${statusMoves.join(', ')}</span>`:''}<br><span class="tiny muted">Đã áp: STAB${A.fx.adapt?' (Adaptability ×2)':''}, hệ, thời tiết, crit, bỏng, item, ${A.fx.atkX2?'Huge Power, ':''}${field.aura?'Fairy Aura, ':''}${field.hh?'Helping Hand, ':''}stage${scNote}${field.spread?(field.single?', đấu đôi (Single Target — chiêu lan KHÔNG giảm)':', đấu đôi (chiêu lan ×0.75)'):''}.</span>`;
 }
 $('#swapBtn').onclick=()=>{const a=$('#atkPick').value,d=$('#defPick').value;setPick('atk',d);setPick('def',a);};
-function calcRefresh(){runCalc();if(CALC_MODE==='me')renderMyToOpp();}
+function calcRefresh(){runCalc();if(CALC_MODE==='me')renderMyToOpp();if(CALC_MODE==='analyze')renderAnalyze();}
 // điều kiện sân còn lại (thanh trên cùng lo thời tiết/địa hình/màn chắn/TR; buff & BRN nằm trên card 2 rìa)
 ['crit','hh','single','aura','auraDark','auraBreak','rSword','rBeads','rVessel','rTablets'].forEach(id=>$('#'+id).addEventListener('change',calcRefresh));
 wireCalcSearch('atk');wireCalcSearch('def');
