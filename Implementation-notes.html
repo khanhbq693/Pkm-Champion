@@ -48,6 +48,71 @@
 
 <div class="wrap">
 
+<h2>Đợt 22 — Số nhát biến thiên (Skill Link / Loaded Dice) + chiêu đổi hệ theo sân</h2>
+<div class="card bad">
+  <h3>Lỗi gốc: chiêu 2–5 nhát bị chốt cứng <code>hits:5</code> — tức <b>mọi con đều được tính như có Skill Link</b></h3>
+  <p>Dữ liệu thô AUTOMOVES ghi <code>"Bullet Seed":{...,"hits":5}</code> (tương tự Icicle Spear, Rock Blast,
+  Pin Missile, Bone Rush, Arm Thrust, Tail Slap…), còn <code>calcDamage</code> chỉ đọc <code>m.hits||1</code>.
+  Thực tế nhóm này là 2(35%)/3(35%)/4(15%)/5(15%) — <b>kỳ vọng 3.1</b>. Engine đang thổi phồng <b>~61%</b>.
+  Trớ trêu: <code>Skill Link</code> hoàn toàn <b>không được engine tham chiếu</b> (chỉ nằm trong DEX của
+  Cloyster/Ambipom/Toucannon/Heracross-Mega), nên nó "đúng" chỉ do <i>ăn may</i>, còn con không có Skill Link
+  thì sai. <code>Loaded Dice</code> thì là <code>{}</code> rỗng — vô tác dụng.</p>
+</div>
+<div class="card good">
+  <h3>Cách sửa: số nhát trở thành <b>phân phối</b>, không phải hằng số</h3>
+  <p><code>hitDistOf(m,moveName,atk)</code> trả <code>Map(số nhát → xác suất)</code>:</p>
+  <table>
+    <thead><tr><th>Trường hợp</th><th>Phân phối</th><th>Kỳ vọng</th></tr></thead>
+    <tbody>
+    <tr><td>Nhóm 2–5 (<code>MV_VARHIT</code>), không item/ability</td><td>2:35% · 3:35% · 4:15% · 5:15%</td><td>3.1</td></tr>
+    <tr><td>+ <b>Loaded Dice</b></td><td>4:50% · 5:50%</td><td>4.5</td></tr>
+    <tr><td>+ <b>Skill Link</b> (đè Loaded Dice)</td><td>5:100%</td><td>5</td></tr>
+    <tr><td><b>Population Bomb</b> (cờ <code>popBomb</code>)</td><td>hình học: P(k)=0.9<sup>k</sup>×0.1, P(10)=0.9<sup>10</sup></td><td>≈6.5</td></tr>
+    <tr><td>Population Bomb + Loaded Dice / Skill Link</td><td>10:100%</td><td>10</td></tr>
+    </tbody>
+  </table>
+  <p><code>sumDistVar(hitRolls,hitDist)</code> thay <code>sumDist</code>: vẫn nhân chập roll từng nhát, nhưng
+  <b>tới mốc n thì góp phân phối hiện tại vào kết quả với trọng số P(đúng n nhát)</b> — một lượt quét, không
+  phải tính lại cho từng n. <code>sumDist</code> cũ thành code chết → đã xoá.</p>
+</div>
+<div class="card warn">
+  <h3>Đánh đổi: <code>min</code>/<code>max</code> nay là cực trị THẬT nên dải % rộng hẳn ra</h3>
+  <p><code>min</code> = ít nhát nhất × roll thấp nhất; <code>max</code> = nhiều nhát nhất × roll cao nhất.
+  Bullet Seed vì thế hiện <code>×2–5</code> với dải % rộng (VD 24–95%) thay vì một con số gọn nhưng sai.
+  <b>Lý do giữ cực trị thật:</b> <code>koLabel</code> phán "OHKO chắc"/"2HKO chắc" dựa trên min/max — muốn chữ
+  "chắc" còn nghĩa <i>bảo đảm</i> thì min/max buộc phải là cực trị. Con số đáng đọc là <code>koPct</code>,
+  vốn lấy từ <code>dist</code> đã trộn <b>cả</b> xác suất số nhát lẫn roll.</p>
+  <p><code>rolls[]</code> (16 mức) nay dựng ở số nhát <b>hay gặp nhất</b> và chỉ để hiển thị —
+  <b>không</b> còn giữ bất biến <code>rolls[0]===min</code>. Hiện chưa nơi nào đọc <code>rolls</code> ngoài
+  chính <code>calcDamage</code>, nhưng ai dùng lại thì phải nhớ điều này.</p>
+  <p class="muted"><b>Xấp xỉ đã chấp nhận:</b> Population Bomb bỏ nhánh k=0 (trượt sạch) rồi chuẩn hoá lại,
+  vì app <b>không</b> mô hình hoá độ chính xác ở bất kỳ chiêu nào khác (Focus Blast 70% cũng đang coi như trúng).
+  Nếu tính cả k=0 thì riêng Population Bomb bị phạt acc còn cả bảng thì không — lệch chuẩn.</p>
+</div>
+<div class="card good">
+  <h3>Chiêu đổi hệ: Terrain Pulse &amp; Revelation Dance (Weather Ball vốn đã đúng)</h3>
+  <p><code>Terrain Pulse</code> (cờ <code>terraPulse</code>): đổi hệ theo địa hình Điện/Cỏ/Siêu Linh/Tiên
+  <b>và BP 50→100</b>, chỉ khi người dùng <b>đứng đất</b>. Sau đó vẫn ăn tiếp ×1.3 của địa hình — đúng luật.</p>
+  <p><code>Revelation Dance</code> (cờ <code>revDance</code>): lấy <b>hệ thứ nhất của người dùng</b>
+  (<code>atk.types[0]</code>, dạng Oricorio) — <b>theo NGƯỜI DÙNG chứ không theo sân</b>, cùng nhóm cơ chế với
+  Ivy Cudgel. Trước đây cả hai kẹt ở hệ Normal, kéo theo lỗi kép: con có <b>Pixilate</b> biến chúng thành Fairy ×1.2.</p>
+  <p>Gom luật lơ lửng thành <code>isGrounded(mon)</code> (Bay/Levitate/Air Balloon = lơ lửng, Iron Ball kéo xuống)
+  và cho khối địa hình dùng lại — trước đó luật này nằm trong biến <code>grd</code> cục bộ, thêm Terrain Pulse
+  mà chép lại là chắc chắn phân kỳ.</p>
+</div>
+<div class="card">
+  <h3>Vá dữ liệu kèm theo — và <b>một chỗ cố ý KHÔNG đụng</b></h3>
+  <ul>
+    <li><b>Scale Shot</b>: AUTOMOVES <code>hits:5</code> vs MOVES_DEFAULT <code>hits:3</code> (MOVES_DEFAULT thắng) —
+      cùng là chiêu 2–5 nhát mà lệch nhau. Nay vào <code>MV_VARHIT</code> nên <code>m.hits</code> bị bỏ qua, hết mâu thuẫn.</li>
+    <li><b>Triple Kick</b>: thêm cờ <code>esc</code> → 10/20/30 thay vì 10×3=30.</li>
+    <li><b>Triple Axel — KHÔNG sửa, cần xác minh:</b> AUTOMOVES ghi <code>bp:20</code> (khớp bản gốc 20/40/60)
+      nhưng MOVES_DEFAULT đè <code>bp:40</code>, cộng <code>esc</code> ra <b>40/80/120</b> — đúng gấp đôi.
+      Cái note cũ <code>'BP tăng dần 40/80/120'</code> vốn đã ghi sai, Đợt 21 implement trung thành theo note đó.
+      Không tự hạ xuống 20 vì <b>không xác minh được số liệu Champions</b>, mà đoán sai thì halve nhầm damage.</li>
+  </ul>
+</div>
+
 <h2>Đợt 21 — Vá 12 sai số engine, làm tươi usage data, bảng phủ hệ của đội</h2>
 <div class="card">
   <h3>Phạm vi lấy từ <code>De-xuat-nang-cap.html</code></h3>
