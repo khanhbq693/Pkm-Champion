@@ -1097,6 +1097,11 @@ Object.keys(MEGA_STONE).forEach(st=>{
   const list=MEGA[base]||(MEGA[base]=[]);
   if(!list.some(x=>x.stone===st))list.push({stone:st,to});
 });
+/* Ngược của MEGA: dạng Mega -> đá phải cầm để lên được dạng đó.
+   Dùng khi Mega bằng NÚT toggle: con đã Mega thì ô đồ phải là đá Mega, không thể
+   đồng thời là Choice Specs/Life Orb/Focus Sash — nếu không damage bị cộng khống. */
+const MEGA_TO_STONE={};
+Object.keys(MEGA).forEach(b=>MEGA[b].forEach(m=>{if(!MEGA_TO_STONE[m.to])MEGA_TO_STONE[m.to]=m.stone;}));
 
 /* =========================================================================
    ĐỘI MẶC ĐỊNH (đọc từ ảnh của bạn)
@@ -1198,15 +1203,27 @@ const stageMult=s=>s>=0?(2+s)/2:2/(2-s);
 function buildMon(cfg,weather){
   let species=cfg.species; let d=DEX[species]; if(!d)return null;
   let ability=cfg.ability||(d.ab?d.ab[0]:''); let mega=false;
+  let item=cfg.item||'Không';
   // Mega qua NÚT toggle (megaForm chỉ thẳng dạng) — dùng cho cả đội tôi lẫn đối thủ, không cần đá.
   // Guard megaFormesOf: megaForm phải là dạng Mega CỦA loài này (tránh sót khi đổi loài trong set).
   if(cfg.megaForm && DEX[cfg.megaForm] && megaFormesOf(species).includes(cfg.megaForm)){
-    d=DEX[cfg.megaForm];species=cfg.megaForm;ability=d.ab[0];mega=true;
+    d=DEX[cfg.megaForm];species=cfg.megaForm;mega=true;
+  } else if(d.mega||/ \(Mega( [XY])?\)$/.test(species)){
+    // cfg.species ĐÃ là dạng Mega: đường đi của đối thủ (oppCfgOf gộp megaForm vào species)
+    // và của ô tra nhanh "dex:...". Trước đây nhánh này không tồn tại nên mon.mega=false,
+    // kéo theo tên/sprite/Knock Off/badge MEGA đều đọc nhầm là dạng gốc.
+    // Kiểm cả theo TÊN vì DEX lưu trong localStorage từ bản cũ có thể thiếu cờ `mega`.
+    mega=true;
   } else {
     const mg=MEGA[species]; // hoặc Mega qua cầm đá (đội tôi cầm stone)
-    if(mg){const hit=mg.find(m=>m.stone===cfg.item&&DEX[m.to]);
-      if(hit){d=DEX[hit.to];species=hit.to;ability=d.ab[0];mega=true;}}
+    if(mg){const hit=mg.find(m=>m.stone===item&&DEX[m.to]);
+      if(hit){d=DEX[hit.to];species=hit.to;mega=true;}}
   }
+  // Đã Mega thì ability là ability của DẠNG MEGA (Delphox Blaze → Mega Delphox Levitate).
+  // Chỉ giữ ability cfg khi nó thực sự hợp lệ với dạng đang đứng.
+  if(mega&&!(d.ab||[]).includes(ability))ability=d.ab[0];
+  // …và ô đồ phải là đá Mega tương ứng (xem MEGA_TO_STONE).
+  if(mega)item=MEGA_TO_STONE[species]||((ITEMS[item]||{}).mega?item:'Không');
   const sp=cfg.sp||{};
   const S={
     hp:calcStat(d.s[0],sp.hp,cfg.nature,'hp'),
@@ -1217,13 +1234,13 @@ function buildMon(cfg,weather){
     spe:calcStat(d.s[5],sp.spe,cfg.nature,'spe')
   };
   // speed từ item + ability thời tiết
-  let spe=S.spe; const it=ITEMS[cfg.item]||{};
+  let spe=S.spe; const it=ITEMS[item]||{};
   if(it.speMult)spe=Math.floor(spe*it.speMult);
   const fx=ABIL_FX[ability]||{};
   if(fx.spdWx2 && fx.spdWx2===weather)spe=spe*2;
   if(cfg.par)spe=Math.floor(spe/2); // tê liệt: tốc độ ½
   S.speEff=spe;
-  const mon={species,baseSpecies:cfg.species,types:d.t,base:d.s,w:d.w||50,ability,item:cfg.item||'Không',nature:cfg.nature,S,est:d.est,mega,fx,brn:!!cfg.brn,par:!!cfg.par,defOff:!!cfg.defOff,
+  const mon={species,baseSpecies:cfg.species,types:d.t,base:d.s,w:d.w||50,ability,item,nature:cfg.nature,S,est:d.est,mega,fx,brn:!!cfg.brn,par:!!cfg.par,defOff:!!cfg.defOff,
     hpPct:(cfg.hpPct===undefined?100:cfg.hpPct)}; // chỉ dùng cho chiêu BP-theo-máu
   // Stance Change: khi tấn công dùng chỉ số công của dạng Blade
   if(ability==='Stance Change' && !/-Blade$/.test(species)){
@@ -1542,7 +1559,7 @@ function renderTeam(){
     h+=`<div class="tcard" data-i="${i}">
       <div class="between"><span class="nm">${set.species}${DEX[set.species].est?' <span class="est">?</span>':''}</span><span class="stat-mini">${set.nature}</span></div>
       <div style="margin:5px 0">${typeChips(mon.types,1)}${megaTag}</div>
-      <div class="stat-mini">${mon.ability} · ${set.item}</div>
+      <div class="stat-mini">${mon.ability} · ${mon.item}</div>
       <div class="statline">${SPKEYS.map((k,j)=>`<div class="statbox"><span>${SPLBL[j]}</span><b>${mon.S[k]}</b></div>`).join('')}</div>
       <div class="mv" style="margin-top:8px">${set.moves.filter(Boolean).join(' · ')||'<span class="muted">chưa có chiêu</span>'}</div>
     </div>`;
@@ -1711,7 +1728,7 @@ function renderMyPick(){
         <b data-act="pick" data-i="${i}" title="Bấm để chọn/bỏ ra trận">${mon.mega?mon.species:s.species}</b>
         ${mon.mega?'<span class="pill mg">MEGA</span>':''}
         ${sel?'<span class="pill on-field">RA TRẬN</span>':''}
-        ${s.item&&s.item!=='Không'?`<span class="stat-mini">@ ${s.item}</span>`:''}</div>
+        ${mon.item&&mon.item!=='Không'?`<span class="stat-mini">@ ${mon.item}</span>`:''}</div>
       <div class="oc-tgls">
         ${megaBtns}
         <button class="oc-tgl brn${s.brn?' on':''}" data-act="brn" data-kind="me" data-i="${i}">🔥 BRN</button>
@@ -1719,7 +1736,7 @@ function renderMyPick(){
         ${DEF_ABIL_FX[mon.ability]?`<button class="oc-tgl shield${s.defOff?'':' on'}" data-act="defoff" data-kind="me" data-i="${i}" title="${mon.ability}: ${DEF_ABIL_FX[mon.ability].full?'chỉ khi full HP. ':''}Bấm để tắt khi con này không còn đủ điều kiện kích hoạt.">🛡 ${mon.ability}${s.defOff?' (tắt)':''}</button>`:''}
         <button class="oc-tgl" data-act="edit" data-kind="me" data-i="${i}">✎ Sửa set</button>
       </div>
-      <div>${typeChips(DEX[mon.species]?DEX[mon.species].t:DEX[s.species].t,1)} <span class="stat-mini" style="margin-left:6px">● ${s.ability||''}</span></div>
+      <div>${typeChips(mon.types,1)} <span class="stat-mini" style="margin-left:6px">● ${mon.ability||''}</span></div>
       ${statGrid(disp,s.sp,nat,st,i,'me')}
       ${moves.length?`<div class="oc-tgls" style="margin:7px 0 0">${moves.map(m=>`<span class="pill mv">${m}</span>`).join('')}</div>`:''}
     </div>`;
@@ -1735,7 +1752,7 @@ function renderMyPick(){
       renderMyPick();calcRefresh();return;
     }
     if(act==='edit'){editSet(i);return;}
-    if(act==='mega'){s.megaForm=(s.megaForm===el.dataset.to)?null:el.dataset.to;}
+    if(act==='mega'){s.megaForm=(s.megaForm===el.dataset.to)?null:el.dataset.to;reloadCalcPicks();}
     if(act==='brn'){s.brn=!s.brn;}
     if(act==='par'){s.par=!s.par;}
     if(act==='defoff'){s.defOff=!s.defOff;}
@@ -1771,7 +1788,8 @@ function oppDisplay(o){
   const disp={};
   SPKEYS.forEach(k=>{let v=base[k];const s=st[k]||0;if(s&&k!=='hp')v=Math.floor(v*stageMul(s));
     if(k==='atk'&&o.brn)v=Math.floor(v/2);if(k==='spe'&&o.par)v=Math.floor(v/2);disp[k]=v;});
-  return {eff,g,mon,disp,ability:cfg.ability};
+  // ability/item lấy từ mon (đã qua buildMon) chứ không từ cfg: Mega đổi cả hai.
+  return {eff,g,mon,disp,ability:mon.ability,item:mon.item};
 }
 let _megaFormsCache=null;
 function megaFormesOf(base){
@@ -1791,7 +1809,7 @@ function renderOpp(){
     // (lấy từ usage data) làm card cao gấp đôi, đẩy con thứ 3 khỏi tầm nhìn của rail.
     const osel=OPICK.includes(i);
     return `<div class="opp-card${osel?' sel':''}" data-i="${i}">
-      <div class="oc-head">${spriteImg(d.eff)}<b data-act="pick" data-i="${i}" title="Bấm chọn/bỏ ra trận (lọc tab Phân tích)">${d.eff}</b>${osel?'<span class="pill on-field">RA TRẬN</span>':''}${o.item&&o.item!=='Không'?`<span class="stat-mini">@ ${o.item}</span>`:''}<span class="oc-x" data-act="del" data-i="${i}" title="Xoá">✕</span></div>
+      <div class="oc-head">${spriteImg(d.eff)}<b data-act="pick" data-i="${i}" title="Bấm chọn/bỏ ra trận (lọc tab Phân tích)">${d.eff}</b>${osel?'<span class="pill on-field">RA TRẬN</span>':''}${d.mon.mega?'<span class="pill mg">MEGA</span>':''}${d.item&&d.item!=='Không'?`<span class="stat-mini">@ ${d.item}</span>`:''}<span class="oc-x" data-act="del" data-i="${i}" title="Xoá">✕</span></div>
       <div class="oc-tgls">${megaBtns}<button class="oc-tgl brn${o.brn?' on':''}" data-act="brn" data-i="${i}">🔥 BRN</button><button class="oc-tgl par${o.par?' on':''}" data-act="par" data-i="${i}">⚡ PAR</button>${DEF_ABIL_FX[d.ability]?`<button class="oc-tgl shield${o.defOff?'':' on'}" data-act="defoff" data-i="${i}" title="${d.ability}: ${DEF_ABIL_FX[d.ability].full?'chỉ khi full HP. ':''}Bấm để tắt nếu đối thủ không dùng ability này hoặc không còn đủ điều kiện.">🛡 ${d.ability}${o.defOff?' (tắt)':''}</button>`:''}<button class="oc-tgl" data-act="edit" data-i="${i}">✎ Sửa chiêu/đồ</button></div>
       <div>${typeChips(DEX[d.eff].t,1)} <span class="stat-mini" style="margin-left:6px">● ${d.ability}</span></div>
       ${statGrid(d.disp,d.g.sp,nat,o.stages,i,'opp')}
@@ -1803,7 +1821,7 @@ function renderOpp(){
     if(act==='del'){OPP.splice(i,1);OPICK=OPICK.filter(x=>x!==i).map(x=>x>i?x-1:x);saveOpp();renderOpp();syncPicks();calcRefresh();renderSpeedTier();return;}
     if(act==='edit'){editOpp(i);return;}
     if(act==='stg'){bumpStage(o,el.dataset.k,+el.dataset.d,saveOpp);return;}
-    if(act==='mega'){o.megaForm=(o.megaForm===el.dataset.to)?null:el.dataset.to;}
+    if(act==='mega'){o.megaForm=(o.megaForm===el.dataset.to)?null:el.dataset.to;reloadCalcPicks();}
     if(act==='brn'){o.brn=!o.brn;}
     if(act==='par'){o.par=!o.par;}
     if(act==='defoff'){o.defOff=!o.defOff;}
@@ -2029,14 +2047,15 @@ function renderSpeedTier(){
      Vẫn liệt kê thêm dạng Mega dù chưa bật, vì Mega đổi Spe rất mạnh. */
   const oppRow=(o,j,sp,hypo)=>{
     const cfg=oppCfgOf(o,sp);
-    // Dòng Mega giả định: muốn Mega thì phải cầm đá Mega → không thể đang cầm Choice Scarf.
-    if(hypo&&/\(Mega/.test(sp))cfg.item='Không';
+    // Muốn Mega thì phải cầm đá Mega → không thể đang cầm Choice Scarf. buildMon tự thay ô đồ
+    // thành đá tương ứng, nên cột "đồ" đọc từ mon chứ không từ cfg.
     const d=DEX[sp]||DEX[o.species];
     const g=guessSpread(o.species); // có số liệu ladder thật thì g.real=1
+    const m=buildMon(cfg,weather);
     return {k:'opp:'+j,n:sp,me:0,base:d.s[5],par:o.par,hypo,
-            raw:buildMon(cfg,weather).S.speEff, // dự đoán: nature + SP + item (+PAR)
+            raw:m.S.speEff, // dự đoán: nature + SP + item (+PAR)
             real:g.real,nat:g.nature,spSpe:g.sp.spe,pct:g.pct,setSrc:g.set,
-            item:(cfg.item&&cfg.item!=='Không')?cfg.item:''};
+            item:(m.item&&m.item!=='Không')?m.item:''};
   };
   const oppRows=[];
   OPP.forEach((o,j)=>{
@@ -2125,10 +2144,20 @@ function learnsetOf(species){
   return null;
 }
 function pickOptions(sel){return '';} // (đã thay bằng ô gõ-tìm)
+/* Tên DẠNG ĐANG ĐỨNG của một con trong đội / bên đối thủ (Mega nếu đã bật).
+   Ô gõ-tìm và danh sách gợi ý của bảng damage đều đọc qua đây, nếu không thì bật Mega
+   xong bảng vẫn ghi "Delphox" trong khi số liệu bên dưới đã là Mega Delphox. */
+function effSpeciesOf(obj){
+  if(!obj)return '';
+  if(obj.megaForm&&DEX[obj.megaForm]&&megaFormesOf(obj.species).includes(obj.megaForm))return obj.megaForm;
+  const mg=MEGA[obj.species]; // Mega qua cầm đá
+  if(mg){const hit=mg.find(m=>m.stone===obj.item&&DEX[m.to]);if(hit)return hit.to;}
+  return obj.species;
+}
 function labelOf(val){
   if(!val)return'';
-  if(val.startsWith('set:')){const s=MYTEAM[+val.slice(4)];return s?`★ ${s.species} (${s.nature})`:'';}
-  if(val.startsWith('opp:')){const o=OPP[+val.slice(4)];return o?`✦ ${o.species}`:'';}
+  if(val.startsWith('set:')){const s=MYTEAM[+val.slice(4)];return s?`★ ${effSpeciesOf(s)} (${s.nature})`:'';}
+  if(val.startsWith('opp:')){const o=OPP[+val.slice(4)];return o?`✦ ${effSpeciesOf(o)}`:'';}
   return val.slice(4);
 }
 function setPick(side,val){
@@ -2144,18 +2173,20 @@ function calcCandidates(q, side){ // q lowercase; rỗng -> danh sách nhanh
   const push=(val,label,sub,sp)=>out.push({val,label,sub,sp});
   const tv=n=>DEX[n].t.map(t=>TYPE_VI[t]).join('/');
   // Tab "Đối thủ → Tôi": tấn công chỉ 6 đối thủ, phòng thủ chỉ pkm đã chọn ra trận
+  // gõ tìm theo tên GỐC (người dùng gõ "delphox") nhưng hiện tên DẠNG ĐANG ĐỨNG
+  const hit=(o,e)=>!q||o.species.toLowerCase().includes(q)||e.toLowerCase().includes(q);
   if(CALC_MODE==='opp'){
     if(side==='atk'){
-      OPP.forEach((o,j)=>{if(!q||o.species.toLowerCase().includes(q))push('opp:'+j,'✦ '+o.species,tv(o.species),o.species);});
+      OPP.forEach((o,j)=>{const e=effSpeciesOf(o);if(hit(o,e))push('opp:'+j,'✦ '+e,tv(e),e);});
       if(out.length||OPP.length)return out.slice(0,12);
     }else if(side==='def'){
       const pool=PICK.length?PICK:MYTEAM.map((_,i)=>i);
-      pool.forEach(i=>{const s=MYTEAM[i];if(s&&(!q||s.species.toLowerCase().includes(q)))push('set:'+i,'★ '+s.species,tv(s.species),s.species);});
+      pool.forEach(i=>{const s=MYTEAM[i];if(!s)return;const e=effSpeciesOf(s);if(hit(s,e))push('set:'+i,'★ '+e,tv(e),e);});
       if(out.length)return out.slice(0,12);
     }
   }
-  OPP.forEach((o,j)=>{if(!q||o.species.toLowerCase().includes(q))push('opp:'+j,'✦ '+o.species,tv(o.species),o.species);});
-  MYTEAM.forEach((s,i)=>{if(!q||s.species.toLowerCase().includes(q))push('set:'+i,'★ '+s.species+' ('+s.nature+')',tv(s.species),s.species);});
+  OPP.forEach((o,j)=>{const e=effSpeciesOf(o);if(hit(o,e))push('opp:'+j,'✦ '+e,tv(e),e);});
+  MYTEAM.forEach((s,i)=>{const e=effSpeciesOf(s);if(hit(s,e))push('set:'+i,'★ '+e+' ('+s.nature+')',tv(e),e);});
   if(q&&q.length>=2){
     const names=Object.keys(DEX);
     const starts=names.filter(n=>n.toLowerCase().startsWith(q));
@@ -2289,7 +2320,9 @@ function renderMyToOpp(){
   const field=readField('opp'); // ở chiều này đối thủ luôn là bên thủ → dùng màn chắn của họ
   const compact=document.body.classList.contains('force-mobile')||(window.matchMedia&&window.matchMedia('(max-width:800px)').matches&&!document.body.classList.contains('force-desktop'));
   const shortKo=t=>t.replace(' chắc','').replace('≥4 đòn','4+').replace('≥','').replace(' đòn','đ');
-  const opps=OPP.map(o=>({o,cfg:oppCfgOf(o),mon:buildMon(oppCfgOf(o),field.weather)}));
+  // nm = tên DẠNG ĐANG ĐỨNG (Mega nếu đã bật) — cột phải nói đúng con mà số liệu bên dưới đang tính.
+  const opps=OPP.map(o=>{const cfg=oppCfgOf(o),mon=buildMon(cfg,field.weather);
+    return {o,cfg,mon,nm:mon?mon.species:o.species};}).filter(x=>x.mon);
   let html='<div class="hint" style="margin-bottom:10px">Chỉ số mình: từ set đã lưu · đối thủ: spread hay gặp. ▲ = mình ra đòn trước (đã tính buff Spe, Tailwind &amp; Trick Room). Buff Atk/SpA đặt trên card <b>rìa trái</b>, buff thủ của đối thủ trên card <b>rìa phải</b>.</div>';
   pool.forEach(i=>{
     const set=MYTEAM[i];if(!set||!DEX[set.species])return;
@@ -2299,7 +2332,7 @@ function renderMyToOpp(){
     const moves=(set.moves||[]).filter(m=>MOVES[m]&&MOVES[m].c!=='stat');
     html+=`<div class="panel" style="margin-bottom:12px;padding:0;overflow:hidden">
       <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--panel2);border-bottom:1px solid var(--line);flex-wrap:wrap">
-        ${spriteImg(set.species)}<b>${set.species}</b> ${isMegaSet(set)?'<span class="pill" style="background:#2a2410;color:var(--acc2)">MEGA</span>':''}
+        ${spriteImg(my.species)}<b>${my.species}</b> ${my.mega?'<span class="pill" style="background:#2a2410;color:var(--acc2)">MEGA</span>':''}
         <span class="stat-mini">Spe ${effSpeed(my.S.speEff,'set:'+i)}</span>
         ${set.brn?'<span class="pill" style="background:#331a12;color:#ff9d6b">🔥 BRN</span>':''}
         ${stLbl?`<span class="pill" style="background:#12312e;color:#57d977;margin-left:auto">Buff ${stLbl}</span>`:''}
@@ -2312,9 +2345,9 @@ function renderMyToOpp(){
       const tie=mySpe===opSpe;
       const first=movesFirst(mySpe,opSpe);
       const arrow=tie?'':(first?' <b style="color:var(--good)">▲</b>':' <b style="color:var(--bad)">▼</b>');
-      const nm=compact?op.o.species.slice(0,7):op.o.species;
+      const nm=compact?op.nm.slice(0,7):op.nm;
       const shield=abilBadges(op.mon); // 🛡 giảm dmg + ⚠ chưa mô hình + 🎯 hút chiêu (doubles) — đối thủ là bên thủ
-      html+=`<th class="mtx-h" style="text-align:center">${spriteImg(op.o.species)}<br>${nm}${arrow}${shield}</th>`;
+      html+=`<th class="mtx-h" style="text-align:center">${spriteImg(op.nm)}<br>${nm}${op.mon.mega?' <span class="stat-mini" style="color:var(--acc2)">◆</span>':''}${arrow}${shield}</th>`;
     });
     html+='</tr></thead><tbody>';
     if(!moves.length){
@@ -2336,7 +2369,7 @@ function renderMyToOpp(){
         const col={ohko:'#ff6b6b',likely:'#ffb454',slow:'#e8d24a',safe:'#8fd9a0','':'#b9c2d0'}[h.cls]||'#b9c2d0';
         const bg={ohko:'#2a1414',likely:'#2a1e10',slow:'#232010',safe:'#122a1c','':'transparent'}[h.cls]||'transparent';
         const pct=compact?`${Math.round(r.pctMin)}–${Math.round(r.pctMax)}%`:`${r.pctMin.toFixed(1)}–${r.pctMax.toFixed(1)}%`;
-        html+=`<td class="mtx-c" title="${mv} vào ${op.o.species}: ${r.pctMin.toFixed(1)}–${r.pctMax.toFixed(1)}%" style="text-align:center;border-top:1px solid var(--line);background:${bg};line-height:1.25">
+        html+=`<td class="mtx-c" title="${mv} vào ${op.nm}: ${r.pctMin.toFixed(1)}–${r.pctMax.toFixed(1)}%" style="text-align:center;border-top:1px solid var(--line);background:${bg};line-height:1.25">
           <div class="mtx-pct" style="color:${col};font-weight:700">${pct}${nh>1?` <span class="hit-tag">(${nh}x)</span>`:''} ${effBadge(r.eff)}</div>
           <div class="mtx-ko" style="color:${col};opacity:.85">${compact?shortKo(h.t):h.t}</div></td>`;
       });
@@ -2445,7 +2478,7 @@ function renderAnalyze(){
         <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--panel2);border-bottom:1px solid var(--line);flex-wrap:wrap">
           ${spriteImg(oname)}<b>${oname}</b>${abilBadges(op.mon,{shield:false,redirect:false})}${op.mon.mega?'<span class="pill" style="background:#2a2410;color:var(--acc2)">MEGA</span>':''}
           <span class="stat-mini">Spe ${effSpeed(op.mon.S.speEff,'opp:'+op.j)}</span>
-          ${op.o.item&&op.o.item!=='Không'?`<span class="stat-mini">@ ${op.o.item}</span>`:''}
+          ${op.mon.item&&op.mon.item!=='Không'?`<span class="stat-mini">@ ${op.mon.item}</span>`:''}
           <span class="stat-mini" style="margin-left:auto">Sát thương gây lên đội mình →</span>
         </div>
         <div class="scroll"><table class="mtx-table${compact?' mtx-compact':''}" style="width:100%;border-collapse:collapse">
@@ -2737,6 +2770,12 @@ function runCalc(){
 }
 $('#swapBtn').onclick=()=>{const a=$('#atkPick').value,d=$('#defPick').value;setPick('atk',d);setPick('def',a);};
 function calcRefresh(){runCalc();if(CALC_MODE==='me')renderMyToOpp();if(CALC_MODE==='analyze')renderAnalyze();}
+/* Bật/tắt Mega đổi DẠNG + ability + đồ cầm, nên 2 ô chọn của tab "Đối thủ → Tôi" phải NẠP LẠI
+   chứ không chỉ tính lại số: nhãn ô gõ-tìm, ability tự bật thời tiết/địa hình (Mega Charizard Y →
+   nắng), gợi ý khắc chế và danh sách chiêu đều đọc từ dạng đang đứng. */
+function reloadCalcPicks(){
+  ['atk','def'].forEach(side=>{const el=$('#'+side+'Pick');if(el&&el.value)setPick(side,el.value);});
+}
 // điều kiện sân còn lại (thanh trên cùng lo thời tiết/địa hình/màn chắn/TR; buff & BRN nằm trên card 2 rìa)
 ['crit','hh','single','intim','aura','auraDark','auraBreak','rSword','rBeads','rVessel','rTablets'].forEach(id=>$('#'+id).addEventListener('change',calcRefresh));
 $('#atkHp').addEventListener('change',e=>{ATKHP.pct=+e.target.value||100;calcRefresh();});

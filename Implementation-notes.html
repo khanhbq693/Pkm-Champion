@@ -48,6 +48,55 @@
 
 <div class="wrap">
 
+<h2>Đợt 23 — Mega của đối thủ: đá Mega chiếm ô đồ, và tên dạng lan xuống 2 bảng damage</h2>
+<div class="card bad">
+  <h3>Lỗi gốc: con đã Mega vẫn được tính là đang cầm <b>Choice Specs</b></h3>
+  <p>Mega chỉ xảy ra khi con đó <b>cầm đá Mega</b> — nên ô đồ đã bị đá chiếm, không thể đồng thời là
+  Specs/Scarf/Life Orb/Focus Sash. <code>buildMon</code> trước đây chỉ đổi <i>stats + hệ + ability</i> khi
+  bật Mega, còn <code>cfg.item</code> giữ nguyên món lấy từ usage data. Kết quả đo được với Mega Delphox
+  (usage item = Choice Specs) đánh vào Farigiraf:</p>
+  <table>
+    <tr><th>Chiêu</th><th>Trước</th><th>Sau</th></tr>
+    <tr><td>Fiery Dance</td><td>59.2–70.0% · 2HKO chắc</td><td>39.5–47.1% · 3HKO chắc</td></tr>
+    <tr><td>Grass Knot</td><td>49.3–58.3% · 2HKO 98%</td><td>32.7–39.0% · 3HKO 99%</td></tr>
+  </table>
+  <p>Sai <b>×1.5</b> trên toàn bộ chiêu, và sai theo hướng nguy hiểm nhất: bảng báo "bị 2HKO" nên người
+  chơi chọn rút/Protect trong khi thực tế còn 3 lượt. Bên phòng thủ thì ngược lại — không ảnh hưởng,
+  vì Specs không cộng thủ, nên nhìn bảng <i>Tôi → Đối thủ</i> thấy số đổi đúng khi bật Mega lại càng
+  dễ tin là cả hai chiều đều ổn.</p>
+</div>
+<div class="card">
+  <h3>Chốt chặn đặt ở <code>buildMon</code>, không đặt ở chỗ gọi</h3>
+  <p>Có 3 đường lên Mega (nút toggle <code>megaForm</code>; <code>cfg.species</code> vốn đã là dạng Mega —
+  đường của đối thủ vì <code>oppCfgOf</code> gộp <code>megaForm</code> vào <code>species</code>; và cầm đá
+  thật). Sửa ở từng chỗ gọi thì chắc chắn sót, nên cả ba đường giờ hội tụ về một cờ <code>mega</code> duy
+  nhất bên trong <code>buildMon</code>, rồi mới ép ability + item. Bản đồ <code>MEGA_TO_STONE</code>
+  (đảo của <code>MEGA</code>) trả về đá tương ứng; dạng Mega nào không có đá trong dữ liệu thì rơi về
+  <code>'Không'</code> — vẫn đúng hơn giữ Specs.</p>
+  <p><b>Đánh đổi:</b> card sẽ hiện <code>@ Delphoxite</code> trong khi modal "Sửa chiêu/đồ" vẫn ghi
+  <code>Choice Specs</code>. Cố ý: giá trị lưu là <i>giả định của người dùng về đối thủ</i>, còn card phải nói
+  đúng thứ engine đang tính. Ghi đè thẳng vào <code>o.item</code> sẽ làm mất giả định đó khi tắt Mega.</p>
+</div>
+<div class="card warn">
+  <h3>Nhánh <code>d.mega</code> mới cũng vá luôn cờ <code>mon.mega</code> cho phía đối thủ</h3>
+  <p>Trước đây đối thủ đã Mega vẫn có <code>mon.mega === false</code> (vì species truyền vào <i>đã</i> là dạng
+  Mega, không đi qua bước biến hình). Kéo theo: Knock Off vẫn cộng ×1.5 lên con đang dính đá Mega — đá Mega
+  gỡ không được. Nhận diện kiểm cả cờ <code>d.mega</code> lẫn <b>tên</b> (<code>/ \(Mega( [XY])?\)$/</code>)
+  vì DEX lưu trong <code>localStorage</code> từ bản cũ có thể thiếu cờ này.</p>
+</div>
+<div class="card">
+  <h3>Tên dạng: thêm <code>effSpeciesOf</code> thay vì rải <code>megaForm||species</code></h3>
+  <p>Hai bảng damage vẫn ghi "Delphox" sau khi bật Mega vì header/ô gõ-tìm đọc <code>o.species</code> thô,
+  trong khi số liệu bên dưới đã là Mega. <code>effSpeciesOf</code> gom lại quy tắc (toggle → đá → dạng gốc)
+  cho <code>labelOf</code> và <code>calcCandidates</code>; các bảng thì đọc thẳng <code>mon.species</code> —
+  đã là nguồn sự thật sau khi <code>buildMon</code> chạy. Ô gõ-tìm vẫn khớp theo <b>tên gốc</b>, để gõ
+  "delphox" ra được cả dạng Mega.</p>
+  <p><b>Vấn đề biết mà chưa sửa:</b> <code>reloadCalcPicks()</code> chạy lại <code>setPick</code> cho cả 2 ô
+  khi toggle Mega — kéo theo <code>loadCalcSide</code> tự bật thời tiết/địa hình theo ability dạng mới
+  (Mega Charizard Y → nắng). Đúng ý ở đây, nhưng nghĩa là bật Mega <i>có thể</i> đè lên thời tiết người
+  dùng chọn tay. Chấp nhận vì ability vào-sân trong trận thật cũng làm đúng như vậy.</p>
+</div>
+
 <h2>Đợt 22 — Số nhát biến thiên (Skill Link / Loaded Dice) + chiêu đổi hệ theo sân</h2>
 <div class="card bad">
   <h3>Lỗi gốc: chiêu 2–5 nhát bị chốt cứng <code>hits:5</code> — tức <b>mọi con đều được tính như có Skill Link</b></h3>
