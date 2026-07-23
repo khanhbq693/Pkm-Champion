@@ -59,35 +59,40 @@
   thì sai. <code>Loaded Dice</code> thì là <code>{}</code> rỗng — vô tác dụng.</p>
 </div>
 <div class="card good">
-  <h3>Cách sửa: số nhát trở thành <b>phân phối</b>, không phải hằng số</h3>
-  <p><code>hitDistOf(m,moveName,atk)</code> trả <code>Map(số nhát → xác suất)</code>:</p>
+  <h3>Cách sửa: số nhát là thứ NGƯỜI DÙNG CHỌN (dropdown trên hàng chiêu)</h3>
+  <p>Bản đầu tôi làm số nhát thành <b>phân phối xác suất</b> (2/3/4/5 = 35/35/15/15%) rồi lấy cực trị thật cho
+  min/max. Đúng về toán nhưng <b>sai về công dụng</b>: Bullet Seed hiện <code>×2–5</code> với dải 24–95% —
+  rộng tới mức không quyết định được gì. Đối chiếu calc tham chiếu (ảnh người dùng gửi) thì cách làm đúng là
+  cho <b>chọn số nhát</b> (<code>Triple Axel 3× ▼</code>) rồi tính gọn cho đúng N nhát đó.</p>
   <table>
-    <thead><tr><th>Trường hợp</th><th>Phân phối</th><th>Kỳ vọng</th></tr></thead>
+    <thead><tr><th>Hàm</th><th>Vai trò</th></tr></thead>
     <tbody>
-    <tr><td>Nhóm 2–5 (<code>MV_VARHIT</code>), không item/ability</td><td>2:35% · 3:35% · 4:15% · 5:15%</td><td>3.1</td></tr>
-    <tr><td>+ <b>Loaded Dice</b></td><td>4:50% · 5:50%</td><td>4.5</td></tr>
-    <tr><td>+ <b>Skill Link</b> (đè Loaded Dice)</td><td>5:100%</td><td>5</td></tr>
-    <tr><td><b>Population Bomb</b> (cờ <code>popBomb</code>)</td><td>hình học: P(k)=0.9<sup>k</sup>×0.1, P(10)=0.9<sup>10</sup></td><td>≈6.5</td></tr>
-    <tr><td>Population Bomb + Loaded Dice / Skill Link</td><td>10:100%</td><td>10</td></tr>
+    <tr><td><code>hitOpts(moveName)</code></td><td>Các mức chọn được: nhóm 2–5 → [2,3,4,5]; Population Bomb → [1..10];
+      chiêu cố định N nhát → [1..N] (<b>vẫn cho hạ</b> vì nhát sau có thể trượt / bị Protect chặn giữa chừng).</td></tr>
+    <tr><td><code>hitDefault(moveName,atk)</code></td><td>Mặc định khi user chưa chọn: nhóm 2–5 → <b>3</b> (kỳ vọng 3.1);
+      <b>Skill Link</b> → 5; <b>Loaded Dice</b> → 4 (mức tối thiểu nó bảo kê); Population Bomb → 7 (kỳ vọng ≈6.5
+      do mỗi nhát tự kiểm 90% acc), có Dice/Skill Link → 10.</td></tr>
+    <tr><td><code>hitsOf(moveName,atk)</code></td><td>Lựa chọn trong <code>HITS</code> nếu hợp lệ, không thì <code>hitDefault</code>.
+      <code>calcDamage</code> gọi thẳng hàm này.</td></tr>
     </tbody>
   </table>
-  <p><code>sumDistVar(hitRolls,hitDist)</code> thay <code>sumDist</code>: vẫn nhân chập roll từng nhát, nhưng
-  <b>tới mốc n thì góp phân phối hiện tại vào kết quả với trọng số P(đúng n nhát)</b> — một lượt quét, không
-  phải tính lại cho từng n. <code>sumDist</code> cũ thành code chết → đã xoá.</p>
+  <p><code>HITS</code> (moveName → số nhát) để ở <b>bộ nhớ, không lưu store</b> — cùng kiểu với <code>FAINT</code>,
+  vì đây là câu hỏi "giả sử lượt này trúng mấy nhát", không phải cấu hình đội.</p>
+  <p><b>Vì sao key theo TÊN CHIÊU chứ không theo cặp (con, chiêu):</b> giống <code>FAINT</code>, đổi một lần áp cho
+  cả hàng — đúng ý khi đang quét một hàng chiêu qua 6 đối thủ. Đánh đổi: 2 con cùng có Bullet Seed thì dùng chung
+  một lựa chọn. Chấp nhận được vì <i>mặc định</i> vẫn tính riêng theo <code>atk</code> (Skill Link/Dice của từng con).</p>
 </div>
-<div class="card warn">
-  <h3>Đánh đổi: <code>min</code>/<code>max</code> nay là cực trị THẬT nên dải % rộng hẳn ra</h3>
-  <p><code>min</code> = ít nhát nhất × roll thấp nhất; <code>max</code> = nhiều nhát nhất × roll cao nhất.
-  Bullet Seed vì thế hiện <code>×2–5</code> với dải % rộng (VD 24–95%) thay vì một con số gọn nhưng sai.
-  <b>Lý do giữ cực trị thật:</b> <code>koLabel</code> phán "OHKO chắc"/"2HKO chắc" dựa trên min/max — muốn chữ
-  "chắc" còn nghĩa <i>bảo đảm</i> thì min/max buộc phải là cực trị. Con số đáng đọc là <code>koPct</code>,
-  vốn lấy từ <code>dist</code> đã trộn <b>cả</b> xác suất số nhát lẫn roll.</p>
-  <p><code>rolls[]</code> (16 mức) nay dựng ở số nhát <b>hay gặp nhất</b> và chỉ để hiển thị —
-  <b>không</b> còn giữ bất biến <code>rolls[0]===min</code>. Hiện chưa nơi nào đọc <code>rolls</code> ngoài
-  chính <code>calcDamage</code>, nhưng ai dùng lại thì phải nhớ điều này.</p>
-  <p class="muted"><b>Xấp xỉ đã chấp nhận:</b> Population Bomb bỏ nhánh k=0 (trượt sạch) rồi chuẩn hoá lại,
-  vì app <b>không</b> mô hình hoá độ chính xác ở bất kỳ chiêu nào khác (Focus Blast 70% cũng đang coi như trúng).
-  Nếu tính cả k=0 thì riêng Population Bomb bị phạt acc còn cả bảng thì không — lệch chuẩn.</p>
+<div class="card">
+  <h3>Chỗ nối UI — bám đúng khuôn <code>faintSel</code> có sẵn</h3>
+  <p><code>hitSel(moveName,atk)</code> nhả ra <code>&lt;select class="hit-sel" data-mv="…"&gt;</code>, gắn cạnh tên chiêu
+  y như ô "0 ngất" của Last Respects. Handler cũng đối xứng: <code>HITS[dataset.mv]=+value; calcRefresh()</code>.
+  Đặt ở <b>ma trận Tôi→Đối thủ</b> (đúng layout trong ảnh) và <b>bảng damage đơn</b> — 2 chỗ vốn đã có
+  <code>faintSel</code> nên có sẵn handler re-render. Tab Phân tích chưa gắn, sẽ dùng mặc định.</p>
+  <p>Ô damage thêm nhãn <code>(3x)</code> (<code>.hit-tag</code>) như ảnh — hơi thừa khi đã có dropdown ngay cạnh,
+  nhưng lúc quét mắt xuống giữa bảng thì không phải ngước lên đầu hàng để biết đang tính mấy nhát.</p>
+  <p><b>Bug cũ vá luôn:</b> <code>runCalc</code> tra <code>MOVES[r.move]</code> — mà <code>r.move</code> có hậu tố
+  <code>" ×N"</code> nên với <b>mọi chiêu nhiều nhát</b> lookup trả undefined ⇒ mất badge ⚡ưu tiên, mất ô
+  Last Respects, mất nhãn "lan ×0.75". Nay dùng tên thô <code>r._m</code>.</p>
 </div>
 <div class="card good">
   <h3>Chiêu đổi hệ: Terrain Pulse &amp; Revelation Dance (Weather Ball vốn đã đúng)</h3>

@@ -425,10 +425,13 @@
   .fgrp .flex.dir{font-weight:700;color:var(--ink-dim)}
   .fgrp .flex.dir:has(input:checked){color:var(--acc)}
   .fgrp .flex.dir input{accent-color:var(--acc)}
-  /* ô chọn số con đã ngất, nằm cạnh tên chiêu Last Respects */
-  .faint-sel{width:auto;display:inline-block;padding:1px 4px;font-size:11px;font-family:var(--mono);
+  /* ô chọn số con đã ngất (Last Respects) và ô chọn số nhát (chiêu nhiều hit), cạnh tên chiêu */
+  .faint-sel,.hit-sel{width:auto;display:inline-block;padding:1px 4px;font-size:11px;font-family:var(--mono);
              background:var(--panel2);border:1px solid var(--acc2);color:var(--acc2);border-radius:5px;vertical-align:middle}
-  .faint-sel:focus{border-color:var(--acc)}
+  .faint-sel:focus,.hit-sel:focus{border-color:var(--acc)}
+  .hit-sel{border-color:#5aa9c9;color:#7fd3ee}
+  /* nhãn "(3x)" trong ô damage — nhắc số nhát đang tính */
+  .hit-tag{font-size:10px;font-family:var(--mono);color:#7fd3ee;opacity:.85}
   .oc-stats .val.boost{color:var(--good)} .oc-stats .val.drop{color:var(--bad)}
   /* nút −/+ dưới mỗi chỉ số (nén cho card ở rail) */
   .oc-stats .cell{gap:1px}
@@ -1245,28 +1248,33 @@ function isGrounded(mon){const it=ITEMS[mon.item]||{};
   return !(mon.types.includes('Flying')||mon.ability==='Levitate'||it.balloon);}
 
 /* ===== Số nhát của chiêu nhiều hit =====
-   Nhóm 2–5 nhát KHÔNG cố định 5 như dữ liệu thô: 2 nhát 35% · 3 nhát 35% · 4 nhát 15% · 5 nhát 15%
-   (kỳ vọng 3.1). Skill Link → luôn 5. Loaded Dice → 4 hoặc 5 (50/50, kỳ vọng 4.5).
-   Population Bomb: 10 nhát nhưng MỖI nhát tự kiểm 90% acc, trượt là dừng → phân phối hình học.
-   Loaded Dice bỏ qua kiểm acc → chốt đủ 10 nhát (đây chính là lý do Maushold luôn cầm Dice). */
+   Số nhát là thứ NGƯỜI DÙNG CHỌN (dropdown trên hàng chiêu), không phải hằng số cũng không phải
+   trộn xác suất — vì con số hữu ích khi soi bảng là "trúng đúng N nhát thì bao nhiêu %".
+   Mặc định: nhóm 2–5 nhát → 3 (kỳ vọng 3.1). Skill Link chốt 5. Loaded Dice tối thiểu 4.
+   Population Bomb: 10 nhát nhưng mỗi nhát tự kiểm 90% acc (trượt là dừng) → kỳ vọng ≈6.5 nên
+   mặc định 7; có Loaded Dice/Skill Link thì bỏ qua kiểm acc → 10.
+   Chiêu cố định (Dual Wingbeat, Triple Axel…) vẫn cho hạ số nhát vì nhát sau có thể trượt. */
 const MV_VARHIT=new Set(['Bullet Seed','Icicle Spear','Rock Blast','Pin Missile','Bone Rush','Arm Thrust','Tail Slap','Fury Attack','Fury Swipes','Double Slap','Comet Punch','Spike Cannon','Barrage','Scale Shot','Water Shuriken']);
-function hitDistOf(m,moveName,atk){
-  const skill=atk.ability==='Skill Link', dice=atk.item==='Loaded Dice';
-  if(m.popBomb){
-    if(skill||dice)return new Map([[10,1]]);
-    // P(đúng k nhát)=0.9^k×0.1 (k<10), P(10)=0.9^10. Chuẩn hoá bỏ nhánh k=0 (trượt sạch) vì
-    // app KHÔNG mô hình hoá độ chính xác ở bất kỳ chiêu nào khác — giữ cho nhất quán.
-    const d=new Map();let tot=0;
-    for(let k=1;k<=10;k++){const p=k<10?Math.pow(0.9,k)*0.1:Math.pow(0.9,10);d.set(k,p);tot+=p;}
-    for(const [k,p] of d)d.set(k,p/tot);
-    return d;
-  }
-  if(MV_VARHIT.has(moveName)){
-    if(skill)return new Map([[5,1]]);          // Skill Link đè Loaded Dice (5 > 4–5)
-    if(dice)return new Map([[4,0.5],[5,0.5]]);
-    return new Map([[2,0.35],[3,0.35],[4,0.15],[5,0.15]]);
-  }
-  return new Map([[m.hits||1,1]]);
+const HITS={}; // moveName -> số nhát người dùng chọn. Ở bộ nhớ, không lưu store (giống FAINT).
+function hitOpts(moveName){
+  const m=MOVES[moveName];if(!m)return null;
+  if(m.popBomb)return [1,2,3,4,5,6,7,8,9,10];
+  if(MV_VARHIT.has(moveName))return [2,3,4,5];
+  const n=m.hits||1;if(n<2)return null;
+  return Array.from({length:n},(_,i)=>i+1);
+}
+function hitDefault(moveName,atk){
+  const m=MOVES[moveName];if(!m)return 1;
+  const skill=atk&&atk.ability==='Skill Link', dice=atk&&atk.item==='Loaded Dice';
+  if(m.popBomb)return (skill||dice)?10:7;
+  if(MV_VARHIT.has(moveName))return skill?5:(dice?4:3);
+  return m.hits||1;
+}
+function hitsOf(moveName,atk){
+  const o=hitOpts(moveName);
+  if(!o)return (MOVES[moveName]&&MOVES[moveName].hits)||1;
+  const pick=HITS[moveName];
+  return (pick&&o.includes(pick))?pick:hitDefault(moveName,atk);
 }
 /* Nhân chập roll với SỐ NHÁT cũng biến thiên: cộng dồn từng nhát, tới mốc n thì góp cả
    phân phối hiện tại vào kết quả với trọng số P(đúng n nhát). hitRolls(i)=mảng roll của nhát thứ i. */
@@ -1424,10 +1432,9 @@ function calcDamage(atk,def,moveName,field){
   // Item Metronome: +20% mỗi lượt lặp lại cùng một chiêu, trần +100%
   if(ai.metro&&field.metro)other*=1+0.2*Math.max(0,Math.min(5,field.metro));
 
-  /* Số nhát nay là PHÂN PHỐI, không phải hằng số: nhóm 2–5 nhát trước đây bị chốt cứng 5
-     (= luôn tính như có Skill Link) nên thổi phồng ~61%. Xem hitDistOf(). */
-  const hd=hitDistOf(m,moveName,atk);
-  const minHits=Math.min(...hd.keys()), maxHits=Math.max(...hd.keys());
+  /* Số nhát: lấy lựa chọn của người dùng (dropdown trên hàng chiêu), mặc định theo hitDefault().
+     Trước Đợt 22 nhóm 2–5 bị chốt cứng 5 = luôn tính như có Skill Link → thổi phồng ~61%. */
+  const nHits=hitsOf(moveName,atk);
   const burnCut=(field.burn||atk.brn)&&isPhys&&!(!noAtkAb&&atk.ability==='Guts'); // Guts miễn giảm bỏng
   // BP TỪNG hit — Triple Axel/Triple Kick tăng dần. i tính từ 1.
   const _hc=[];
@@ -1446,22 +1453,14 @@ function calcDamage(atk,def,moveName,field){
       out.push(dmg);
     }
     return _hc[i]=out;};
-  /* min/max là CỰC TRỊ THẬT trên mọi kết cục: ít nhát nhất × roll thấp nhất → nhiều nhát nhất
-     × roll cao nhất. koLabel dựa trên min/max nên "OHKO chắc"/"2HKO chắc" vẫn đúng nghĩa
-     bảo đảm; còn % thì đọc từ dist (đã trộn cả xác suất số nhát lẫn roll). */
-  let min=0,max=0;
-  for(let i=1;i<=minHits;i++)min+=hitRolls(i)[0];
-  for(let i=1;i<=maxHits;i++)max+=hitRolls(i)[15];
-  // rolls[]: tổng theo từng mức roll ở số nhát HAY GẶP NHẤT — chỉ để hiển thị, min/max lấy ở trên.
-  let modeHits=minHits,modeP=-1;
-  for(const [n,p] of hd)if(p>modeP){modeP=p;modeHits=n;}
-  const rolls=[];for(let j=0;j<16;j++){let s=0;for(let i=1;i<=modeHits;i++)s+=hitRolls(i)[j];rolls.push(s);}
-  const hp=def.S.hp;
-  const dist=sumDistVar(hitRolls,hd);
+  // Tổng theo từng mức roll ở ĐÚNG nHits nhát; min/max là 2 cực trị của dải roll đó.
+  const rolls=[];for(let j=0;j<16;j++){let s=0;for(let i=1;i<=nHits;i++)s+=hitRolls(i)[j];rolls.push(s);}
+  const min=rolls[0],max=rolls[15],hp=def.S.hp;
+  const dist=sumDistVar(hitRolls,new Map([[nHits,1]]));
   const koPct=e>0?probAtLeast(dist,hp)*100:0;
-  const hitLbl=maxHits>1?(minHits===maxHits?` ×${maxHits}`:` ×${minHits}–${maxHits}`):'';
-  return {rolls,min,max,pctMin:min/hp*100,pctMax:max/hp*100,koPct,dist,minHits,maxHits,
-    koN:Math.round(koPct/100*16),eff:e,hp,isPhys,move:moveName+hitLbl,type:mtype,cat:m.c,bp,defAbil:dcut?dcut.label:''};
+  return {rolls,min,max,pctMin:min/hp*100,pctMax:max/hp*100,koPct,dist,hits:nHits,
+    koN:Math.round(koPct/100*16),eff:e,hp,isPhys,move:moveName+(nHits>1?` ×${nHits}`:''),
+    type:mtype,cat:m.c,bp,defAbil:dcut?dcut.label:''};
 }
 /* % hiện ra là xác suất THẬT lấy từ phân phối roll (koChance), không phải đếm 16 mức nữa —
    khác biệt lộ rõ nhất ở chiêu nhiều hit và ở mốc 2HKO/3HKO vốn trước đây chỉ có chắc/không. */
@@ -2325,7 +2324,9 @@ function renderMyToOpp(){
       // Last Respects: cho chỉnh số con đã ngất ngay tại đây, khỏi phải quay về tab kia
       const fs=(MOVES[mv]&&MOVES[mv].lastResp)?faintSel('me'):'';
       const pr=(MOVES[mv]&&MOVES[mv].pri>0)?`<span title="Chiêu ưu tiên +${MOVES[mv].pri}: ra đòn trước bất kể tốc độ" style="color:var(--acc2);margin-right:3px">⚡</span>`:'';
-      html+=`<tr><td class="mtx-mv" style="font-weight:600;border-top:1px solid var(--line)">${pr}${mv}${fs}</td>`;
+      const hs=hitSel(mv,my); // chiêu nhiều nhát: chọn số nhát ngay trên hàng
+      const nh=hitsOf(mv,my);
+      html+=`<tr><td class="mtx-mv" style="font-weight:600;border-top:1px solid var(--line)">${pr}${mv}${fs}${hs}</td>`;
       opps.forEach(op=>{
         // mỗi cặp có buff riêng: công của con mình (rìa trái) vs thủ của con đối thủ (rìa phải)
         const f2=readField('opp','set:'+i,'opp:'+OPP.indexOf(op.o));
@@ -2336,7 +2337,7 @@ function renderMyToOpp(){
         const bg={ohko:'#2a1414',likely:'#2a1e10',slow:'#232010',safe:'#122a1c','':'transparent'}[h.cls]||'transparent';
         const pct=compact?`${Math.round(r.pctMin)}–${Math.round(r.pctMax)}%`:`${r.pctMin.toFixed(1)}–${r.pctMax.toFixed(1)}%`;
         html+=`<td class="mtx-c" title="${mv} vào ${op.o.species}: ${r.pctMin.toFixed(1)}–${r.pctMax.toFixed(1)}%" style="text-align:center;border-top:1px solid var(--line);background:${bg};line-height:1.25">
-          <div class="mtx-pct" style="color:${col};font-weight:700">${pct} ${effBadge(r.eff)}</div>
+          <div class="mtx-pct" style="color:${col};font-weight:700">${pct}${nh>1?` <span class="hit-tag">(${nh}x)</span>`:''} ${effBadge(r.eff)}</div>
           <div class="mtx-ko" style="color:${col};opacity:.85">${compact?shortKo(h.t):h.t}</div></td>`;
       });
       html+='</tr>';
@@ -2346,6 +2347,8 @@ function renderMyToOpp(){
   box.innerHTML=html;
   box.querySelectorAll('.faint-sel').forEach(s=>s.onchange=()=>{
     FAINT[s.dataset.side]=+s.value;calcRefresh();});
+  box.querySelectorAll('.hit-sel').forEach(s=>s.onchange=()=>{
+    HITS[s.dataset.mv]=+s.value;calcRefresh();});
 }
 // 4 chiêu tấn công DỰ KIẾN của 1 đối thủ: chiêu đã lộ (user điền) > usage hay dùng > learnset/STAB.
 function oppExpectedMoves(o){
@@ -2624,6 +2627,15 @@ function faintSel(side){
     +[0,1,2,3,4,5].map(v=>`<option value="${v}"${v===n?' selected':''}>${v} ngất</option>`).join('')
     +`</select>`;
 }
+/* Ô chọn SỐ NHÁT cho chiêu nhiều hit, hiện ngay cạnh tên chiêu (Bullet Seed 3× ▼).
+   Trả '' cho chiêu 1 nhát. atk chỉ dùng để lấy mặc định (Skill Link/Loaded Dice). */
+function hitSel(moveName,atk){
+  const o=hitOpts(moveName);if(!o)return '';
+  const cur=hitsOf(moveName,atk);
+  return ` <select class="hit-sel" data-mv="${moveName}" title="Số nhát trúng của ${moveName} — đổi để xem damage theo số nhát thực tế">`
+    +o.map(v=>`<option value="${v}"${v===cur?' selected':''}>${v}×</option>`).join('')
+    +`</select>`;
+}
 /* Set (nature/ability/item/SP) nay chỉ đến từ card ở 2 rìa — sửa qua modal ✎ trên card.
    runCalc không còn override gì từ ô giữa nữa. */
 function runCalc(){
@@ -2698,15 +2710,20 @@ function runCalc(){
   $('#calcBody').innerHTML=results.map(r=>{const k=koLabel(r);const w=Math.min(100,r.pctMax);
     const bc=r.pctMin>=100?'#ff6b6b':r.pctMax>=100?'#ffb454':r.pctMax>=50?'#f6c945':'#4dd0c8';
     const pin=pinMoves&&pinMoves.has(r._m)?' <span class="est" style="background:#12312e;color:#57d977;border-color:#2a5a44" title="1 trong 4 chiêu hay dùng nhất theo dữ liệu">★</span>':'';
-    const pr=MOVES[r.move]&&MOVES[r.move].pri>0?` <span class="est" style="background:#2a2410;color:var(--acc2);border-color:#5a4a2a" title="Chiêu ưu tiên: ra đòn trước bất kể tốc độ (Trick Room không đảo được ưu tiên)">⚡ +${MOVES[r.move].pri}</span>`:'';
+    /* r.move có hậu tố " ×N" nên KHÔNG tra MOVES[r.move] được — dùng tên thô r._m.
+       (Trước đây tra bằng r.move nên chiêu nhiều nhát mất badge ưu tiên/Last Respects.) */
+    const mvName=r._m||r.move, mm=MOVES[mvName]||{};
+    const pr=mm.pri>0?` <span class="est" style="background:#2a2410;color:var(--acc2);border-color:#5a4a2a" title="Chiêu ưu tiên: ra đòn trước bất kể tốc độ (Trick Room không đảo được ưu tiên)">⚡ +${mm.pri}</span>`:'';
     const da=r.defAbil?` <span class="est" style="background:#12314a;color:#7db8ff;border-color:#204a6a" title="Ability bên thủ giảm sát thương — đã trừ vào % bên dưới">🛡 ${r.defAbil}</span>`:'';
-    return `<tr${pin?' style="background:rgba(87,217,119,.05)"':''}><td><b>${r.move}</b>${pr}${pin}${da}${field.spread&&MOVES[r.move]&&MOVES[r.move].spread?(field.single?' <span class="stat-mini" style="color:var(--good)">lan · 1 mục tiêu</span>':' <span class="stat-mini" style="color:var(--acc2)">lan ×0.75</span>'):''}${MOVES[r.move]&&MOVES[r.move].lastResp?faintSel(atkSide):''}</td><td>${chip(r.type,1)}</td>
+    return `<tr${pin?' style="background:rgba(87,217,119,.05)"':''}><td><b>${mvName}</b>${pr}${pin}${da}${field.spread&&mm.spread?(field.single?' <span class="stat-mini" style="color:var(--good)">lan · 1 mục tiêu</span>':' <span class="stat-mini" style="color:var(--acc2)">lan ×0.75</span>'):''}${mm.lastResp?faintSel(atkSide):''}${hitSel(mvName,A)}</td><td>${chip(r.type,1)}</td>
       <td><span class="cat ${r.cat}">${r.cat==='phys'?'VL':'ĐB'}</span></td><td class="num">${r.bp}</td>
       <td class="num">${r.min}–${r.max}</td><td class="num">${r.pctMin.toFixed(1)}–${r.pctMax.toFixed(1)}%</td>
       <td><div class="bar"><span style="width:${w}%;background:${bc}"></span><em>${r.pctMax.toFixed(0)}%</em></div></td>
       <td><span class="ko ${k.cls}">${k.t}</span></td></tr>`;}).join('')||`<tr><td colspan="8" class="muted">Không có chiêu tấn công.</td></tr>`;
   $('#calcBody').querySelectorAll('.faint-sel').forEach(s=>s.onchange=()=>{
     FAINT[s.dataset.side]=+s.value;calcRefresh();});
+  $('#calcBody').querySelectorAll('.hit-sel').forEach(s=>s.onchange=()=>{
+    HITS[s.dataset.mv]=+s.value;calcRefresh();});
 
   // 2 ô ngữ cảnh: chỉ bày ra khi bộ chiêu / item thật sự dùng đến
   const hasScale=results.some(r=>{const mv=MOVES[r._m];return mv&&mv.scale==='hp';});
