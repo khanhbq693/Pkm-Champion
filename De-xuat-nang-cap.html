@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Đề xuất nâng cấp — Champions Cố Vấn</title>
+<style>
+  :root{
+    --bg:#0d1017; --panel:#151a24; --panel2:#1b2230; --line:#28303f;
+    --ink:#e7ecf3; --ink-dim:#93a0b4; --ink-faint:#5f6b7d;
+    --acc:#4dd0c8; --acc2:#f6c945; --good:#57d977; --bad:#ff6b6b; --warn:#ffb454;
+    --mono:'DM Mono','SFMono-Regular',ui-monospace,Menlo,Consolas,monospace;
+    --sans:'Inter',system-ui,'Segoe UI',Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14.5px;line-height:1.6;padding:0 0 60px}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 18px}
+  header{border-bottom:1px solid var(--line);background:linear-gradient(180deg,#121722,#0d1017);padding:26px 0;margin-bottom:26px}
+  h1{margin:0;font-size:23px;letter-spacing:-.02em}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-dim);margin:32px 0 12px;
+     padding-bottom:7px;border-bottom:1px solid var(--line)}
+  h1 small{display:block;color:var(--ink-faint);font-size:13px;font-weight:400;letter-spacing:0;margin-top:6px}
+  code{font-family:var(--mono);font-size:.9em;background:var(--panel2);border:1px solid var(--line);
+       border-radius:4px;padding:1px 5px;color:var(--acc)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+  th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-faint)}
+  tr:last-child td{border-bottom:none}
+  .card{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--acc);
+        border-radius:10px;padding:13px 16px;margin:11px 0}
+  .card.warn{border-left-color:var(--warn)}
+  .card.bad{border-left-color:var(--bad)}
+  .card.good{border-left-color:var(--good)}
+  .card h3{margin:0 0 6px;font-size:14.5px}
+  .card p{margin:6px 0}
+  .tag{display:inline-block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;
+       padding:2px 8px;border-radius:999px;background:var(--panel2);border:1px solid var(--line);color:var(--ink-dim)}
+  .tag.new{color:var(--good);border-color:#2a5a44} .tag.chg{color:var(--acc2);border-color:#5a4620}
+  .tag.del{color:var(--bad);border-color:#5a2a2a} .tag.keep{color:var(--acc);border-color:#2a5a5a}
+  .tag.p0{color:var(--bad);border-color:#5a2a2a} .tag.p1{color:var(--acc2);border-color:#5a4620}
+  .tag.p2{color:var(--ink-dim)}
+  .muted{color:var(--ink-faint)}
+  ul{margin:6px 0 6px 18px;padding:0} li{margin:3px 0}
+  a{color:var(--acc)}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>Đề xuất nâng cấp — Champions Cố Vấn
+    <small>Đối chiếu với các calc/tool đang chạy cho Champions &amp; VGC 2026 · Reg M-B · 23/07/2026</small></h1>
+</div></header>
+
+<div class="wrap">
+
+<h2>Tình trạng</h2>
+<div class="card good">
+  <p><b>Đã làm (Đợt 21, 23/07/2026):</b> toàn bộ mục <b>2 — A. Sai số engine</b>, mục <b>3 — B. Vá dữ liệu</b>
+  và <b>C10 — Type coverage</b>. Chi tiết quyết định thiết kế xem <code>Implementation-notes.html</code> (Đợt 21).</p>
+  <p><b>Chưa làm:</b> C1 bộ giải SP · C2 chấm sống-sót cả đội · C3 dán team sheet · C4 cộng dồn 2 con ·
+  C5 %KO có chip máu · C6 % máu hiện tại (mới làm phần máu bên công cho chiêu BP-theo-máu) · C7 ability đồng đội ·
+  C8 kiểm luật đội · C9 SP cần để vượt tốc.</p>
+  <p class="muted">Một điểm khác với kế hoạch: mục B-P2 (sinh <code>MV_PUNCH</code>/<code>MV_SLICE</code>… từ dữ liệu
+  lúc build) <b>không làm được</b> — <code>AUTOMOVES</code> không có cờ contact/punch/slicing để sinh ra.
+  Và <code>apply.py</code> phải viết lại thành chế độ gộp thay vì chạy như README cũ mô tả; lý do ở Đợt 21.</p>
+</div>
+
+<h2>0 — Cách đọc tài liệu này</h2>
+<div class="card">
+  <p>Ba nhóm, xếp theo mức đau chứ không theo mức khó:</p>
+  <ul>
+    <li><b>A. Sai số engine</b> — app đang trả <i>con số sai</i>, người dùng không có cách nào biết. Đây là nhóm phải sửa trước mọi tính năng mới.</li>
+    <li><b>B. Vá dữ liệu</b> — engine đúng nhưng bảng dữ liệu thiếu/cũ so với Reg M-B.</li>
+    <li><b>C. Tính năng mới</b> — thứ các tool khác có mà app chưa có, xếp theo giá trị/công.</li>
+  </ul>
+  <p class="muted">Mọi khẳng định về luật Reg M-B lấy từ Victory Road + Bulbapedia; danh sách Mega/item mới từ Game8 + Insider Gaming; tính năng đối thủ từ chính trang của họ (nguồn ở cuối).</p>
+</div>
+
+<h2>1 — Bản đồ đối thủ: họ có gì mình chưa có</h2>
+<table>
+  <thead><tr><th style="width:190px">Tool</th><th>Điểm mạnh riêng</th><th style="width:150px">App mình</th></tr></thead>
+  <tbody>
+    <tr><td><b>ChampDex</b> — champdex.com/tools/calc</td>
+        <td>Spread solver (giải SP để sống), speed tier, type coverage, <b>bộ đổi EV ↔ SP</b> để nhập spread Smogon, team builder có team mẫu</td>
+        <td>Thiếu cả 4</td></tr>
+    <tr><td><b>PikaChampions</b></td>
+        <td><b>SP optimizer</b>: quét mọi cặp HP+phòng thủ (0–32 mỗi ô, ngân sách ≤64) theo thứ tự tổng chi phí, trả về spread rẻ nhất còn sống. <b>Meta survival check</b>: chấm cả 6 con với ~20 mối đe doạ, phân 4 loại <i>Miễn nhiễm / Sống sẵn / Cần SP / Bất khả</i></td>
+        <td>Thiếu — nhưng tab Phân tích đã có sẵn ~80% hạ tầng</td></tr>
+    <tr><td><b>Pikalytics calc</b></td>
+        <td>% máu hiện tại, trạng thái (độc/ngủ/băng…), hazards (Stealth Rock, Spikes), %KO theo phân phối roll, nối thẳng sang usage/speed tier/top team</td>
+        <td>Thiếu HP hiện tại, trạng thái (chỉ có brn/par), hazards, %KO thật</td></tr>
+    <tr><td><b>NCP VGC Calc</b></td>
+        <td>Danh sách field đầy đủ nhất: Friend Guard, Power Spot, Battery, Steely Spirit, Flower Gift, Neutralizing Gas, Gravity, hazards, Protect</td>
+        <td>Có Aura + Ruin; thiếu toàn bộ nhóm buff-đồng-đội</td></tr>
+    <tr><td><b>vgccalc.com</b> (chạy <code>@smogon/calc</code>)</td>
+        <td>Engine chuẩn Smogon, mô tả đòn theo format Smogon, mobile &lt;1s</td>
+        <td>Engine tự viết — mạnh hơn ở chỗ tiếng Việt + gắn usage, yếu hơn ở độ phủ mechanic</td></tr>
+    <tr><td><b>Showdex</b></td>
+        <td>Bám thẳng vào trận đang đánh, tự đồng bộ set khi đối thủ lộ bài</td>
+        <td>Không áp dụng (Champions không có Showdown client) — nhưng ý tưởng "nhập nhanh khi trận bắt đầu" thì áp dụng được, xem C3</td></tr>
+  </tbody>
+</table>
+
+<div class="card good">
+  <h3>Điểm mình đang hơn — đừng đánh mất khi refactor</h3>
+  <p>Không tool nào ở trên có <b>tab Phân tích kiểu "mối đe doạ lượt này"</b> gắn với usage thật, và không tool nào viết tiếng Việt. Ba trụ đó là lý do app tồn tại; mọi đề xuất dưới đây là bồi vào chứ không thay.</p>
+</div>
+
+<h2>2 — A. Sai số engine (P0)</h2>
+<p class="muted">Cột "Hiện tại" là hành vi thật của code, đã đối chiếu tận dòng.</p>
+<table>
+  <thead><tr><th style="width:24px"></th><th style="width:210px">Vấn đề</th><th>Hiện tại → đúng ra phải</th><th style="width:120px">Sửa ở</th></tr></thead>
+  <tbody>
+    <tr><td><span class="tag p0">P0</span></td>
+        <td><b>Eelevate không miễn nhiễm Đất</b></td>
+        <td>Mega Eelektross (M-B) ăn full Earthquake trong app. Ability <code>Eelevate</code> cho miễn nhiễm Đất + miễn hazards, dex đã có nhưng engine không biết.</td>
+        <td><code>ABIL_IMMUNE</code> — index.html:830</td></tr>
+    <tr><td><span class="tag p0">P0</span></td>
+        <td><b>Fire Mane không cộng ×1.5</b></td>
+        <td>Mega Pyroar (M-B) bị tính <b>hụt 50%</b> mọi chiêu Lửa. Fire Mane = Blaze không điều kiện máu.</td>
+        <td><code>offDmgAbil</code> — index.html:889</td></tr>
+    <tr><td><span class="tag p0">P0</span></td>
+        <td><b>Electric Surge không bật địa hình</b></td>
+        <td><code>ABIL_FX</code> chỉ tự bật <i>thời tiết</i>. Mega Raichu X vào sân không bật Địa hình Điện → kéo theo Quark Drive, Hadron Engine, Rising Voltage cùng sai.</td>
+        <td><code>ABIL_FX</code>:810 + auto-field:2372</td></tr>
+    <tr><td><span class="tag p0">P0</span></td>
+        <td><b><code>scale:'hp'</code> khai báo nhưng không dùng</b></td>
+        <td>Eruption / Water Spout / Dragon Energy <b>luôn tính 150 BP</b> bất kể máu. Con Eruption còn 40% máu đáng lẽ 60 BP → app phóng đại 2.5 lần.</td>
+        <td><code>calcDamage</code>:1191–1201</td></tr>
+    <tr><td><span class="tag p0">P0</span></td>
+        <td><b>Thiếu buff phòng thủ của thời tiết</b></td>
+        <td>Cát không cộng ×1.5 SpD cho hệ Đá; Tuyết không cộng ×1.5 Def cho hệ Băng. Cả hai là mechanic Gen 9 chuẩn, ảnh hưởng thẳng vào meta cát/tuyết.</td>
+        <td><code>calcDamage</code>:1230–1232</td></tr>
+    <tr><td><span class="tag p0">P0</span></td>
+        <td><b>Crit không bỏ qua buff</b></td>
+        <td>Crit đang chỉ nhân 1.5. Đúng ra crit <i>bỏ qua</i> buff Def/SpD của bên thủ và nerf Atk/SpA của bên công. Bật Crit lúc thủ đang +2 Def cho ra số thấp hơn thực tế nhiều.</td>
+        <td>:1213–1214 + :1233</td></tr>
+    <tr><td><span class="tag p1">P1</span></td>
+        <td><b>Knock Off không ×1.5</b></td>
+        <td>Đang cố định 65 BP. Đúng ra ×1.5 (→97.5) khi mục tiêu <i>đang cầm đồ có thể gỡ</i> — gần như luôn đúng ở VGC.</td>
+        <td><code>MOVES_DEFAULT</code>:948</td></tr>
+    <tr><td><span class="tag p1">P1</span></td>
+        <td><b>Chiêu nhiều hit dùng chung 1 roll</b></td>
+        <td><code>rolls.push(dmg*hits)</code> — mọi hit dùng cùng roll. Thực tế mỗi hit roll độc lập → phân bố thật hẹp hơn ở đuôi, %KO của Dragon Darts / Population Bomb / Triple Axel lệch.</td>
+        <td>:1269–1279</td></tr>
+    <tr><td><span class="tag p1">P1</span></td>
+        <td><b>Triple Axel tính sai BP</b></td>
+        <td>Đang 40×3 = 120. Thực tế 40 + 80 + 120 = <b>240</b>. Note trong data đã ghi đúng nhưng engine không đọc.</td>
+        <td>:984</td></tr>
+    <tr><td><span class="tag p1">P1</span></td>
+        <td><b>Intimidate là cờ chết</b></td>
+        <td><code>'Intimidate':{intimidate:1}</code> khai báo ở :815 rồi không ai đọc. Đây là ability doubles nặng ký nhất — đang phải tự bấm −1 Atk bằng tay và rất dễ quên.</td>
+        <td>:815</td></tr>
+    <tr><td><span class="tag p1">P1</span></td>
+        <td><b>Contrary đảo dấu buff</b></td>
+        <td>Mega Staraptor / Mega Malamar (M-B) có Contrary: nút <b>+</b> trên card đáng lẽ trừ. App đang cho buff thuận chiều → sai dấu hoàn toàn.</td>
+        <td><code>bumpStage</code>:1474</td></tr>
+    <tr><td><span class="tag p1">P1</span></td>
+        <td><b>Thiếu Mold Breaker / Neutralizing Gas</b></td>
+        <td>Không bỏ qua ability bên thủ → Multiscale, Fur Coat, Levitate… vẫn bị trừ dù đáng lẽ bị vô hiệu.</td>
+        <td><code>defAbilCut</code>/<code>abilImmune</code>:855,915</td></tr>
+    <tr><td><span class="tag p2">P2</span></td>
+        <td><b>Chiêu ăn theo địa hình chỉ có note</b></td>
+        <td>Rising Voltage ×2 (địa hình Điện), Expanding Force ×1.5 + hoá spread (địa hình Siêu Linh), Ivy Cudgel đổi hệ theo mặt nạ — đều mới dừng ở chữ.</td>
+        <td>:956,964,983</td></tr>
+  </tbody>
+</table>
+
+<div class="card warn">
+  <h3>Một điều <i>không</i> nên sửa</h3>
+  <p>Thứ tự nhân của <code>calcDamage</code> (base → spread → thời tiết → crit → roll → STAB → hệ → bỏng → other) <b>đúng chuẩn Gen 9</b>, và Champions dùng đúng công thức Gen 9 với biến thể chỉ số SP. Không đụng vào. Khác biệt duy nhất so với game gốc là app cộng dồn <code>other</code> ở dạng float rồi mới <code>pokeRound</code>, trong khi game chain trong hệ 4096 — sai lệch tối đa 1 điểm damage, không đáng đánh đổi độ phức tạp.</p>
+</div>
+
+<h2>3 — B. Vá dữ liệu (P0/P1)</h2>
+<table>
+  <thead><tr><th style="width:24px"></th><th style="width:200px">Hạng mục</th><th>Chi tiết</th></tr></thead>
+  <tbody>
+    <tr><td><span class="tag p0">P0</span></td>
+        <td><b>USAGEDATA đang lệch reg</b></td>
+        <td>Snapshot ghi <b>2026-05</b>, trong khi <b>Reg M-B chạy từ 17/06/2026</b> và thêm 22 loài + 16 Mega. Nghĩa là toàn bộ spread/moveset đang là meta M-A, và không con M-B nào có usage. Chạy lại <code>scrape.py → build.py → apply.py</code>, đồng thời thêm trường <code>reg</code> + <code>date</code> vào USAGEDATA và hiện nó ngay trong app — để lần sau data cũ thì <i>nhìn ra được</i>, chứ không phải đọc README mới biết.</td></tr>
+    <tr><td><span class="tag p1">P1</span></td>
+        <td><b>3 item M-B còn thiếu</b></td>
+        <td><b>Iron Ball</b> (Spe ×0.5 + mất miễn nhiễm Đất — ảnh hưởng cả speed order lẫn damage), <b>Icy Rock</b>, <b>Smooth Rock</b>. Hai cái sau không đổi damage nhưng cần có trong danh sách để ghi được đồ đối thủ (như Leftovers/Rocky Helmet hiện nay).</td></tr>
+    <tr><td><span class="tag p1">P1</span></td>
+        <td><b>Metronome đang là <code>{}</code></b></td>
+        <td>Item Metronome ở Champions cộng 20% mỗi lượt dùng lặp chiêu, trần +100% (×2.0). Cần ô chọn "đã dùng lặp mấy lượt" tương tự cách <code>FAINT</code> phục vụ Last Respects.</td></tr>
+    <tr><td><span class="tag p2">P2</span></td>
+        <td><b>Danh sách cờ chiêu đang chép tay</b></td>
+        <td><code>MV_PUNCH</code>, <code>MV_SLICE</code>, <code>MV_SHEER</code>, <code>MV_NOCONTACT</code>… liệt kê thủ công nên loài/chiêu mới vào là sót ngầm, không báo lỗi. Đề xuất: sinh các Set này từ dữ liệu chiêu lúc build (<code>build.py</code>) thay vì gõ tay, hoặc ít nhất viết test đối chiếu số lượng.</td></tr>
+  </tbody>
+</table>
+
+<h2>4 — C. Tính năng mới, xếp theo giá trị</h2>
+
+<div class="card good">
+  <h3>C1. Bộ giải SP — "cần bao nhiêu SP để sống chiêu này?" <span class="tag new">đề xuất số 1</span></h3>
+  <p>Cả ChampDex lẫn PikaChampions đều coi đây là tính năng lõi, và nó là thứ <b>đổi cách build đội</b> chứ không chỉ để tra cứu. Thuật toán đơn giản: quét mọi cặp (HP, Def/SpD) trong 0–32 mỗi ô, ngân sách ≤64, duyệt theo <i>tổng chi phí tăng dần</i>, dừng ở cặp đầu tiên sống được max roll → đó là spread rẻ nhất.</p>
+  <p>Chỗ app đang thuận lợi hơn đối thủ: đã có <code>buildMon</code> + <code>calcDamage</code> nhận cfg tuỳ ý, nên bộ giải chỉ là vòng lặp bên ngoài (~1000 lần gọi <code>calcDamage</code>, dưới 50ms). Không cần refactor gì.</p>
+  <p><b>Đặt ở đâu:</b> ngay trong bảng damage — mỗi dòng chiêu có nút "🔧 sống được đòn này" → hiện "cần 12 HP / 8 Def (tổng 20 SP)" hoặc "không spread nào sống".</p>
+</div>
+
+<div class="card good">
+  <h3>C2. Chấm sống-sót cả đội trước meta <span class="tag new">tận dụng hạ tầng sẵn có</span></h3>
+  <p>Phần "Bảng thủ" trong tab Phân tích đã chạy đúng ma trận 6 con × 4 chiêu. Thiếu đúng một bước: thay vì chỉ tô màu %, phân loại thành 4 nhãn <b>Miễn nhiễm / Sống sẵn / Cần <i>n</i> SP / Bất khả</b> (nhãn thứ 3 lấy thẳng từ C1), rồi tổng hợp thành một dòng kết luận cho mỗi con: "Sống 17/20 mối đe doạ, 2 con cần thêm SP, 1 con vô phương".</p>
+  <p>Khác biệt so với PikaChampions: họ chấm với ~20 threat cứng do họ chọn; mình chấm với <i>đội đối thủ người dùng đang nhập</i> + top usage — sát trận hơn.</p>
+</div>
+
+<div class="card good">
+  <h3>C3. Dán team sheet đối thủ <span class="tag new">ăn thẳng vào luật của format</span></h3>
+  <p>Reg M-B dùng <b>open team sheet</b> — hai bên đổi danh sách đội ngay đầu trận. Đây là lúc app có giá trị cao nhất và cũng là lúc gõ tay 6 con là chậm nhất. Đề xuất: ô "📋 Dán team sheet" ở panel Đối thủ, parse ra 6 con kèm item/ability/chiêu.</p>
+  <p>Logic parse <b>đã viết rồi</b> — <code>update_pkm.py</code> đang bóc paste kiểu Showdown với hệ SP cap 32. Việc còn lại là port sang JS và nới cho khớp định dạng team sheet Champions xuất ra. Kèm luôn chiều ngược lại (export đội mình) để chia sẻ/backup, vì hiện app chỉ sống trong localStorage.</p>
+  <p>Bổ sung rẻ tiền đi kèm: <b>bộ đổi EV ↔ SP</b> (ChampDex có) để nhập được spread Smogon từ các bài viết VGC — <code>SP ≈ round(EV/8)</code>, cần chốt cách làm tròn và ghi rõ là xấp xỉ.</p>
+</div>
+
+<div class="card">
+  <h3>C4. Cộng dồn sát thương 2 con → 1 mục tiêu <span class="tag new">câu hỏi trung tâm của doubles</span></h3>
+  <p>Câu hỏi thật khi đánh đôi không phải "con A đánh mất bao nhiêu %" mà "<b>A + B có hạ được nó lượt này không</b>". NCP calc có; mình chưa. Hạ tầng cần: cộng hai mảng roll rồi tính %KO trên phân phối tổng (16×16 = 256 tổ hợp — tính thẳng, không cần xấp xỉ). Bao gồm cả trường hợp một con Helping Hand cho con kia.</p>
+</div>
+
+<div class="card">
+  <h3>C5. %KO thật + chip máu ngoài đòn đánh</h3>
+  <p><code>koLabel</code> hiện suy ra 2HKO/3HKO từ min/max — đúng về mặt "chắc/không chắc" nhưng không ra được <i>xác suất</i>. Đã có sẵn 16 roll thì tính đúng rất rẻ: quy hoạch động trên phân phối tổng n đòn → "2HKO 87.5%" thay vì "2HKO".</p>
+  <p>Đi kèm: chip máu giữa các lượt — Leftovers +1/16, Life Orb −1/10, cát −1/16, Salt Cure, hazards (Champions <b>có</b> Spikes/Toxic Spikes/Sticky Web — chính mô tả Eelevate xác nhận). Không có mấy khoản này thì mọi con số nhiều đòn đều lệch.</p>
+</div>
+
+<div class="card">
+  <h3>C6. % máu hiện tại + trạng thái đầy đủ</h3>
+  <p>App đang <i>giả định bên thủ luôn full HP</i> và ghi chú điều đó (nút tắt 🛡). Một ô "% máu hiện tại" giải quyết gọn hơn nhiều thứ cùng lúc: Multiscale/Shadow Shield tự tắt, Sitrus/berry biết đã kích hoạt chưa, Weakness Policy, và <b>bắt buộc phải có</b> để C1 (BP theo máu: Eruption/Water Spout) chạy đúng.</p>
+  <p>Trạng thái: hiện có brn/par. Thêm độc/ngủ/băng cho Facade, Hex, Guts, Purifying Salt.</p>
+</div>
+
+<div class="card">
+  <h3>C7. Nhóm ability đồng đội của doubles</h3>
+  <p>Toàn bộ nhóm này đang trống, trong khi đây là đặc sản đánh đôi: <b>Friend Guard</b> (×0.75 lên đồng đội), <b>Battery</b> / <b>Power Spot</b> (×1.3), <b>Steely Spirit</b> (×1.5 chiêu Thép), <b>Flower Gift</b>. Chúng thuộc về thanh field bar bên cạnh Aura/Ruin — cùng bản chất "con thứ ba trên sân ảnh hưởng cặp đang tính".</p>
+</div>
+
+<div class="card">
+  <h3>C8. Kiểm tra luật đội theo Reg M-B</h3>
+  <p>Ba luật cứng của format mà app hiện không kiểm:</p>
+  <ul>
+    <li><b>Item clause</b> — không hai con cùng đồ. App cho trùng thoải mái.</li>
+    <li><b>Species clause</b> — không hai con cùng loài.</li>
+    <li><b>1 Mega mỗi trận</b> — app cho bật Mega nhiều con cùng lúc, dựng ra kịch bản không tồn tại trong trận thật. Đây là cái nguy hiểm nhất vì nó <i>làm sai kết quả tính</i> chứ không chỉ sai luật.</li>
+  </ul>
+  <p>Làm nhẹ thôi: badge đỏ trong Sổ đội + cảnh báo khi bật Mega con thứ hai, không chặn cứng (người dùng vẫn có quyền thử giả định).</p>
+</div>
+
+<div class="card">
+  <h3>C9. Speed order → "cần bao nhiêu SP Spe để vượt"</h3>
+  <p>Bảng Speed order hiện trả lời "ai nhanh hơn". Bổ sung một cột trả lời câu hỏi hữu ích hơn khi build: <b>"cần bao nhiêu SP Spe để vượt con này"</b>, có tính Scarf / Tailwind / TR / tê liệt / Chlorophyll. Cùng họ với C1 — đều là giải ngược từ mục tiêu ra spread, và cùng dùng lại <code>effSpeed</code> có sẵn.</p>
+</div>
+
+<div class="card">
+  <h3>C10. Type coverage cho đội <span class="tag p2">P2</span></h3>
+  <p>Tab Matchup đã làm bảng khắc hệ theo <i>một</i> con. Mở rộng thành bảng phủ của cả đội: 18 hệ × "đội mình đánh trúng bao nhiêu %", "hệ nào cả đội không đánh nổi", "hệ nào cả đội cùng sợ". Giá trị vừa phải vì tab Phân tích đã trả lời phần lớn câu hỏi này bằng số liệu cụ thể hơn.</p>
+</div>
+
+<h2>5 — Không nên làm</h2>
+<table>
+  <thead><tr><th style="width:190px">Hạng mục</th><th>Lý do</th></tr></thead>
+  <tbody>
+    <tr><td><b>Terastal</b></td><td>Không hợp lệ ở Reg M-B — Mega là cơ chế trận đấu duy nhất đang bật. Vài trang calc SEO vẫn nhắc STAB ×2.0 khi Tera, đó là họ chép công thức Gen 9 chứ không phải luật Champions. Thêm vào chỉ tạo ô chọn dẫn người dùng đi sai.</td></tr>
+    <tr><td><b>Z-Move / Dynamax</b></td><td>Z-Move từng xuất hiện nhưng không thuộc M-B; Dynamax không có mặt.</td></tr>
+    <tr><td><b>Chuyển sang <code>@smogon/calc</code></b></td><td>Đổi được độ phủ mechanic nhưng mất toàn bộ phần Việt hoá, hệ SP, gắn usage và tab Phân tích — tức là mất đúng phần app hơn người. Vá 12 lỗ ở mục A rẻ hơn nhiều.</td></tr>
+  </tbody>
+</table>
+
+<h2>6 — Thứ tự đề nghị</h2>
+<table>
+  <thead><tr><th style="width:80px">Đợt</th><th style="width:230px">Nội dung</th><th>Vì sao xếp ở đây</th></tr></thead>
+  <tbody>
+    <tr><td><b>21</b></td><td>A: 6 lỗi P0 + refresh USAGEDATA sang M-B</td><td>Con số sai là lỗi nặng nhất của một cái calc. Refresh data đi kèm vì 4/6 lỗi P0 chỉ lộ ra ở loài M-B.</td></tr>
+    <tr><td><b>22</b></td><td>C1 bộ giải SP + C6 % máu hiện tại</td><td>C6 là điều kiện để C1 đúng (BP theo máu, Multiscale). Ghép một đợt.</td></tr>
+    <tr><td><b>23</b></td><td>C3 dán team sheet + export</td><td>Đổi trải nghiệm lúc thi đấu thật nhiều nhất trên mỗi giờ code, vì logic parse đã có sẵn ở Python.</td></tr>
+    <tr><td><b>24</b></td><td>C2 chấm sống-sót cả đội + C8 kiểm luật</td><td>C2 phụ thuộc C1; C8 nhỏ, đi ké.</td></tr>
+    <tr><td><b>25</b></td><td>C4 cộng dồn 2 con + C5 %KO thật</td><td>Cùng đụng vào phân phối roll — làm một lần.</td></tr>
+    <tr><td><b>26+</b></td><td>A nhóm P1/P2, C7, C9, C10</td><td>Bồi độ phủ khi đã xong phần khung.</td></tr>
+  </tbody>
+</table>
+
+<h2>7 — Nguồn</h2>
+<ul>
+  <li>Luật &amp; format: <a href="https://victoryroad.pro/champions-regulations/">Victory Road — Champions Regulations</a> · <a href="https://bulbapedia.bulbagarden.net/wiki/Regulation_Set_M-B">Bulbapedia — Regulation Set M-B</a></li>
+  <li>Nội dung M-B (Mega, loài, item): <a href="https://game8.co/games/Pokemon-Champions/archives/605482">Game8 — M-B Roster</a> · <a href="https://insider-gaming.com/pokemon-champions-regulation-m-b-new-pokemon-held-items/">Insider Gaming — New Pokémon &amp; Held Items</a> · <a href="https://www.pkmbuy.com/news/pok-mon-champions-regulation-m-b-guide">pkmbuy — 11 Mega abilities (Eelevate, Fire Mane)</a></li>
+  <li>Công thức: <a href="https://saavage.com/stories/pokemon-champions-how-damage-works">saavage — How damage works</a> · <a href="https://champdex.com/tools/calc">ChampDex — calc &amp; công cụ phụ</a></li>
+  <li>Tính năng đối thủ: <a href="https://pikachampions.com/guides/pokemon-champions-damage-calculator">PikaChampions — SP optimizer</a> · <a href="https://www.pikalytics.com/damage-calculator">Pikalytics calc</a> · <a href="https://nerd-of-now.github.io/NCP-VGC-Damage-Calculator/">NCP VGC Calculator</a> · <a href="https://vgccalc.com/about/">vgccalc.com</a></li>
+</ul>
+
+<p class="muted" style="margin-top:26px">Tài liệu đề xuất — chưa có dòng code nào được sửa theo nó. Khi bắt tay làm đợt nào, ghi quyết định thiết kế vào <code>Implementation-notes.html</code> như thường lệ.</p>
+
+</div>
+</body>
+</html>

@@ -48,6 +48,134 @@
 
 <div class="wrap">
 
+<h2>Đợt 21 — Vá 12 sai số engine, làm tươi usage data, bảng phủ hệ của đội</h2>
+<div class="card">
+  <h3>Phạm vi lấy từ <code>De-xuat-nang-cap.html</code></h3>
+  <p>Làm mục <b>A (sai số engine)</b>, <b>B (vá dữ liệu)</b> và <b>C10 (độ phủ hệ)</b>. Ba mục lớn còn lại của
+  đề xuất — bộ giải SP, dán team sheet, cộng dồn 2 con — <b>chưa làm</b>.</p>
+</div>
+
+<div class="card good">
+  <h3>Dựng được môi trường CHẠY THẬT để kiểm chứng, thay vì đọc code bằng mắt</h3>
+  <p>Đợt này đụng vào lõi <code>calcDamage</code> ở 12 chỗ nên không thể chỉ "đọc lại thấy đúng". Cách làm:
+  nhúng 5 khối <code>&lt;script&gt;</code> của <code>index.html</code> vào <b>quickjs</b> (qua Python) với một
+  <code>document</code>/<code>localStorage</code> giả bằng <code>Proxy</code> — app boot trọn vẹn, gọi thẳng được
+  <code>calcDamage</code>, <code>teamCovData</code>, <code>bumpStage</code>…</p>
+  <p>Hai lớp kiểm chứng:</p>
+  <table>
+    <thead><tr><th>Lớp</th><th>Nội dung</th><th>Kết quả</th></tr></thead>
+    <tbody>
+      <tr><td>Unit</td><td>53 khẳng định, mỗi fix ít nhất 1 ca dương + 1 ca âm (VD Fire Mane phải ×1.5 chiêu Lửa
+        <i>và</i> không được đụng hệ khác)</td><td>53/53 pass</td></tr>
+      <tr><td>Hồi quy</td><td>Quét 117.000 ca (26 loài × 9 bên thủ × 25 chiêu × 5 thời tiết × 4 địa hình), so
+        <b>từng con số</b> với bản <code>HEAD</code> cũ</td><td>8.458 ca đổi, <b>0 ca không giải thích được</b></td></tr>
+    </tbody>
+  </table>
+  <p>Lớp hồi quy là thứ đáng giữ lại: nó bắt được đúng câu hỏi "mình có vô tình đổi gì ngoài ý định không",
+  mà đọc diff thì không trả lời nổi. 4 lần "FAIL" đầu tiên đều là <i>test viết sai</i> (chọn nhầm cặp miễn
+  nhiễm hệ — Earthquake vào Dragonite, Psychic vào Tyranitar), không phải engine sai.</p>
+  <p class="muted">Script nằm ở scratchpad, không commit: <code>harness.py</code> (boot app), <code>tests.js</code>
+  (53 case), <code>regress.py</code> (quét hồi quy). Muốn chạy lại: <code>pip install quickjs esprima</code>.</p>
+</div>
+
+<div class="card">
+  <h3>Vì sao chuyển từ "hệ số buff đã nhân sẵn" sang "cấp buff thô"</h3>
+  <p><code>readField()</code> trước đây trả <code>stA/stS/stD/stSd</code> = hệ số đã nhân sẵn (<code>stageMul</code>).
+  Gọn, nhưng chặn mất 3 luật cùng lúc vì <b>mất thông tin dấu và độ lớn</b>:</p>
+  <ul>
+    <li><b>Crit</b> phải bỏ qua buff phòng thủ của bên thủ và nerf công của bên công — cần biết cấp là âm hay dương.</li>
+    <li><b>Foul Play</b> mượn Atk của bên thủ nên phải ăn buff Atk của <i>bên thủ</i>; <b>Body Press</b> mượn Def của
+      người dùng nên ăn buff Def của <i>bên công</i>. Cả hai trước đây bị bỏ trắng (điều kiện
+      <code>if(!m.foul&amp;&amp;!m.useDef)</code>).</li>
+    <li><b>Intimidate</b> cần cộng −1 vào cấp rồi mới quy ra hệ số, chứ nhân thêm 2/3 vào hệ số là sai khi con đó
+      đang có buff sẵn.</li>
+  </ul>
+  <p>Nay <code>readField()</code> trả <code>aSt</code>/<code>dSt</code> = cấp buff thô của <b>cả hai bên</b> cho 4 chỉ số,
+  và <code>calcDamage</code> tự chọn dùng cấp nào. Chỗ gọi cũ (<code>bestHit</code>) truyền <code>{}</code> → cấp 0 → hệ
+  số 1, y hệt hành vi cũ.</p>
+</div>
+
+<div class="card">
+  <h3>Chiêu nhiều hit: giữ nguyên cột Dmg, chỉ sửa %KO</h3>
+  <p>Trước đây <code>rolls.push(dmg*hits)</code> — mọi hit dùng <b>chung một roll</b>. Thực tế mỗi hit roll độc lập.</p>
+  <p>Điều đáng nói: <b>min và max không hề sai</b> (tổng của các cực trị vẫn là cực trị), chỉ phần <i>giữa</i> phân
+  phối sai — nên bảng "Dmg" cũ vẫn đúng, còn "%KO" thì lệch. Vì vậy giữ nguyên cột Dmg (16 mức tổng, dễ đọc) và
+  thêm <code>sumDist()</code> nhân chập phân phối thật để tính %KO. Dải roll chỉ rộng 15% nên số tổng khác nhau rất
+  nhỏ — Population Bomb 10 hit vẫn dưới ~300 khoá, nhân chập thẳng không cần xấp xỉ.</p>
+  <p>Được thêm: <code>koChance(res,n)</code> cho ra <b>2HKO 87%</b> thay vì chỉ "2HKO" — mốc 2/3 đòn trước đây chỉ
+  có nhị phân chắc/không chắc.</p>
+</div>
+
+<div class="card warn">
+  <h3>Máu bên công: để ở LƯỢT, không nhét vào từng con</h3>
+  <p><code>scale:'hp'</code> (Eruption/Water Spout/Dragon Energy) khai báo trong data từ lâu nhưng
+  <code>calcDamage</code> chưa bao giờ đọc → luôn tính 150 BP. Muốn sửa thì phải có khái niệm "máu hiện tại".</p>
+  <p>Chọn đặt <code>ATKHP</code> ở cấp <b>lượt đang xét</b> (một ô select cạnh Crit/Helping Hand, chỉ hiện khi bộ chiêu
+  thật sự có chiêu loại này) thay vì thêm state máu cho từng Pokémon. Lý do: state máu từng con là mục <b>C6</b> của
+  đề xuất, kéo theo Multiscale/Sitrus/Weakness Policy và ô máu trên cả 2 rìa — làm nửa vời sẽ khoá thiết kế của C6.</p>
+  <p><b>Đánh đổi đã chấp nhận:</b> tab Phân tích và tab Tôi → Đối thủ vẫn giả định bên công <b>full máu</b>. Với
+  tab Phân tích thì đó là giả định đúng (phe thủ nên tính trường hợp xấu nhất); với tab Tôi → Đối thủ thì hơi lạc
+  quan, đã ghi trong comment.</p>
+</div>
+
+<div class="card bad">
+  <h3>Không chạy <code>apply.py</code> kiểu cũ — nó sẽ xoá 176 loài</h3>
+  <p>Đề xuất ghi "chạy lại scrape → build → apply". Chạy tới bước apply mới lộ ra: <code>USAGEDATA</code> hiện tại
+  <b>không còn là ảnh chụp Pikalytics</b> — nó là <b>226 set curated</b> từ paste (Đợt 14), và tất cả đều mang
+  <code>s:1</code>, không entry nào còn <code>u</code>. <code>apply.py</code> bản cũ thay <i>cả khối</i> bằng 50 loài
+  ladder → mất 176 loài, và 50 loài còn lại bị ladder đè lên set curated, tức là lặng lẽ đảo ngược chính quyết định
+  "paste là nguồn tin cậy hơn" của Đợt 14.</p>
+  <p>Nên viết lại <code>apply.py</code> thành <b>gộp, không đè</b>: loài chưa có thì thêm; loài đã có thì giữ set
+  curated, chỉ gắn <code>meta:1</code>. Muốn theo ladder thì <code>--overwrite</code>, và script <b>in ra 19 loài có
+  set curated lệch spread top của ladder</b> để tự quyết thay vì quyết hộ.</p>
+  <p><code>u</code> chỉ gắn khi spread curated <b>trùng</b> spread top của ladder — vì <code>u</code> nghĩa là "% số
+  trận dùng <i>spread này</i>", dán % của spread A lên spread B là bịa số. Kết quả: 31/50 loài có % thật.</p>
+</div>
+
+<div class="card">
+  <h3>Hai cờ dữ liệu bị hỏng nghĩa sau Đợt 14 — sửa luôn</h3>
+  <table>
+    <thead><tr><th>Chỗ</th><th>Triệu chứng</th><th>Sửa</th></tr></thead>
+    <tbody>
+      <tr><td>Lọc "chỉ hiện con hay gặp"</td><td>Điều kiện là <code>!!usageOf(n)</code>, mà USAGEDATA nay phủ 226 loài
+        → gần như con nào cũng "hay gặp", lọc mất tác dụng</td><td>Đổi sang cờ <code>meta</code> (top-50 ladder thật)</td></tr>
+      <tr><td>Nhãn nguồn ở Speed order</td><td>Đọc cờ <code>s</code>, mà nay <b>mọi</b> entry đều có <code>s:1</code>
+        → con nào cũng bị dán "· set" kể cả khi có % ladder thật</td><td>Đổi sang đọc <code>u</code>: có % thì hiện %,
+        không có thì mới là "· set"</td></tr>
+      <tr><td><code>build.py</code> đọc bảng ITEMS</td><td>Chỉ regex literal <code>const ITEMS={…}</code>, bỏ sót
+        <code>TYPE_ITEMS</code>/<code>RESIST_BERRY</code> (nạp bằng vòng lặp) → tưởng app không biết Fairy Feather
+        và <b>ném luôn item usage thật của Sylveon 89,6%</b></td><td>Đọc thêm 2 bảng đó; item bị bỏ: 4 → 0</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h3>C10 — bảng phủ hệ đọc chiêu thật, không đọc hệ Pokémon</h3>
+  <p>Đặt ở tab Khắc hệ, dưới phần tra cứu 1–2 hệ có sẵn. Khác biệt cố ý: phần trên tra <i>hệ bất kỳ</i>, phần dưới
+  chấm <b>đội thật</b> theo <b>chiêu đang đặt trong Sổ đội</b> — vì "Mawile hệ Thép/Tiên" không nói gì về việc nó
+  đánh trúng cái gì, còn "Mawile có Play Rough + Iron Head" thì có.</p>
+  <p>Con chưa điền chiêu thì tạm lấy hệ của chính nó làm hệ đòn, và <b>ghi rõ số con đang bị ước lượng</b> ngay
+  trên bảng — thà nói mình đang đoán còn hơn im lặng trộn chung với số liệu thật.</p>
+  <p>Hai kết luận in đậm ở đầu: <b>hệ không đánh thủng</b> (không con nào có chiêu hiệu quả gấp bội) và
+  <b>điểm mù phòng thủ</b> (≥3 con dính ×2 mà không con nào kháng). Ngưỡng 3 chọn theo cỡ đội chọn-4 của VGC:
+  3/6 con dính nghĩa là khả năng cao có mặt trong đội hình ra sân.</p>
+</div>
+
+<div class="card warn">
+  <h3>Còn tồn — cố ý không làm ở đợt này</h3>
+  <ul>
+    <li><b>Contrary</b> mới sửa nút +/− trên card. Ability này còn đảo cả Draco Meteor/Overheat (tự hạ SpA thành
+      tự tăng) — engine chưa mô hình chiêu tự nerf nên chưa đụng tới.</li>
+    <li><b>Neutralizing Gas</b> chỉ tắt ability khi chính 2 con đang tính mang nó. Ở đánh đôi, con thứ ba mang gas
+      cũng tắt ability cả sân — cần khái niệm "con trên sân" mà app chưa có (giống Aura/Ruin đang phải tick tay).</li>
+    <li><b>Sinh <code>MV_PUNCH</code>/<code>MV_SLICE</code>… từ dữ liệu</b> (đề xuất B-P2): <b>không làm được</b> —
+      <code>AUTOMOVES</code> chỉ có <code>t/c/bp/spread/pri</code>, không có cờ contact/punch/slicing. Muốn tự sinh
+      thì phải bổ sung nguồn dữ liệu chiêu khác trước.</li>
+    <li><b>Iron Ball</b> mới làm phần đổi số (Spe ½, kéo xuống đất). Phần "hết bay lơ lửng" với hazards thì app
+      chưa có hazards nên chưa có gì để nối.</li>
+  </ul>
+</div>
+
 <h2>Đợt 20 — Ability tấn công/miễn nhiễm + Paradox (Protosynthesis/Quark Drive)</h2>
 <div class="card good">
   <h3>3 bảng ability mới, tách theo <b>vị trí áp hệ số</b> trong công thức</h3>

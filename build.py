@@ -20,6 +20,13 @@ MOVES = set(re.findall(r'"([^"]+)":\{"t":"[A-Za-z]+","c":"(?:phys|spec|stat)"', 
 # chú ý: KHÔNG dùng ^ + re.M — mỗi dòng có nhiều item, sẽ chỉ bắt được cái đầu dòng.
 ITEMS = set(re.findall(r"'([^']+)':\{",
             re.search(r"const ITEMS=\{(.*?)\n\};", src, re.S).group(1)))
+# TYPE_ITEMS/RESIST_BERRY được nạp vào ITEMS bằng vòng lặp lúc chạy, không nằm trong literal
+# `const ITEMS={...}` — thiếu 2 dòng này thì build tưởng app "không biết" Fairy Feather,
+# Sharp Beak, Colbur/Roseli Berry… và ném luôn item usage thật (Sylveon 89.6% Fairy Feather).
+for tbl in ("TYPE_ITEMS", "RESIST_BERRY"):
+    blk = re.search(r"const %s=\{(.*?)\};" % tbl, src, re.S)
+    if blk:
+        ITEMS |= set(re.findall(r"'([^']+)':'", blk.group(1)))
 NATURES = set(re.findall(r"(\w+):\['", re.search(r"const NATURES=\{(.*?)\};", src, re.S).group(1)))
 DEXNAMES = set(re.findall(r'"([^"]+)":\[\["', src))
 
