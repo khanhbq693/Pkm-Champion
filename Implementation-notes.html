@@ -48,6 +48,81 @@
 
 <div class="wrap">
 
+<h2>Đợt 20 — Ability tấn công/miễn nhiễm + Paradox (Protosynthesis/Quark Drive)</h2>
+<div class="card good">
+  <h3>3 bảng ability mới, tách theo <b>vị trí áp hệ số</b> trong công thức</h3>
+  <p>Ability ảnh hưởng damage được chia làm 3 nhóm — mỗi nhóm áp ở một chỗ khác nhau vì rounding của Champions
+  khác nhau theo bước:</p>
+  <table>
+    <thead><tr><th>Nhóm / hàm</th><th>Áp ở đâu</th><th>Vì sao</th></tr></thead>
+    <tbody>
+    <tr><td><code>atkStatAbil()</code> — Guts, Gorilla Tactics, Orichalcum/Hadron/Solar Power, <b>Paradox</b></td>
+      <td>Nhân thẳng vào <code>A</code> (chỉ số công) <b>trước</b> <code>base</code>, kèm <code>Math.floor</code></td>
+      <td>Đây là ability tăng <b>chỉ số</b>, không phải tăng damage cuối. Áp vào A cho khớp thứ tự floor của game
+        (giống Choice Band/Huge Power vốn đã nhân vào A).</td></tr>
+    <tr><td><code>offDmgAbil()</code> — Technician, Tough Claws, Sharpness, Iron Fist, Strong Jaw, Mega Launcher,
+      Punk Rock, Reckless, Sheer Force, Tinted Lens, Water Bubble, Steelworker, Rocky Payload, Dragon's Maw,
+      Transistor, Sand Force, Supreme Overlord</td>
+      <td>Gộp vào <code>other</code>, <code>pokeRound</code> ở cuối vòng roll</td>
+      <td>Đây là <b>final modifier</b> (nhân damage cuối), đúng vị trí như Life Orb/Expert Belt.</td></tr>
+    <tr><td><code>ABIL_IMMUNE</code> + <code>abilImmune()</code> — Volt Absorb, Water Absorb, Storm Drain,
+      Lightning Rod, Flash Fire, Sap Sipper, Earth Eater, Well-Baked Body, Dry Skin, Motor Drive, Bulletproof</td>
+      <td>Ép <code>e=0</code> ngay khi tính hiệu quả hệ</td>
+      <td>Miễn nhiễm = 0 dmg, đi qua nhánh "Miễn nhiễm" sẵn có của <code>koLabel</code>.</td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="card">
+  <h3>Paradox: cường hoá <b>chỉ số cao nhất</b> ×1.3 — vì sao tính trong <code>calcDamage</code> chứ không phải <code>buildMon</code></h3>
+  <p>Protosynthesis kích hoạt khi <b>nắng</b> hoặc cầm <b>Booster Energy</b>; Quark Drive khi <b>địa hình điện</b> hoặc Booster.
+  <code>buildMon</code> chỉ nhận <code>weather</code>, <b>không có</b> terrain — mà Quark Drive cần terrain. Nên
+  <code>paradoxStatMult()</code> đặt trong <code>calcDamage</code> (có đủ <code>field.weather</code> + <code>field.terrain</code> + <code>mon.item</code>).
+  Bên công áp vào <code>A</code> nếu Atk/SpA là chỉ số cao nhất; bên thủ áp vào <code>D</code> nếu Def/SpD cao nhất.
+  Tốc độ (×1.5) bỏ qua vì không đổi damage.</p>
+  <p><code>highestStatKey()</code> so 5 chỉ số theo thứ tự Atk→Def→SpA→SpD→Spe với phép <code>&gt;</code> chặt →
+  <b>hoà thì ưu tiên chỉ số đứng trước</b> (Great Tusk Atk=Def=131 → chọn Atk, khớp game).</p>
+  <p class="muted"><b>Đơn giản hoá đã chấp nhận:</b> Booster Energy trong game "khoá" chỉ số cao nhất lúc ra sân;
+  app dùng chỉ số cao nhất <i>hiện tại</i>. Lệch chỉ khi user buff/debuff đổi ngôi chỉ số cao nhất giữa trận — hiếm.</p>
+</div>
+<div class="card warn">
+  <h3>Đánh đổi ở nhóm cần "cờ chiêu" (contact / slicing / punch / sound / bullet / sheer-force)</h3>
+  <p>Bảng <code>MOVES</code> khổng lồ không có sẵn các cờ này. Thay vì sửa từng dòng chiêu, dùng <b>Set tên chiêu</b>
+  (<code>MV_PUNCH</code>, <code>MV_BITE</code>, <code>MV_PULSE</code>, <code>MV_SOUND</code>, <code>MV_SLICE</code>,
+  <code>MV_BULLET</code>, <code>MV_SHEER</code>, <code>MV_NOCONTACT</code>) — chỉ liệt kê chiêu <b>đang có</b> trong app.</p>
+  <ul>
+    <li><b>Tough Claws / contact:</b> mặc định <i>mọi chiêu vật lý đều chạm</i>, trừ <code>MV_NOCONTACT</code>
+      (Earthquake, Rock Slide, Stone Edge…). Chiêu ĐẶC BIỆT chạm (Draining Kiss, Grass Knot) bị coi là không chạm —
+      chấp nhận vì user Tough Claws gần như luôn đánh vật lý.</li>
+    <li><b>Sheer Force:</b> không thể suy "có hiệu ứng phụ" từ dữ liệu chiêu → phải <b>liệt kê tay</b> (<code>MV_SHEER</code>).
+      Có thể sót chiêu → khi đó chỉ mất ×1.3 (thiếu, không thừa). Thêm chiêu vào Set là xong.</li>
+    <li><b>Nhóm pinch cố ý BỎ:</b> Blaze/Overgrow/Torrent/Swarm chỉ ×1.5 khi ≤⅓ máu. App giả định thủ full HP nên
+      ở full HP giá trị đúng là ×1 → <b>không mô hình hoá lại chính là đúng</b>. Chỉ làm <b>Solar Power</b> (×1.5 SpA khi nắng, không phụ thuộc máu).</li>
+  </ul>
+</div>
+<div class="card good">
+  <h3>Bonus set Ursaluna: Guts + bỏng + Facade — 3 lỗi chồng nhau, sửa cả 3</h3>
+  <p>(1) <code>Facade</code> gắn cờ <code>facade</code> qua <code>fixSpecialMoves()</code>, <b>×2 BP</b> khi <code>atk.brn||atk.par</code>.
+  (2) Guts nhân <code>A</code> ×1.5 khi có trạng thái (trong <code>atkStatAbil</code>).
+  (3) Dòng giảm bỏng thêm điều kiện <code>&amp;&amp; atk.ability!=='Guts'</code> → Guts <b>miễn</b> nửa damage của bỏng.
+  App chỉ theo dõi brn/par (không có poison) nên "dính trạng thái" = brn hoặc par.</p>
+</div>
+<div class="card">
+  <h3><code>oppCfgOf</code>: mở rộng "ưu tiên ability định hình trận đấu" sang miễn nhiễm/redirect</h3>
+  <p>Bug gốc của các ca báo cáo (Thunderbolt→Lanturn 55.6%, Surf→Gastrodon, Flamethrower→Heatran): engine <b>đã</b> biết
+  Volt Absorb=0 nhưng <code>oppCfgOf</code> khi không có usage lại chỉ ưu tiên ability trong <code>DEF_ABIL_FX</code>, nên rơi về
+  <code>ab[0]</code> (không phải ability miễn nhiễm). Sửa: <code>.find(a=&gt;DEF_ABIL_FX[a]||ABIL_IMMUNE[a]||REDIRECT_ABIL.has(a))</code>.
+  Nay Lanturn mặc định Volt Absorb, Gastrodon Storm Drain, Heatran Flash Fire → 0%. Usage vẫn override khi có.</p>
+  <p class="muted"><b>Rủi ro:</b> mon có ab[0] "đúng meta" nhưng ab[1] tình cờ nằm trong 3 bảng → chọn nhầm ab[1].
+  Hiếm, và usage data đè khi có — giữ nguyên triết lý "đọc mối đe doạ" của Đợt 18.</p>
+</div>
+<div class="card">
+  <h3>2 badge cảnh báo mới: ⚠ (chưa mô hình hoá) &amp; 🎯 (hút chiêu doubles)</h3>
+  <p><code>abilBadges(mon,opts)</code> gộp 3 marker: 🛡 (đã có), ⚠ nếu ability ∈ <code>WARN_ABIL</code>
+  (Parental Bond, Neuroforce, Fluffy, Analytic… — <b>engine chưa mô hình hoá</b>, con số có thể lệch), và 🎯 nếu
+  <code>FIELD.mode==='double'</code> &amp; ability ∈ <code>REDIRECT_ABIL</code> (Lightning Rod/Storm Drain/Follow Me/Rage Powder).
+  <code>opts.shield/redirect=false</code> để tắt khi con đó đang <b>đánh</b> (🛡/🎯 chỉ hợp lý khi con là bên thủ/mục tiêu; ⚠ luôn hiện).</p>
+</div>
+
 <h2>Đợt 19 — Tab Phân tích: thêm "Bảng thủ" + chọn đối thủ ra trận</h2>
 <div class="card good">
   <h3>Phần 2 "Bảng thủ": ma trận 6 con mình (thủ) × 4 chiêu dự kiến mỗi đối thủ</h3>
