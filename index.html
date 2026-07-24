@@ -2304,11 +2304,12 @@ function renderFieldBar(){
     ['me','opp'].forEach(s=>Object.keys(FIELD[s]).forEach(k=>FIELD[s][k]=0));
     FAINT.me=0;FAINT.opp=0;
     PICK=[];OPICK=[]; // xoá luôn pkm đã chọn ra trận (cả 2 bên)
-    // xoá buff/BRN/PAR/Mega trên card 2 rìa — nếu không, "Reset" chỉ xoá được nửa sân
-    [...MYTEAM,...OPP].forEach(m=>{m.stages={};m.brn=false;m.par=false;});
+    // xoá buff/BRN/PAR/Mega/hệ-đã-khoá trên card 2 rìa — nếu không, "Reset" chỉ xoá được nửa sân.
+    // proType (Protean/Libero) cũng là trạng thái theo lượt: về '' = trở lại "chưa ra chiêu".
+    [...MYTEAM,...OPP].forEach(m=>{m.stages={};m.brn=false;m.par=false;m.proType='';});
     OPP.forEach(o=>o.megaForm=null);MYTEAM.forEach(s=>s.megaForm=null);
     saveTeam();saveOpp();renderMyPick();renderOpp();
-    fieldChanged();toast('Đã xoá điều kiện sân, buff/trạng thái, Mega và lựa chọn ra trận.');};
+    fieldChanged();toast('Đã xoá điều kiện sân, buff/trạng thái, Mega, hệ Protean đã khoá và lựa chọn ra trận.');};
 }
 function fieldChanged(){renderFieldBar();calcRefresh();renderSpeedTier();}
 
