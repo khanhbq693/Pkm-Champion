@@ -154,6 +154,11 @@
   .oc-tgl.brn.on{background:#331a12;border-color:#ff8a4c;color:#ff9d6b}
   .oc-tgl.par.on{background:#2e2a10;border-color:#e8d24a;color:#f0dd5a}
   .oc-tgl.shield.on{background:#12314a;border-color:#4a90d9;color:#7db8ff}
+  /* ô chọn hệ Protean/Libero đã khoá — dùng select thay nút bật/tắt vì hệ khoá đổi CẢ STAB lẫn
+     bảng khắc chế phía thủ, boolean không diễn tả được "khoá sang hệ nào". */
+  .pro-sel{border:1px solid #3fbf9a;background:#10322c;color:#5fd9b4;border-radius:8px;padding:6px 9px;
+           font-weight:800;font-size:12px;cursor:pointer;max-width:100%;letter-spacing:.3px}
+  .pro-sel.locked{border-color:#c98fe0;background:#241a33;color:#d7a6ff}
   /* 1 grid 6 cột bằng nhau — nhãn/giá trị/SP/nút cùng 1 cột nên nút thẳng ngay dưới chỉ số */
   .oc-stats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;margin-top:8px;text-align:center}
   .oc-stats .scol{min-width:0}
@@ -943,6 +948,13 @@ function offDmgAbil(atk,ct){
 }
 // Ability có ảnh hưởng damage nhưng ENGINE CHƯA MÔ HÌNH HOÁ → hiện ⚠ để không tin nhầm con số.
 const WARN_ABIL=new Set(['Parental Bond','Neuroforce','Stakeout','Toxic Boost','Flare Boost','Fluffy','Analytic','Merciless']);
+/* Protean/Libero: ĐỔI HỆ người dùng thành hệ của chiêu ngay TRƯỚC khi chiêu được thực thi
+   → chiêu nào cũng ăn STAB ×1.5, kể cả chiêu phủ (Greninja + Ice Beam: ×1.0 → ×1.5).
+   Gen 9 chỉ kích hoạt 1 LẦN mỗi lần ra sân, sau đó hệ bị KHOÁ theo chiêu đầu đã dùng
+   (Greninja mở Ice Beam → thành Băng thuần → Hydro Pump nhát sau MẤT STAB).
+   Engine không có state theo lượt nên không tự biết đã đánh chiêu nào: mặc định coi Protean
+   CÒN hiệu lực (đúng cho đòn đầu — thứ bảng damage đang tính), user tắt tay bằng nút 🎨. */
+const TYPECHG_ABIL=new Set(['Protean','Libero']);
 // Ability bên CÔNG phá ability bên THỦ (Levitate, Multiscale, Filter, Thick Fat…).
 const MOLD_ABIL=new Set(['Mold Breaker','Teravolt','Turboblaze']);
 // Contrary đảo dấu mọi thay đổi cấp chỉ số — nút +/− trên card phải đổi chiều theo.
@@ -1240,7 +1252,12 @@ function buildMon(cfg,weather){
   if(fx.spdWx2 && fx.spdWx2===weather)spe=spe*2;
   if(cfg.par)spe=Math.floor(spe/2); // tê liệt: tốc độ ½
   S.speEff=spe;
-  const mon={species,baseSpecies:cfg.species,types:d.t,base:d.s,w:d.w||50,ability,item,nature:cfg.nature,S,est:d.est,mega,fx,brn:!!cfg.brn,par:!!cfg.par,defOff:!!cfg.defOff,
+  /* Protean/Libero đã kích hoạt: ép mon.types thành ĐƠN hệ đã khoá, ngay tại đây thay vì vá riêng
+     chỗ tính STAB. Cả engine đọc types từ một chỗ này, nên một dòng vá luôn 4 đường: STAB, bảng
+     khắc chế khi con này CHỊU đòn, buff thủ của Băng trong tuyết, và Freeze-Dry vs Nước.
+     '' = chưa ra chiêu → giữ hệ gốc, calcDamage cho mọi chiêu ăn STAB (xem TYPECHG_ABIL). */
+  const proType=(TYPECHG_ABIL.has(ability)&&TYPES.includes(cfg.proType))?cfg.proType:'';
+  const mon={species,baseSpecies:cfg.species,types:proType?[proType]:d.t,baseTypes:d.t,base:d.s,w:d.w||50,ability,item,nature:cfg.nature,S,est:d.est,mega,fx,brn:!!cfg.brn,par:!!cfg.par,defOff:!!cfg.defOff,proType,
     hpPct:(cfg.hpPct===undefined?100:cfg.hpPct)}; // chỉ dùng cho chiêu BP-theo-máu
   // Stance Change: khi tấn công dùng chỉ số công của dạng Blade
   if(ability==='Stance Change' && !/-Blade$/.test(species)){
@@ -1406,7 +1423,11 @@ function calcDamage(atk,def,moveName,field){
   if(di.balloon&&mtype==='Ground')e=0; // Air Balloon
   if(m.fd&&def.types.includes('Water')&&e>0)e=e*4; // Freeze-Dry: Băng 0.5 vs Nước -> 2
   const adapt=afx.adapt?2:1.5;
-  const stab=atk.types.includes(mtype)?adapt:1;
+  /* Protean/Libero CHƯA kích hoạt (atk.proType rỗng): hệ người dùng sẽ hoá thành hệ chiêu ngay trước
+     khi đánh → chiêu nào cũng có STAB. Khi ĐÃ khoá hệ thì không cần nhánh này nữa: buildMon đã ép
+     atk.types=[hệ khoá] nên phép so hệ bên dưới tự ra đúng. */
+  const protean=!noAtkAb&&TYPECHG_ABIL.has(atk.ability)&&!atk.proType;
+  const stab=(protean||atk.types.includes(mtype))?adapt:1;
   let weather=1;
   if(field.weather==='sun'){if(mtype==='Fire')weather=1.5;if(mtype==='Water')weather=.5;}
   if(field.weather==='rain'){if(mtype==='Water')weather=1.5;if(mtype==='Fire')weather=.5;}
@@ -1491,11 +1512,31 @@ function koLabel(res){const{min,max,hp}=res;
   if(min*3>=hp)return{t:'3HKO chắc',cls:'safe'};
   if(max*3>=hp){const p=koChance(res,3);return{t:p===null?'3HKO':`3HKO ${koPctText(p)}%`,cls:'safe'};}
   return{t:'≥4 đòn',cls:'safe'};}
+/* Ô chọn hệ đã khoá của Protean/Libero, đặt cạnh 🛡/🔥/⚡ trên card. Rỗng = con đó chưa ra chiêu.
+   Chỉ liệt kê hệ mà con này THỰC SỰ đánh được (hệ của chiêu trong set) + hệ gốc, vì Protean chỉ khoá
+   được sang hệ của chiêu nó vừa dùng — đổ cả 18 hệ ra thì đa số là trạng thái không thể xảy ra.
+   Set chưa điền chiêu thì mới rơi về đủ 18 hệ. */
+function proSel(mon,moves,kind,i){
+  if(!TYPECHG_ABIL.has(mon.ability))return '';
+  const cur=mon.proType||'';
+  const own=[...new Set((moves||[]).map(m=>MOVES[m]).filter(m=>m&&m.c!=='stat').map(m=>m.t))];
+  let list=[...new Set([...own,...(mon.baseTypes||mon.types)])].filter(t=>TYPES.includes(t));
+  if(!list.length)list=TYPES.slice();
+  if(cur&&!list.includes(cur))list.push(cur);           // đừng nuốt mất lựa chọn đang lưu
+  list.sort((a,b)=>TYPES.indexOf(a)-TYPES.indexOf(b));
+  return `<select class="pro-sel${cur?' locked':''}" data-pro="${kind}" data-i="${i}" title="${mon.ability}: đổi hệ thành hệ của chiêu ngay trước khi đánh, và chỉ kích hoạt 1 lần mỗi lần ra sân.&#10;· Chưa ra chiêu → MỌI chiêu ăn STAB ×1.5.&#10;· Đã khoá hệ → chỉ chiêu hệ đó còn STAB, và con này chịu đòn theo bảng khắc chế của hệ đó.">`
+    +`<option value=""${cur?'':' selected'}>🎨 ${mon.ability}: chưa ra chiêu</option>`
+    +list.map(t=>`<option value="${t}"${t===cur?' selected':''}>🎨 đã khoá: ${TYPE_VI[t]}</option>`).join('')
+    +`</select>`;
+}
 // Badge cạnh tên con: 🛡 giảm dmg nhận · ⚠ ability engine chưa mô hình hoá (số có thể lệch) · 🎯 hút chiêu ở doubles.
 // opts.shield/opts.redirect=false để tắt khi con đó đang ĐÁNH (2 badge kia chỉ hợp lý khi con là bên THỦ/mục tiêu).
 function abilBadges(mon,opts){
   opts=opts||{};let h='';
   if(opts.shield!==false&&DEF_ABIL_FX[mon.ability]&&!mon.defOff)h+=` <span title="${mon.ability}: giảm sát thương nhận vào — đã trừ trong ô bên dưới" style="color:#7db8ff">🛡</span>`;
+  if(TYPECHG_ABIL.has(mon.ability))h+=mon.proType
+    ? ` <span title="${mon.ability}: đã khoá thành hệ ${TYPE_VI[mon.proType]} thuần — chỉ chiêu hệ này còn STAB, và nó chịu đòn theo bảng khắc chế của hệ ${TYPE_VI[mon.proType]}." style="color:#d7a6ff">🎨${TYPE_VI[mon.proType]}</span>`
+    : ` <span title="${mon.ability}: chưa ra chiêu — sẽ đổi hệ theo chiêu ngay trước khi đánh, nên MỌI chiêu đều ăn STAB ×1.5 (đã tính trong ô bên dưới). Chọn hệ đã khoá trên card sau khi nó đánh chiêu đầu." style="color:#5fd9b4">🎨</span>`;
   if(WARN_ABIL.has(mon.ability))h+=` <span title="${mon.ability}: engine CHƯA mô hình hoá ability này — con số có thể lệch, tự nhẩm thêm." style="color:#ffb454">⚠</span>`;
   if(opts.redirect!==false&&FIELD.mode==='double'&&REDIRECT_ABIL.has(mon.ability))h+=` <span title="${mon.ability}: ở đánh đôi HÚT chiêu ĐƠN mục tiêu của bạn về nó — đòn nhắm đồng đội có thể bị chuyển hướng." style="color:#e8985a">🎯</span>`;
   return h;
@@ -1734,6 +1775,7 @@ function renderMyPick(){
         <button class="oc-tgl brn${s.brn?' on':''}" data-act="brn" data-kind="me" data-i="${i}">🔥 BRN</button>
         <button class="oc-tgl par${s.par?' on':''}" data-act="par" data-kind="me" data-i="${i}">⚡ PAR</button>
         ${DEF_ABIL_FX[mon.ability]?`<button class="oc-tgl shield${s.defOff?'':' on'}" data-act="defoff" data-kind="me" data-i="${i}" title="${mon.ability}: ${DEF_ABIL_FX[mon.ability].full?'chỉ khi full HP. ':''}Bấm để tắt khi con này không còn đủ điều kiện kích hoạt.">🛡 ${mon.ability}${s.defOff?' (tắt)':''}</button>`:''}
+        ${proSel(mon,moves,'me',i)}
         <button class="oc-tgl" data-act="edit" data-kind="me" data-i="${i}">✎ Sửa set</button>
       </div>
       <div>${typeChips(mon.types,1)} <span class="stat-mini" style="margin-left:6px">● ${mon.ability||''}</span></div>
@@ -1741,6 +1783,12 @@ function renderMyPick(){
       ${moves.length?`<div class="oc-tgls" style="margin:7px 0 0">${moves.map(m=>`<span class="pill mv">${m}</span>`).join('')}</div>`:''}
     </div>`;
   }).join('');
+  // select không đi qua handler [data-act] (onclick) — phải bắt riêng sự kiện change.
+  box.querySelectorAll('.pro-sel[data-pro="me"]').forEach(el=>{
+    el.onclick=e=>e.stopPropagation();   // đừng để click vào ô chọn thành "chọn/bỏ ra trận"
+    el.onchange=()=>{const s=MYTEAM[+el.dataset.i];if(!s)return;
+      s.proType=el.value;saveTeam();renderMyPick();calcRefresh();renderSpeedTier();};
+  });
   box.querySelectorAll('[data-act]').forEach(el=>el.onclick=e=>{
     e.stopPropagation();const i=+el.dataset.i,s=MYTEAM[i];if(!s)return;const act=el.dataset.act;
     if(act==='pick'){
@@ -1789,7 +1837,8 @@ function oppDisplay(o){
   SPKEYS.forEach(k=>{let v=base[k];const s=st[k]||0;if(s&&k!=='hp')v=Math.floor(v*stageMul(s));
     if(k==='atk'&&o.brn)v=Math.floor(v/2);if(k==='spe'&&o.par)v=Math.floor(v/2);disp[k]=v;});
   // ability/item lấy từ mon (đã qua buildMon) chứ không từ cfg: Mega đổi cả hai.
-  return {eff,g,mon,disp,ability:mon.ability,item:mon.item};
+  // moves = chiêu đã lộ hoặc chiêu theo usage — ô chọn hệ Protean lọc danh sách hệ theo đó.
+  return {eff,g,mon,disp,ability:mon.ability,item:mon.item,moves:cfg.moves};
 }
 let _megaFormsCache=null;
 function megaFormesOf(base){
@@ -1810,11 +1859,17 @@ function renderOpp(){
     const osel=OPICK.includes(i);
     return `<div class="opp-card${osel?' sel':''}" data-i="${i}">
       <div class="oc-head">${spriteImg(d.eff)}<b data-act="pick" data-i="${i}" title="Bấm chọn/bỏ ra trận (lọc tab Phân tích)">${d.eff}</b>${osel?'<span class="pill on-field">RA TRẬN</span>':''}${d.mon.mega?'<span class="pill mg">MEGA</span>':''}${d.item&&d.item!=='Không'?`<span class="stat-mini">@ ${d.item}</span>`:''}<span class="oc-x" data-act="del" data-i="${i}" title="Xoá">✕</span></div>
-      <div class="oc-tgls">${megaBtns}<button class="oc-tgl brn${o.brn?' on':''}" data-act="brn" data-i="${i}">🔥 BRN</button><button class="oc-tgl par${o.par?' on':''}" data-act="par" data-i="${i}">⚡ PAR</button>${DEF_ABIL_FX[d.ability]?`<button class="oc-tgl shield${o.defOff?'':' on'}" data-act="defoff" data-i="${i}" title="${d.ability}: ${DEF_ABIL_FX[d.ability].full?'chỉ khi full HP. ':''}Bấm để tắt nếu đối thủ không dùng ability này hoặc không còn đủ điều kiện.">🛡 ${d.ability}${o.defOff?' (tắt)':''}</button>`:''}<button class="oc-tgl" data-act="edit" data-i="${i}">✎ Sửa chiêu/đồ</button></div>
-      <div>${typeChips(DEX[d.eff].t,1)} <span class="stat-mini" style="margin-left:6px">● ${d.ability}</span></div>
+      <div class="oc-tgls">${megaBtns}<button class="oc-tgl brn${o.brn?' on':''}" data-act="brn" data-i="${i}">🔥 BRN</button><button class="oc-tgl par${o.par?' on':''}" data-act="par" data-i="${i}">⚡ PAR</button>${DEF_ABIL_FX[d.ability]?`<button class="oc-tgl shield${o.defOff?'':' on'}" data-act="defoff" data-i="${i}" title="${d.ability}: ${DEF_ABIL_FX[d.ability].full?'chỉ khi full HP. ':''}Bấm để tắt nếu đối thủ không dùng ability này hoặc không còn đủ điều kiện.">🛡 ${d.ability}${o.defOff?' (tắt)':''}</button>`:''}${proSel(d.mon,d.moves,'opp',i)}<button class="oc-tgl" data-act="edit" data-i="${i}">✎ Sửa chiêu/đồ</button></div>
+      <div>${typeChips(d.mon.types,1)} <span class="stat-mini" style="margin-left:6px">● ${d.ability}</span></div>
       ${statGrid(d.disp,d.g.sp,nat,o.stages,i,'opp')}
     </div>`;
   }).join('');
+  // select không đi qua handler [data-act] (onclick) — phải bắt riêng sự kiện change.
+  box.querySelectorAll('.pro-sel[data-pro="opp"]').forEach(el=>{
+    el.onclick=e=>e.stopPropagation();
+    el.onchange=()=>{const o=OPP[+el.dataset.i];if(!o)return;
+      o.proType=el.value;saveOpp();renderOpp();calcRefresh();renderSpeedTier();};
+  });
   box.querySelectorAll('[data-act]').forEach(el=>el.onclick=e=>{
     e.stopPropagation();const i=+el.dataset.i,o=OPP[i];if(!o)return;const act=el.dataset.act;
     if(act==='pick'){OPICK=OPICK.includes(i)?OPICK.filter(x=>x!==i):[...OPICK,i];renderOpp();calcRefresh();return;}
@@ -2005,6 +2060,17 @@ function usageOf(species){
   for(const c of cands)if(USAGEDATA[c])return USAGEDATA[c];
   return null;
 }
+/* Đoán ability của một con CHƯA LỘ: ưu tiên usage; usage không nói thì ưu tiên ability
+   ĐỊNH HÌNH TRẬN ĐẤU (giảm dmg / miễn nhiễm / hút chiêu / Protean đổi hệ) vì gần như luôn là
+   lựa chọn thi đấu và đổi hẳn con số — chứ không lấy bừa ab[0] của dex (Greninja ab[0]=Torrent,
+   trong khi thực chiến là Protean, chênh nhau ×1.5 damage trên mọi chiêu phủ).
+   usageKey tách khỏi species vì dạng Mega tra usage theo tên gốc, nhưng abList phải theo dạng đang đứng. */
+function guessAbility(species,usageKey){
+  const abList=(DEX[species]||DEX[usageKey]).ab;
+  const u=usageOf(usageKey);
+  if(u&&u.a&&abList.includes(u.a))return u.a;
+  return abList.find(a=>DEF_ABIL_FX[a]||ABIL_IMMUNE[a]||REDIRECT_ABIL.has(a)||TYPECHG_ABIL.has(a))||abList[0];
+}
 /* forme: ép về một dạng cụ thể (VD dòng "nếu Mega" ở speed order). Ability vẫn suy lại
    theo usage nhưng phải hợp lệ với dạng đó — Mega Y không có Blaze của Charizard gốc. */
 function oppCfgOf(o,forme){
@@ -2013,11 +2079,7 @@ function oppCfgOf(o,forme){
   const u=usageOf(o.species);
   const revealed=(o.moves||[]).length;
   const moves=revealed?o.moves:(u?u.m.filter(m=>MOVES[m]):[]);
-  const abList=(DEX[species]||DEX[o.species]).ab;
-  // ability: ưu tiên usage; nếu usage không nói → ưu tiên ability ĐỊNH HÌNH TRẬN ĐẤU
-  // (giảm dmg / miễn nhiễm hút chiêu / redirect) vì gần như luôn là lựa chọn thi đấu, và đổi cả kết quả.
-  const ability=(u&&u.a&&abList.includes(u.a))?u.a:(abList.find(a=>DEF_ABIL_FX[a]||ABIL_IMMUNE[a]||REDIRECT_ABIL.has(a))||abList[0]);
-  return {species,nature:g.nature,ability,item:o.item||'Không',sp:g.sp,moves,usage:!revealed&&!!u,brn:!!o.brn,par:!!o.par,defOff:!!o.defOff};
+  return {species,nature:g.nature,ability:guessAbility(species,o.species),item:o.item||'Không',sp:g.sp,moves,usage:!revealed&&!!u,brn:!!o.brn,par:!!o.par,defOff:!!o.defOff,proType:o.proType||''};
 }
 function matchup(mySet,oppSet,weather){
   const oppCfg=oppCfgOf(oppSet);
@@ -2570,7 +2632,7 @@ function resolvePick(val){ // -> cfg {species,nature,ability,item,sp,moves?}
     return Object.assign(oppCfgOf(o,sp),{guessed:1});}
   let n=val.slice(4);if(!DEX[n])n='Great Tusk';
   const g=guessSpread(n);
-  return {species:n,nature:g.nature,ability:DEX[n].ab[0],item:'Không',sp:g.sp,guessed:1};
+  return {species:n,nature:g.nature,ability:guessAbility(n,n),item:'Không',sp:g.sp,guessed:1};
 }
 let ATK_MOVES=null; // override moves list
 function bestCounter(species,moves,item){
@@ -2766,7 +2828,7 @@ function runCalc(){
   const best=results[0];
   const scOn=Object.keys(field.screens).filter(k=>field.screens[k]);
   const scNote=scOn.length?`, màn chắn bên thủ (${scOn.map(k=>({reflect:'Reflect',lscreen:'Light Screen',aurora:'Aurora Veil'})[k]).join(' + ')})`:'';
-  $('#calcNote').innerHTML=`${spdCmp} &nbsp; ${best?`Mạnh nhất: <b>${best.move}</b> → ${koLabel(best).t} (${best.pctMin.toFixed(0)}–${best.pctMax.toFixed(0)}%).`:''}${truncNote} ${(statusMoves.length&&!fromLearnset)?`<span class="muted">· Chiêu status trong set: ${statusMoves.join(', ')}</span>`:''}<br><span class="tiny muted">Đã áp: STAB${A.fx.adapt?' (Adaptability ×2)':''}, hệ, thời tiết, crit, bỏng, item, ${A.fx.atkX2?'Huge Power, ':''}${field.aura?'Fairy Aura, ':''}${field.hh?'Helping Hand, ':''}stage${scNote}${field.spread?(field.single?', đấu đôi (Single Target — chiêu lan KHÔNG giảm)':', đấu đôi (chiêu lan ×0.75)'):''}.</span>`;
+  $('#calcNote').innerHTML=`${spdCmp} &nbsp; ${best?`Mạnh nhất: <b>${best.move}</b> → ${koLabel(best).t} (${best.pctMin.toFixed(0)}–${best.pctMax.toFixed(0)}%).`:''}${truncNote} ${(statusMoves.length&&!fromLearnset)?`<span class="muted">· Chiêu status trong set: ${statusMoves.join(', ')}</span>`:''}<br><span class="tiny muted">Đã áp: STAB${A.fx.adapt?' (Adaptability ×2)':''}${TYPECHG_ABIL.has(A.ability)?(A.proType?` (${A.ability} đã khoá hệ ${TYPE_VI[A.proType]})`:` (${A.ability} chưa ra chiêu: MỌI chiêu ăn STAB — chọn hệ đã khoá ở ô 🎨 trên card)`):''}, hệ, thời tiết, crit, bỏng, item, ${A.fx.atkX2?'Huge Power, ':''}${field.aura?'Fairy Aura, ':''}${field.hh?'Helping Hand, ':''}stage${scNote}${field.spread?(field.single?', đấu đôi (Single Target — chiêu lan KHÔNG giảm)':', đấu đôi (chiêu lan ×0.75)'):''}.</span>`;
 }
 $('#swapBtn').onclick=()=>{const a=$('#atkPick').value,d=$('#defPick').value;setPick('atk',d);setPick('def',a);};
 function calcRefresh(){runCalc();if(CALC_MODE==='me')renderMyToOpp();if(CALC_MODE==='analyze')renderAnalyze();}

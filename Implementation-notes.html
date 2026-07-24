@@ -48,6 +48,68 @@
 
 <div class="wrap">
 
+<h2>Đợt 24 — Protean/Libero: STAB cho mọi chiêu + ô chọn hệ đã khoá</h2>
+<div class="card bad">
+  <h3>Lỗi gốc: <code>stab</code> đọc hệ tĩnh của DEX nên Protean vô hình với engine</h3>
+  <p><code>const stab=atk.types.includes(mtype)?adapt:1</code> lấy hệ từ DEX, mà <code>'Protean'</code> chưa
+  từng có trong <code>ABIL_FX</code>. Protean đổi hệ người dùng thành hệ của chiêu <b>ngay trước khi</b> chiêu
+  chạy, nên trong trận mọi chiêu đều ăn STAB. Đo trên Mega Greninja (Water/Dark, usage 100% Protean):</p>
+  <table>
+    <tr><th>Tình huống</th><th>Trước</th><th>Sau</th></tr>
+    <tr><td>Ice Beam khi chưa ra chiêu</td><td>×1.0 — hụt ~33%</td><td>×1.5 STAB</td></tr>
+    <tr><td>Hydro Pump khi đã khoá hệ Băng</td><td>×1.5 — dư ~50%</td><td>×1.0</td></tr>
+    <tr><td>Chịu Flamethrower khi đã khoá hệ Băng</td><td>×1 (Water kháng Fire)</td><td>×2</td></tr>
+  </table>
+  <p>Sai <b>cả ba chiều</b> — công, phòng, và theo hai hướng ngược nhau — nên không thể "cứ cho STAB hết"
+  rồi thôi.</p>
+</div>
+<div class="card">
+  <h3>Dropdown chọn hệ đã khoá, không phải boolean bật/tắt</h3>
+  <p>Bản đầu làm nút boolean bám khuôn 🛡 <code>defOff</code>. Bỏ, vì boolean không diễn tả được thứ quan
+  trọng nhất: <b>khoá sang hệ nào</b>. Trạng thái "tắt" khi đó phải rơi về hệ gốc, nên Greninja đã mở Ice
+  Beam vẫn được cộng STAB oan cho Hydro Pump, và phía thủ vẫn tính kháng theo Water/Dark — tức là trạng
+  thái tắt sai gần hết trừ đúng nhóm chiêu ngoài hệ gốc.</p>
+  <p>Với <code>proType</code> (rỗng = chưa ra chiêu, hoặc tên 1 hệ), cả 3 dòng trong bảng trên đều ra đúng
+  và không còn đánh đổi nào phải ghi chú.</p>
+</div>
+<div class="card">
+  <h3>Ép hệ ở <code>buildMon</code>, không vá riêng chỗ tính STAB</h3>
+  <p>Một dòng <code>types:proType?[proType]:d.t</code> vá luôn 4 đường vốn đều đọc <code>types</code>:
+  STAB, bảng khắc chế khi con này <i>chịu</i> đòn, buff thủ ×1.5 của Băng trong tuyết, và ngoại lệ
+  Freeze-Dry vs Nước. Vá ở <code>calcDamage</code> thì chỉ được đường đầu, ba đường sau vẫn sai âm thầm —
+  đúng loại lỗi mà Đợt 23 đã dính với <code>mon.mega</code>.</p>
+  <p>Giữ thêm <code>baseTypes</code> vì ô chọn hệ cần hệ <i>gốc</i> để dựng danh sách; nếu đọc
+  <code>mon.types</code> thì sau khi khoá một lần, danh sách tự co lại còn đúng hệ vừa khoá và không quay
+  ra được nữa.</p>
+  <p><b>Cố ý không</b> cho Protean đi qua <code>ABIL_FX</code>: các cờ ở đó đều là hệ số nhân, còn Protean
+  là điều kiện của một phép so hệ. Nhánh <code>protean</code> trong <code>calcDamage</code> chỉ còn lo
+  đúng trạng thái <i>chưa</i> khoá, và đặt sau <code>noAtkAb</code> để Neutralizing Gas tắt được nó cùng
+  cơ chế với Adaptability.</p>
+</div>
+<div class="card">
+  <h3>Ô chọn chỉ liệt kê hệ con đó đánh được, không đổ cả 18 hệ</h3>
+  <p>Protean chỉ khoá được sang hệ của chiêu nó <i>vừa dùng</i>, nên 18 option thì phần lớn là trạng thái
+  không thể xảy ra và người dùng phải dò. Danh sách dựng từ hệ của các chiêu trong set + hệ gốc — Greninja
+  còn đúng 3 dòng (Nước / Băng / Bóng tối). Set chưa điền chiêu mới rơi về đủ 18 hệ.</p>
+  <p>Có nhánh <code>if(cur&amp;&amp;!list.includes(cur))</code>: sửa chiêu trong set sau khi đã khoá hệ có
+  thể làm hệ đang lưu biến khỏi danh sách, và một <code>&lt;select&gt;</code> không chứa value hiện tại sẽ
+  âm thầm nhảy về option đầu — mất trạng thái mà không báo gì.</p>
+  <p><b>Đánh đổi:</b> <code>&lt;select&gt;</code> không đi qua handler <code>[data-act]</code> (dùng
+  <code>onclick</code>) nên phải nối <code>change</code> riêng cho mỗi card, kèm
+  <code>onclick=stopPropagation</code> — không có nó thì bấm vào ô chọn bị card hiểu là "chọn/bỏ ra trận".</p>
+</div>
+<div class="card warn">
+  <h3><code>guessAbility</code> tách ra vì <code>ab[0]</code> chọn sai ability cho con chưa lộ</h3>
+  <p>Nhánh <code>dex:</code> của <code>resolvePick</code> lấy thẳng <code>DEX[n].ab[0]</code> — với Greninja
+  là <b>Torrent</b>, nên chọn Greninja từ ô gõ-tìm sẽ không thấy nút 🎨 và hụt ×1.5 trên mọi chiêu, trông
+  y như tính năng hỏng. Logic ưu tiên ability "định hình trận đấu" vốn chỉ nằm trong <code>oppCfgOf</code>;
+  giờ tách thành <code>guessAbility(species, usageKey)</code> cho cả hai chỗ dùng chung, và thêm
+  <code>TYPECHG_ABIL</code> vào danh sách ưu tiên đó.</p>
+  <p><code>usageKey</code> tách khỏi <code>species</code> vì dạng Mega phải tra usage theo <b>tên gốc</b>
+  nhưng danh sách ability phải theo <b>dạng đang đứng</b> — gộp một tham số là tái hiện đúng lỗi
+  "Mega Y không có Blaze" đã vá ở đợt trước.</p>
+</div>
+
 <h2>Đợt 23 — Mega của đối thủ: đá Mega chiếm ô đồ, và tên dạng lan xuống 2 bảng damage</h2>
 <div class="card bad">
   <h3>Lỗi gốc: con đã Mega vẫn được tính là đang cầm <b>Choice Specs</b></h3>
